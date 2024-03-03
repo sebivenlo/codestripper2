@@ -34,7 +34,7 @@ import org.apache.maven.project.MavenProject;
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
 @Mojo( name = "validate-stripped-code",
-        defaultPhase = LifecyclePhase.PACKAGE )
+        defaultPhase = LifecyclePhase.NONE )
 public class StrippedCodeValidator extends AbstractMojo {
 
     @Parameter( defaultValue = "${project}", required = true, readonly = true )

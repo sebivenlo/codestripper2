@@ -27,7 +27,7 @@ public class CodeStripper {
         try ( Zipper solution = new Zipper( "target/solution.zip" ); //
                   Zipper assignment = new Zipper( "target/assignment.zip" ); ) {
             processTextFiles( root, solution, assignment );
-            processBinarFiles( root, solution, assignment );
+            processBinaryFiles( root, solution, assignment );
         } catch ( Exception ex ) {
             Logger.getLogger( CodeStripper.class.getName() )
                     .log( Level.SEVERE, null, ex );
@@ -76,7 +76,7 @@ public class CodeStripper {
      * @param assignment zip container for assignment files
      * @throws IOException should not occur.
      */
-    void processBinarFiles(String root,
+    void processBinaryFiles(String root,
             final Zipper solution, final Zipper assignment) throws IOException {
         Files.walk( Path.of( root ), Integer.MAX_VALUE )
                 .filter( f -> !Files.isDirectory( f ) )
@@ -98,11 +98,9 @@ public class CodeStripper {
      */
     void addFile(Path file, Zipper solution, Zipper assignment) {
         // prepend solution in solution
-
-        System.out.println( "add file = " + file.toString() );
         solution.add( Path.of( "solution", file.toString() ), file );
         assignment.add( Path.of( "assignment", file.toString() ), file );
-        // put file in outDir too, prepending 
+        // put file in outDir too, prepending
         Path targetFile = outDir.resolve( file );
         try {
             Files.createDirectories( targetFile.getParent() );

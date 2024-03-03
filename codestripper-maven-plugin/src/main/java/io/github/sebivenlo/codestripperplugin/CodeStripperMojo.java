@@ -14,7 +14,7 @@ import org.apache.maven.plugins.annotations.Mojo;
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
 @Mojo( name = "strip",
-        defaultPhase = LifecyclePhase.PACKAGE )
+        defaultPhase = LifecyclePhase.NONE )
 public class CodeStripperMojo extends AbstractMojo {
 
     @Override
