@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import static java.util.Map.entry;
-import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -68,11 +67,6 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 ;
         pattern = Pattern.compile( myPreciousRegex );
         this.transforms = new HashMap<>( defaultTransforms );
-        for ( TagProvider tagProvider : pluginLoader ) {
-            Map<String, Function<Processor, Stream<String>>> newTags = tagProvider
-                    .newTags();
-            this.transforms.putAll( newTags );
-        }
     }
 
     /**
@@ -85,14 +79,18 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     }
 
     final Map<String, Function<Processor, Stream<String>>> transforms;
-    private static ServiceLoader<TagProvider> pluginLoader
-            = ServiceLoader.load( TagProvider.class );
 
     Matcher matcherFor(String line) {
         Matcher m = pattern.matcher( line );
         return m;
     }
 
+    /**
+     * For testing
+     *
+     * @return the known set of instructions.
+     *
+     */
     String[] getInstructions() {
         return transforms.keySet().stream().sorted().toArray( String[]::new );
     }
