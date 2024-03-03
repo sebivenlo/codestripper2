@@ -1,0 +1,84 @@
+@options
+@packages
+-classpath
+'/home/hom/.m2/repository/org/apache/maven/maven-plugin-api/3.9.6/maven-plugin-api-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/maven-model/3.9.6/maven-model-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/maven-artifact/3.9.6/maven-artifact-3.9.6.jar:/home/hom/.m2/repository/org/eclipse/sisu/org.eclipse.sisu.plexus/0.9.0.M2/org.eclipse.sisu.plexus-0.9.0.M2.jar:/home/hom/.m2/repository/javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar:/home/hom/.m2/repository/org/codehaus/plexus/plexus-utils/3.5.1/plexus-utils-3.5.1.jar:/home/hom/.m2/repository/org/codehaus/plexus/plexus-classworlds/2.7.0/plexus-classworlds-2.7.0.jar:/home/hom/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-annotations/3.11.0/maven-plugin-annotations-3.11.0.jar:/home/hom/.m2/repository/org/apache/maven/maven-core/3.9.6/maven-core-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/maven-settings/3.9.6/maven-settings-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/maven-settings-builder/3.9.6/maven-settings-builder-3.9.6.jar:/home/hom/.m2/repository/org/codehaus/plexus/plexus-sec-dispatcher/2.0/plexus-sec-dispatcher-2.0.jar:/home/hom/.m2/repository/org/codehaus/plexus/plexus-cipher/2.0/plexus-cipher-2.0.jar:/home/hom/.m2/repository/org/apache/maven/maven-builder-support/3.9.6/maven-builder-support-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/maven-repository-metadata/3.9.6/maven-repository-metadata-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/maven-model-builder/3.9.6/maven-model-builder-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/maven-resolver-provider/3.9.6/maven-resolver-provider-3.9.6.jar:/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-impl/1.9.18/maven-resolver-impl-1.9.18.jar:/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-named-locks/1.9.18/maven-resolver-named-locks-1.9.18.jar:/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-api/1.9.18/maven-resolver-api-1.9.18.jar:/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-spi/1.9.18/maven-resolver-spi-1.9.18.jar:/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-util/1.9.18/maven-resolver-util-1.9.18.jar:/home/hom/.m2/repository/org/apache/maven/shared/maven-shared-utils/3.3.4/maven-shared-utils-3.3.4.jar:/home/hom/.m2/repository/org/eclipse/sisu/org.eclipse.sisu.inject/0.9.0.M2/org.eclipse.sisu.inject-0.9.0.M2.jar:/home/hom/.m2/repository/com/google/inject/guice/5.1.0/guice-5.1.0.jar:/home/hom/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar:/home/hom/.m2/repository/com/google/guava/guava/32.0.1-jre/guava-32.0.1-jre.jar:/home/hom/.m2/repository/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar:/home/hom/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar:/home/hom/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.26/plexus-interpolation-1.26.jar:/home/hom/.m2/repository/org/codehaus/plexus/plexus-component-annotations/2.1.0/plexus-component-annotations-2.1.0.jar:/home/hom/.m2/repository/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar:/home/hom/.m2/repository/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar'
+-encoding
+'UTF-8'
+-protected
+--release
+17
+-sourcepath
+'/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java:/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2024. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'codestripper-maven-plugin 0.1 API'
+-use
+-version
+-windowtitle
+'codestripper-maven-plugin 0.1 API'
+io.github.sebivenlo.codestripperplugin
+streamprocessor
+codestripper
+/home/hom/.m2/repository/org/apache/maven/maven-plugin-api/3.9.6/maven-plugin-api-3.9.6.jar = 1701165732000
+/home/hom/.m2/repository/org/apache/maven/maven-model/3.9.6/maven-model-3.9.6.jar = 1701165723000
+/home/hom/.m2/repository/org/apache/maven/maven-artifact/3.9.6/maven-artifact-3.9.6.jar = 1701165728000
+/home/hom/.m2/repository/org/eclipse/sisu/org.eclipse.sisu.plexus/0.9.0.M2/org.eclipse.sisu.plexus-0.9.0.M2.jar = 1683328408000
+/home/hom/.m2/repository/javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar = 1366997908000
+/home/hom/.m2/repository/org/codehaus/plexus/plexus-utils/3.5.1/plexus-utils-3.5.1.jar = 1677720226000
+/home/hom/.m2/repository/org/codehaus/plexus/plexus-classworlds/2.7.0/plexus-classworlds-2.7.0.jar = 1668277171000
+/home/hom/.m2/repository/org/apache/maven/plugin-tools/maven-plugin-annotations/3.11.0/maven-plugin-annotations-3.11.0.jar = 1704629183000
+/home/hom/.m2/repository/org/apache/maven/maven-core/3.9.6/maven-core-3.9.6.jar = 1701165779000
+/home/hom/.m2/repository/org/apache/maven/maven-settings/3.9.6/maven-settings-3.9.6.jar = 1701165746000
+/home/hom/.m2/repository/org/apache/maven/maven-settings-builder/3.9.6/maven-settings-builder-3.9.6.jar = 1701165750000
+/home/hom/.m2/repository/org/codehaus/plexus/plexus-sec-dispatcher/2.0/plexus-sec-dispatcher-2.0.jar = 1631273019000
+/home/hom/.m2/repository/org/codehaus/plexus/plexus-cipher/2.0/plexus-cipher-2.0.jar = 1631129480000
+/home/hom/.m2/repository/org/apache/maven/maven-builder-support/3.9.6/maven-builder-support-3.9.6.jar = 1701165735000
+/home/hom/.m2/repository/org/apache/maven/maven-repository-metadata/3.9.6/maven-repository-metadata-3.9.6.jar = 1701165753000
+/home/hom/.m2/repository/org/apache/maven/maven-model-builder/3.9.6/maven-model-builder-3.9.6.jar = 1701165743000
+/home/hom/.m2/repository/org/apache/maven/maven-resolver-provider/3.9.6/maven-resolver-provider-3.9.6.jar = 1701165759000
+/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-impl/1.9.18/maven-resolver-impl-1.9.18.jar = 1700668977000
+/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-named-locks/1.9.18/maven-resolver-named-locks-1.9.18.jar = 1700668946000
+/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-api/1.9.18/maven-resolver-api-1.9.18.jar = 1700668910000
+/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-spi/1.9.18/maven-resolver-spi-1.9.18.jar = 1700668915000
+/home/hom/.m2/repository/org/apache/maven/resolver/maven-resolver-util/1.9.18/maven-resolver-util-1.9.18.jar = 1700668928000
+/home/hom/.m2/repository/org/apache/maven/shared/maven-shared-utils/3.3.4/maven-shared-utils-3.3.4.jar = 1619446013000
+/home/hom/.m2/repository/org/eclipse/sisu/org.eclipse.sisu.inject/0.9.0.M2/org.eclipse.sisu.inject-0.9.0.M2.jar = 1683327942000
+/home/hom/.m2/repository/com/google/inject/guice/5.1.0/guice-5.1.0.jar = 1643061976000
+/home/hom/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar = 1122888234000
+/home/hom/.m2/repository/com/google/guava/guava/32.0.1-jre/guava-32.0.1-jre.jar = 1686264060000
+/home/hom/.m2/repository/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar = 1542650246000
+/home/hom/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar = 1255476900000
+/home/hom/.m2/repository/org/codehaus/plexus/plexus-interpolation/1.26/plexus-interpolation-1.26.jar = 1561594244000
+/home/hom/.m2/repository/org/codehaus/plexus/plexus-component-annotations/2.1.0/plexus-component-annotations-2.1.0.jar = 1571826583000
+/home/hom/.m2/repository/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar = 1614372051000
+/home/hom/.m2/repository/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar = 1644327230000
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java = 1709468512241
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/generated-sources/annotations = 1709484313542
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/element-list = 1709484318394
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/overview-tree.html = 1709484318426
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/index.html = 1709484318430
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/allclasses-index.html = 1709484318434
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/allpackages-index.html = 1709484318438
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/module-search-index.js = 1709484318438
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/package-search-index.js = 1709484318438
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/type-search-index.js = 1709484318438
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/member-search-index.js = 1709484318438
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/tag-search-index.js = 1709484318438
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/index-all.html = 1709484318446
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/search.html = 1709484318450
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/overview-summary.html = 1709484318450
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/help-doc.html = 1709484318450
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/stylesheet.css = 1709484318450
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/script.js = 1709484318450
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/copy.svg = 1709484318454
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/link.svg = 1709484318454
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/search.js = 1709484318454
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/target/apidocs/search-page.js = 1709484318454

@@ -1,0 +1,7 @@
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java/codestripper/CodeStripper.java
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java/codestripper/Zipper.java
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java/io/github/sebivenlo/codestripperplugin/CodeStripperMojo.java
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidator.java
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java/streamprocessor/Processor.java
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java/streamprocessor/ProcessorFactory.java
+/home/hom/sebi/sebivenlo.git/codestripper/codestripper-maven-plugin/src/main/java/streamprocessor/TagProvider.java
