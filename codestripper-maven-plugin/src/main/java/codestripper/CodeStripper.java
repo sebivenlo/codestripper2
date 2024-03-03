@@ -102,6 +102,7 @@ public class CodeStripper {
         System.out.println( "add file = " + file.toString() );
         solution.add( Path.of( "solution", file.toString() ), file );
         assignment.add( Path.of( "assignment", file.toString() ), file );
+        // put file in outDir too, prepending 
         Path targetFile = outDir.resolve( file );
         try {
             Files.createDirectories( targetFile.getParent() );
