@@ -83,10 +83,8 @@ public class CodeStripper {
                 //                .filter( f -> !f.startsWith( out ) )
                 .filter( f -> !f.startsWith( target ) )
                 .filter( f -> !f.startsWith( dotgit ) )
-                .peek( f -> System.out.println( "walker found " + f.toString() ) )
                 .filter( f -> !f.getFileName().toString().endsWith( "~" ) )
                 .filter( f -> !isText( f ) )
-                .peek( f -> System.out.println( "binary file " + f.toString() ) )
                 .sorted()
                 .forEach( file -> addFile( file, solution, assignment ) );
     }
@@ -136,14 +134,15 @@ public class CodeStripper {
         try {
             var lines = Files.lines( javaFile ).toList();
             // unprocessed files go to solution
-            solution.add( javaFile, lines );
+            solution.add( Path.of( "solution", javaFile.toString() ), lines );
             List<String> result = lines.stream()
                     .map( factory::apply )
                     .flatMap( x -> x ) // flatten the result
                     .toList();
 
             // add to assigmnet after processing
-            assignment.add( javaFile, result );
+            assignment
+                    .add( Path.of( "assignment", javaFile.toString() ), result );
             if ( !result.isEmpty() ) {
                 Files.createDirectories( targetFile.getParent() );
                 Files.write( targetFile, result );

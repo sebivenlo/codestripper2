@@ -1,7 +1,0 @@
--------------------------------------------------------------------------------
-Test set: io.github.sebivenlo.codestripperplugin.StrippedCodeValidatorTest
--------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.471 s -- in io.github.sebivenlo.codestripperplugin.StrippedCodeValidatorTest
-io.github.sebivenlo.codestripperplugin.StrippedCodeValidatorTest.testGetSourceFiles -- Time elapsed: 0.036 s
-io.github.sebivenlo.codestripperplugin.StrippedCodeValidatorTest.testCompilerArgs -- Time elapsed: 1.746 s
-io.github.sebivenlo.codestripperplugin.StrippedCodeValidatorTest.testCompilerRun -- Time elapsed: 0.686 s

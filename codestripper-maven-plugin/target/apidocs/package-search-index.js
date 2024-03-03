@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"codestripper"},{"l":"io.github.sebivenlo.codestripperplugin"},{"l":"streamprocessor"}];updateSearchResults();

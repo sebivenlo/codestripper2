@@ -1,7 +1,0 @@
-io/github/sebivenlo/codestripperplugin/CodeStripperMojo.class
-streamprocessor/TagProvider.class
-streamprocessor/ProcessorFactory.class
-streamprocessor/Processor.class
-io/github/sebivenlo/codestripperplugin/StrippedCodeValidator.class
-codestripper/Zipper.class
-codestripper/CodeStripper.class
