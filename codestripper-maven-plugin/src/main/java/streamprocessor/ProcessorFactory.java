@@ -126,9 +126,14 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 activeTransformation = nop;
                 // but remove current line
                 transformation = remove;
+                openStart = null;
             }
             var result = new Processor( line, payLoad, transformation, instruction,
                     ++lineNumber, text, indent, startEnd );
+
+            if ( "start".equals( startEnd ) ) {
+                openStart = result;
+            }
             return result;
         }
         // lines without instructions are subject to activeTansformation
@@ -251,5 +256,18 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             default:
                 return "#";
         }
+    }
+
+    private Processor openStart;
+
+    public boolean hasDanglingTag() {
+        return openStart != null;
+    }
+
+    public String danglingTag() {
+        if ( openStart == null ) {
+            return "";
+        }
+        return "\n\t" + openStart.lineNumber() + " :'" + openStart.line() + "´";
     }
 }

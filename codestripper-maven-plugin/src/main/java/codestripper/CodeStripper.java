@@ -149,6 +149,12 @@ public class CodeStripper {
         } catch ( IOException ex ) {
             LOG.severe( ex.getMessage() );
         }
+
+        if ( factory.hasDanglingTag() ) {
+            System.out.println(
+                    "file " + javaFile.toString() + " has dangling tag, started at " + factory
+                    .danglingTag() );
+        }
     }
 
     private static final Logger LOG = Logger.getLogger( CodeStripper.class
