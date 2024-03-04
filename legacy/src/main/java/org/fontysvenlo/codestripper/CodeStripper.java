@@ -27,8 +27,9 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
  * Its initial use is to remove solutions from exam files.
  *
  * The following properties are available: <table border='1'
- * style='border-collapse:collapse'> <tr><th>property</th><th
- * width='60%;valign:top'>Description</th><th>default
+ * style='border-collapse:collapse'>
+ * <caption>configuration parameters</caption>
+ * <tr><th>property</th><th style="width:60%;valign:top">Description</th><th>default
  * value</th><th>required</th></tr> <tr><td>deletelines</td><td>deletes lines if
  * set. Otherwise replaces original lines with <code>newline</code>-characters
  * in output file.
@@ -56,16 +57,15 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
  *
  * </table>
  *
- *
  * <p>
  * Start and end tags are used as regular expression to move between the states
  * Forwarding and Skipping. The tags should come in pairs, in order of their
  * definition in the starttag and endtag definition, i.e. starttag[0] pairs with
  * endtag[0] and so on.
+ * </p>
  *
- * <p>
  * @author Pieter van den Hombergh {@code p.vandenhombergh@fontys.nl}
- * @author Ferd van Odenhoven      {@code f.vanodenhoven@fontys.nl}
+ * @author Ferd van Odenhoven {@code f.vanodenhoven@fontys.nl}
  * @version $Revision: 27 $
  */
 public class CodeStripper extends MatchingTask {
@@ -97,7 +97,7 @@ public class CodeStripper extends MatchingTask {
     private boolean transformtags = true;
 
     /**
-     * Initialise state.
+     * Initialize state.
      */
     public CodeStripper() {
         super();
@@ -144,6 +144,8 @@ public class CodeStripper extends MatchingTask {
     private boolean stripCode = true;
 
     /**
+     * Check for dryrun.
+     *
      * @return the dryRun
      */
     public final boolean isDryRun() {
@@ -151,14 +153,16 @@ public class CodeStripper extends MatchingTask {
     }
 
     /**
+     * Sets dryrun.
+     *
      * @param dryRun the dryRun to set
      */
-    public final void setDryRun( boolean dryRun ) {
+    public final void setDryRun(boolean dryRun) {
         this.dryRun = dryRun;
     }
 
-    /*
-     * (non-Javadoc) @see org.apache.tools.ant.Task#execute()
+    /**
+     * Do your work.
      */
     @Override
     @SuppressWarnings( "CallToThreadDumpStack" )
@@ -220,7 +224,9 @@ public class CodeStripper extends MatchingTask {
                     }
                 } catch ( IOException ioe ) {
                     // TODO Auto-generated catch block
-                    ioe.printStackTrace();
+                    Logger.getLogger( getClass().getName() ).severe( ioe
+                            .getMessage() );
+                    throw new RuntimeException( ioe );
                 } finally {
                     try {
                         if ( inputStream != null ) {
@@ -231,7 +237,9 @@ public class CodeStripper extends MatchingTask {
                         }
                     } catch ( IOException e ) {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        Logger.getLogger( getClass().getName() ).severe( e
+                                .getMessage() );
+                        throw new RuntimeException( e );
                     }
                 }
             }
@@ -245,7 +253,7 @@ public class CodeStripper extends MatchingTask {
      * <p/>
      * @param arg tail of filename path
      */
-    private String buildOutFilename( String arg ) {
+    private String buildOutFilename(String arg) {
         return this.toDir.toString() + "/" + arg;
     }
     //Start Solution
@@ -255,7 +263,7 @@ public class CodeStripper extends MatchingTask {
      * <p/>
      * @param arg pathname of file to be created
      */
-    private File makeOutputFile( String arg ) {
+    private File makeOutputFile(String arg) {
         File result = new File( arg );
         String parent = result.getParent();
         if ( parent != null ) {
@@ -284,7 +292,7 @@ public class CodeStripper extends MatchingTask {
      * <p/>
      * @param s string to be printed to file
      */
-    private void println( String s ) {
+    private void println(String s) {
         outStream.println( s );
     }
 
@@ -302,7 +310,7 @@ public class CodeStripper extends MatchingTask {
      * <p/>
      * @param s
      */
-    private void setState( StripperState s ) {
+    private void setState(StripperState s) {
         this.state.atExit();
         this.state = s;
         this.state.atEntry();
@@ -321,7 +329,7 @@ public class CodeStripper extends MatchingTask {
     private Pattern[] startPatterns;
     private Pattern[] endPatterns;
 
-    private boolean findMatcher( String line ) {
+    private boolean findMatcher(String line) {
 //        System.out.
 //                println( "patterns =" + Arrays.deepToString( startPatterns ) );
         for ( int i = 0; i < startPatterns.length; i++ ) {
@@ -351,7 +359,7 @@ public class CodeStripper extends MatchingTask {
         /**
          * The event handler.
          */
-        void handleString( String s ) {
+        void handleString(String s) {
             lastLineRead = s;
             lineNumber++;
         }
@@ -372,7 +380,7 @@ public class CodeStripper extends MatchingTask {
             }
         }
 
-        void replace( String s ) {
+        void replace(String s) {
             if ( rep.matcher( s ).matches() ) {
                 String tail = s.substring( s.indexOf( replaceTag ) + replaceTag.
                         length() );
@@ -416,7 +424,7 @@ public class CodeStripper extends MatchingTask {
     private class Forwarder extends StripperState {
 
         @Override
-        public void handleString( String in ) {
+        public void handleString(String in) {
             super.handleString( in ); // sets lastLineRead
             if ( findMatcher( lastLineRead ) ) {
                 if ( !pet.matcher( lastLineRead ).matches() ) {
@@ -454,7 +462,7 @@ public class CodeStripper extends MatchingTask {
          * The event handler.
          */
         @Override
-        public void handleString( String in ) {
+        public void handleString(String in) {
             super.handleString( in );
             if ( pet.matcher( lastLineRead ).matches() ) {
                 setState( forwarder );
@@ -491,13 +499,15 @@ public class CodeStripper extends MatchingTask {
         }
 
         @Override
-        public void handleString( String in ) {
+        public void handleString(String in) {
             super.handleString( in );
             println( lastLineRead );
         }
     }
 
     /**
+     * Check delete lines setting.
+     *
      * @return the deleteLines
      */
     public final boolean isDeleteLines() {
@@ -505,44 +515,54 @@ public class CodeStripper extends MatchingTask {
     }
 
     /**
+     * Set delete lines.
+     *
      * @param deleteLines the deleteLines to set
      */
-    public final void setDeleteLines( boolean deleteLines ) {
+    public final void setDeleteLines(boolean deleteLines) {
         this.deleteLines = deleteLines;
     }
 
     /**
+     * Get endTag.
+     *
      * @return the endTag
      */
     public final String getEndTag() {
-        return String.join(",",endTag );
+        return String.join( ",", endTag );
     }
 
     /**
+     * Set end tag.
+     *
      * @param endTag the endTag to set
      */
-    public final void setEndTag( String endTag ) {
+    public final void setEndTag(String endTag) {
         this.endTag = endTag.split( "\\s*,\\s*" );
     }
 
     /**
+     * Get start tag.
+     *
      * @return the startTag
      */
     public final String getStartTag() {
-        return String.join( ",", startTag);
+        return String.join( ",", startTag );
     }
 
     /**
+     * Set start tag.
+     *
      * @param startTag the startTag to set
      */
-    public final void setStartTag( String startTag ) {
+    public final void setStartTag(String startTag) {
         this.startTag = startTag.split( "\\s*,\\s*" );
     }
     //!S
 
     /**
      * Get the source directory of the stripCode operation
-     * <p/>
+     *
      * @return the input dir
      */
     public File getDir() {
@@ -551,14 +571,16 @@ public class CodeStripper extends MatchingTask {
 
     /**
      * Set the source directory of stripCode operation.
-     * <p/>
-     * @param dir
+     *
+     * @param dir sic
      */
-    public void setDir( File dir ) {
+    public void setDir(File dir) {
         this.dir = dir;
     }
 
     /**
+     * Get to dir.
+     *
      * @return the toDir
      */
     public final File getToDir() {
@@ -566,13 +588,17 @@ public class CodeStripper extends MatchingTask {
     }
 
     /**
+     * Set to dir.
+     *
      * @param toDir the toDir to set
      */
-    public final void setToDir( File toDir ) {
+    public final void setToDir(File toDir) {
         this.toDir = toDir;
     }
 
     /**
+     * get replace tag.
+     *
      * @return the replaceTag
      */
     public String getReplaceTag() {
@@ -580,13 +606,17 @@ public class CodeStripper extends MatchingTask {
     }
 
     /**
+     * Set replace tag.
+     *
      * @param replaceTag the replaceTag to set
      */
-    public void setReplaceTag( String replaceTag ) {
+    public void setReplaceTag(String replaceTag) {
         this.replaceTag = replaceTag;
     }
 
     /**
+     * Is stripping?
+     *
      * @return the stripCode
      */
     public boolean isStripCode() {
@@ -594,32 +624,64 @@ public class CodeStripper extends MatchingTask {
     }
 
     /**
+     * Set stripping.
+     *
      * @param stripCode the stripCode to set
      */
-    public void setStripCode( boolean stripCode ) {
+    public void setStripCode(boolean stripCode) {
         this.stripCode = stripCode;
     }
 
+    /**
+     * is verbose.
+     *
+     * @return verbosity
+     */
     public boolean isVerbose() {
         return verbose;
     }
 
-    public void setVerbose( boolean verbose ) {
+    /**
+     * set verbosity.
+     *
+     * @param verbose sic
+     */
+    public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
-    public void setTransformtags( boolean transform ) {
+    /**
+     * Set transform.
+     *
+     * @param transform sic
+     */
+    public void setTransformtags(boolean transform) {
         this.transformtags = transform;
     }
 
+    /**
+     * Check transform tags.
+     *
+     * @return transformtags setting
+     */
     public boolean isTransformtags() {
         return this.transformtags;
     }
 
-    public void setInverse( boolean inv ) {
+    /**
+     * Check inverse.
+     *
+     * @param inv sic
+     */
+    public void setInverse(boolean inv) {
         this.inverse = inv;
     }
 
+    /**
+     * test inverse
+     *
+     * @return sic.
+     */
     public boolean isInverse() {
         return this.inverse;
     }

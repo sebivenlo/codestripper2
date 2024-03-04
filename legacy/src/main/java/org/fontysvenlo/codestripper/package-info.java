@@ -25,10 +25,11 @@
  * The codestripper supports a number of properties to define start and end
  * tags, whether to remove the lines or replaces them with empty lines and to
  * replace start an end tags with in code replacements, mainly to keep the
- * compiler happy with the remaining code.<br/> Properties: <table border='1'
- * style='border-collapse:collapse'>
- * <tr><th>property</th><th
- * wdith='60%'>Description</th><th>default value</th></tr>
+ * compiler happy with the remaining code.<br/> Properties:
+ * <table style='border-width:1;border-collapse:collapse'>
+ * <caption>Configuration parameters</caption>
+ * <tr><th>property</th><th style='width:60%'>Description</th><th>default
+ * value</th></tr>
  * <tr><td>deletelines</td><td>deletes lines if set. Otherwise replaces original
  * lines with <code>newline</code>-characters in output file.
  * <td>false</td></tr>
@@ -60,34 +61,38 @@
  *
  * <h2>A typical usage example:</h2>
  * The ant task:<br/> <pre
- * style='background:#AFF'> &lt;<FONT COLOR="#A020F0">target</FONT>
- * name="strip"&gt; &lt;<FONT COLOR="#A020F0">codestripper</FONT>
+ * style='background:#AFF'> &lt;<span style="color:#A020F0">target</span>
+ * name="strip"&gt; &lt;<span style="color:#A020F0">codestripper</span>
  * todir="../examproject" dir="src" deletelines="true" includes="**&#47;*.java"
  * excludes="**&#47;Parents.java" /&gt;
- * &lt;<FONT COLOR="#A020F0">/target</FONT>&gt;
+ * &lt;<span style="color:#A020F0">/target</span>&gt;
  * </pre> The tags in the code (using the defaults) could look like this (the
  * <span style="text-decoration:line-through">strikethrough</span> is not in the
  * code or in the result, but rather shows what would be removed):
  * <pre style='background:#FFFFBB'>
- * <code>
- * <B><FONT COLOR="#A020F0">private</FONT></B> File makeOutputFile(String arg) {
- * <I><FONT COLOR="#B22222"><span style="text-decoration:line-through">//Start
+ *
+ * <b><span style="color:#A020F0">private</span></b> File makeOutputFile(String
+ * arg) {
+ * <i><span style="color:#B22222"><span style="text-decoration:line-through">//Start
  * Solution::replacewith::</span>//TODO
- * </FONT></I><div style="text-decoration:line-through"> File f =
- * <B><FONT COLOR="#A020F0">new</FONT></B> File(arg); String parent =
+ * </span></i>
+ * <span style="text-decoration:line-through"> File f =
+ * <b><span style="color:#A020F0">new</span></b> File(arg); String parent =
  * f.getParent(); System.out.println(f.getName()); String fullOutPath =
- * <B><FONT COLOR="#BC8F8F">&quot;out/&quot;</FONT></B> + arg;
- * <B><FONT COLOR="#A020F0">if</FONT></B> (parent !=
- * <B><FONT COLOR="#A020F0">null</FONT></B>) { System.out.println(parent); File
- * outDir = <B><FONT COLOR="#A020F0">new</FONT></B>
- * File(<B><FONT COLOR="#BC8F8F">&quot;out/&quot;</FONT></B> + parent);
- * outDir.mkdirs(); } File result = <B><FONT COLOR="#A020F0">new</FONT></B>
+ * <b><span style="color:#BC8F8F">&quot;out/&quot;</span></b> + arg;
+ * <b><span style="color:#A020F0">if</span></b> (parent !=
+ * <b><span style="color:#A020F0">null</span></b>) { System.out.println(parent);
+ * File outDir = <b><span style="color:#A020F0">new</span></b>
+ * File(<b><span style="color:#BC8F8F">&quot;out/&quot;</span></b> + parent);
+ * outDir.mkdirs(); } File result =
+ * <b><span style="color:#A020F0">new</span></b>
  * File(fullOutPath);
- * <B><FONT COLOR="#A020F0">return</FONT></B> result;</div>
- * <I><FONT COLOR="#B22222"><span style="text-decoration:line-through">//End
+ * <b><span style="color:#A020F0">return</span></b> result;</span>
+ * <I><span style="color:#B22222">
+ * <span style="text-decoration:line-through">//End *
  * Solution::replacewith::</span>return null;
- * </FONT></I> }
- * </code>
+ * </span></I> }
+ *
  * </pre>
  *
  */
