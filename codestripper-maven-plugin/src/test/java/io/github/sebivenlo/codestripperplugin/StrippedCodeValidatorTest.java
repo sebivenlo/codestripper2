@@ -3,6 +3,7 @@ package io.github.sebivenlo.codestripperplugin;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import static java.util.stream.Collectors.joining;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import static org.assertj.core.api.Assertions.*;
@@ -16,20 +17,26 @@ import org.junit.jupiter.api.*;
 public class StrippedCodeValidatorTest extends StrippedCodeValidator {
 
     //@Disabled("think TDD")
-    @Test @DisplayName( "Get source files" )
+    @Test
+    @DisplayName("Get source files")
     public void testGetSourceFiles() {
         Path sourceDir = Path.of( "src" );
         String[] sourceFiles = this.getSourceFiles( sourceDir );
-//        System.out.println( "sourceFiles = " + Arrays.toString( sourceFiles ) );
-        assertThat( sourceFiles ).contains(
-                "src/main/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidator.java",
-                "src/test/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidatorTest.java"
+
+        // massage the inpo paths
+        var actual = Arrays.asList( sourceFiles ).stream().map( l -> Path.of( l ) ).toList();
+        var expected = List.of(
+                Path.of( "src/main/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidator.java" ),
+                Path.of( "src/test/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidatorTest.java" )
         );
+//        System.out.println( "sourceFiles = " + Arrays.toString( sourceFiles ) );
+        assertThat( actual ).containsAll( expected );
 //        fail( "method SourceFiles reached end. You know what to do." );
     }
 
     //@Disabled("think TDD")
-    @Test @DisplayName( "compiler args " )
+    @Test
+    @DisplayName("compiler args ")
     public void testCompilerArgs() throws DependencyResolutionRequiredException, IOException {
         Path sourceDir = Path.of( "src" );
         String[] args = this.makeCompilerArguments( sourceDir, makeOutDir() );
@@ -41,7 +48,8 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
     }
 
     //@Disabled("think TDD")
-    @Test @DisplayName( "run the compiler" )
+    @Test
+    @DisplayName("run the compiler")
     public void testCompilerRun() throws IOException {
 
         codestripper.CodeStripper.main( new String[]{} );

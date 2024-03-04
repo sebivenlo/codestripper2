@@ -3,6 +3,7 @@ package codestripper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -104,7 +105,8 @@ public class CodeStripper {
         Path targetFile = outDir.resolve( file );
         try {
             Files.createDirectories( targetFile.getParent() );
-            Files.copy( file, targetFile );
+            Files.copy( file, targetFile ,StandardCopyOption.REPLACE_EXISTING);
+
         } catch ( IOException ex ) {
             Logger.getLogger( CodeStripper.class.getName() )
                     .log( Level.SEVERE, null, ex );
