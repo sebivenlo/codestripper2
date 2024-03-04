@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -16,6 +18,8 @@ import streamprocessor.ProcessorFactory;
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
 public class CodeStripper {
+
+    private final Log log;
 
     /**
      * Do the work starting at the root.
@@ -105,7 +109,7 @@ public class CodeStripper {
         Path targetFile = outDir.resolve( file );
         try {
             Files.createDirectories( targetFile.getParent() );
-            Files.copy( file, targetFile ,StandardCopyOption.REPLACE_EXISTING);
+            Files.copy( file, targetFile, StandardCopyOption.REPLACE_EXISTING );
 
         } catch ( IOException ex ) {
             Logger.getLogger( CodeStripper.class.getName() )
@@ -149,7 +153,7 @@ public class CodeStripper {
                 Files.write( targetFile, result );
             }
         } catch ( IOException ex ) {
-            LOG.severe( ex.getMessage() );
+            log.error( ex.getMessage() );
         }
 
         if ( factory.hasDanglingTag() ) {
@@ -159,9 +163,6 @@ public class CodeStripper {
         }
     }
 
-    private static final Logger LOG = Logger.getLogger( CodeStripper.class
-            .getName() );
-
     /**
      * Who doesn't need me.
      *
@@ -169,13 +170,15 @@ public class CodeStripper {
      * @throws IOException hope to die
      */
     public static void main(String... args) throws IOException {
-        new CodeStripper().strip( "" );
+        new CodeStripper( new SystemStreamLog() ).strip( "" );
     }
 
     /**
      * No specialties needed.
+     *
+     * @param log to set
      */
-    public CodeStripper() {
+    public CodeStripper(Log log) {
+        this.log = log;
     }
-
 }

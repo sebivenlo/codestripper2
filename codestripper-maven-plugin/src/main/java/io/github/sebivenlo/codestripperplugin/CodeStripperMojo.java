@@ -21,7 +21,7 @@ public class CodeStripperMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             getLog().info( "start code stripping." );
-            new CodeStripper().strip( "" );
+            new CodeStripper( getLog() ).strip( "" );
             getLog().info( "stripped code, result in target/stripper-out" );
         } catch ( IOException ex ) {
             getLog().error( ex.getMessage(), ex );

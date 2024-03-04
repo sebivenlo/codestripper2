@@ -7,11 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import static java.util.Map.entry;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static java.util.stream.Stream.of;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 
 /**
  * Creator of Processor boxes based on the content os strings and previous
@@ -46,6 +47,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     public ProcessorFactory(Path filePath) {
         this( filePath, "cs" );
     }
+    private static Log log = new SystemStreamLog();
 
     /**
      * Create a factory for the given file and specify the tag
@@ -170,8 +172,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                     l -> proc.indent() + l );
         } catch ( IOException ex ) {
 
-            Logger.getLogger( ProcessorFactory.class.getName() )
-                    .severe( ex.getMessage() );
+            log.error( ex.getMessage() );
             return Stream.empty();
         }
     }
