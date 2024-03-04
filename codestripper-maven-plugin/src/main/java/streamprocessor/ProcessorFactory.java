@@ -1,5 +1,8 @@
 package streamprocessor;
 
+import codestripper.LoggerLevel;
+import static codestripper.LoggerLevel.DEBUG;
+import static codestripper.LoggerLevel.FINE;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import static java.util.Map.entry;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -122,12 +126,14 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 // pickup the transformation
                 activeTransformation = transformation;
                 // but remove current line
+                logDebug( () -> "start remove at " + ( lineNumber + 1 ) );
                 transformation = remove;
             }
             if ( "end".equals( startEnd ) ) {
                 activeTransformation = nop;
                 // but remove current line
                 transformation = remove;
+                logDebug( () -> "stop remove at " + ( lineNumber + 1 ) );
                 openStart = null;
             }
             var result = new Processor( line, payLoad, transformation, instruction,
@@ -163,7 +169,6 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
         return applied;
     }
 
-    Function<Processor, Stream<String>> activeTransformation = nop;
     int lineNumber = 0;
 
     static Stream<String> include(Processor proc) {
@@ -176,28 +181,33 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             return Stream.empty();
         }
     }
-    static final Function<Processor, Stream<String>> replace = p -> of( p
+    final Function<Processor, Stream<String>> replace = p -> of( p
             .payLoad() );
-    static final Function<Processor, Stream<String>> add = p -> of( p
+    final Function<Processor, Stream<String>> add = p -> of( p
             .payLoad() );
-    static final Function<Processor, Stream<String>> uncomment
+    final Function<Processor, Stream<String>> uncomment
             = p -> of( p.text().replaceFirst( "//", "" ) );
-    static final Function<Processor, Stream<String>> comment
+    final Function<Processor, Stream<String>> comment
             = p -> of( "//" + p.text() );
-    static final Function<Processor, Stream<String>> nop
+    final Function<Processor, Stream<String>> nop
             = p -> of( p.text() );
-    static final Function<Processor, Stream<String>> remove
+    final Function<Processor, Stream<String>> remove
             = p -> {
-        if ( !p.payLoad().isBlank() ) {
-                    return Stream.of( p.payLoad() );
-                }
-                return Stream.empty();
+                if ( !p.payLoad().isBlank() ) {
+                    logFine( () -> "replaced line '" + p.lineNumber()
+                                                + ":'" + p.line() + "'" );
+            return Stream.of( p.payLoad() );
+        }
+        logFine( () -> "dropped line '" + p.lineNumber()
+                + ":'" + p.line() + "'" );
+        return Stream.empty();
             };
-    static final Function<Processor, Stream<String>> include
+
+    final Function<Processor, Stream<String>> include
             = ProcessorFactory::include;
-    static final Function<Processor, Stream<String>> UPPER
+    final Function<Processor, Stream<String>> UPPER
             = p -> Stream.of( p.text().toUpperCase() );
-    static final Function<Processor, Stream<String>> lower
+    final Function<Processor, Stream<String>> lower
             = p -> Stream.of( p.text().toLowerCase() );
     static final Function<Processor, Stream<String>> replaceFirst
             = ( Processor p ) -> {
@@ -214,8 +224,10 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 return of( result );
             };
 
+    Function<Processor, Stream<String>> activeTransformation = nop;
+
     // lookup
-    static Map<String, Function<Processor, Stream<String>>> defaultTransforms = Map
+    final Map<String, Function<Processor, Stream<String>>> defaultTransforms = Map
             .ofEntries(
                     entry( "add", add ),
                     entry( "comment", comment ),
@@ -270,5 +282,21 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             return "";
         }
         return "\n\t" + openStart.lineNumber() + " :'" + openStart.line() + "´";
+
     }
+
+    LoggerLevel logLevel = FINE;
+
+    void logFine(Supplier<String> msg) {
+        if ( this.logLevel.compareTo( FINE ) >= 0 ) {
+            log.info( msg.get() );
+        }
+    }
+
+    void logDebug(Supplier<String> msg) {
+        if ( this.logLevel.compareTo( DEBUG ) >= 0 ) {
+            log.info( msg.get() );
+        }
+    }
+
 }

@@ -8,6 +8,6 @@ package codestripper;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public enum LoggerVerbosity {
-    MUTE, LOW, INTERMEDIATE, HIGH;
+public enum LoggerLevel {
+    MUTE, INFO, DEBUG, FINE;
 }
