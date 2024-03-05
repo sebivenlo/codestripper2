@@ -23,4 +23,4 @@ in miliseconds instead of having to wait hours for the test to complete.
 Make the tests work, and make the greeter class work.
 
 
-![Inspiration for this task](clockpostcard.png)
+![Inspiration for this task](images/clockpostcard.png)
