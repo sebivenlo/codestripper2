@@ -111,6 +111,9 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      * @return a processor for the line.
      */
     public Processor processorFor(String line) {
+        if ( activeTransformation == ignore ) {
+            return deathTrap;
+        }
         Matcher m = pattern.matcher( line );
         if ( m.matches() ) {
             String instruction = m.group( "instruction" ).trim();
@@ -121,16 +124,24 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             var text = m.group( "text" );
             var indent = m.group( "indent" );
             var transformation = transformFor( instruction );
-
+            if ( "ignore".equals( instruction ) ) {
+                // snap the trap.
+                activeTransformation = ignore;
+                return deathTrap;
+            }
             if ( "start".equals( startEnd ) ) {
                 // pickup the transformation
                 activeTransformation = transformation;
+                logDebug( () -> "start " + instruction + " at line "
+                        + lineNumber + ": " + line );
                 // but remove current line
                 logDebug( () -> "start remove at " + ( lineNumber + 1 ) );
                 transformation = remove;
             }
             if ( "end".equals( startEnd ) ) {
                 activeTransformation = nop;
+                logDebug( () -> "end " + instruction + " at line "
+                        + lineNumber + ": " + line );
                 // but remove current line
                 transformation = remove;
                 logDebug( () -> "stop remove at " + ( lineNumber + 1 ) );
@@ -142,6 +153,9 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             if ( "start".equals( startEnd ) ) {
                 openStart = result;
             }
+            logFine(
+                    () -> "execute " + result.instruction() + " at line " + result
+                    .lineNumber() + ": " + result + line );
             return result;
         }
         // lines without instructions are subject to activeTansformation
@@ -181,6 +195,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             return Stream.empty();
         }
     }
+    final Function<Processor, Stream<String>> ignore = p -> Stream.empty();
     final Function<Processor, Stream<String>> replace = p -> of( p
             .payLoad() );
     final Function<Processor, Stream<String>> add = p -> of( p
@@ -194,8 +209,8 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     final Function<Processor, Stream<String>> remove
             = p -> {
                 if ( !p.payLoad().isBlank() ) {
-                    logFine( () -> "replaced line '" + p.lineNumber()
-                                                + ":'" + p.line() + "'" );
+            logFine( () -> "replaced line '" + p.lineNumber()
+                    + ":'" + p.line() + "'" );
             return Stream.of( p.payLoad() );
         }
         logFine( () -> "dropped line '" + p.lineNumber()
@@ -225,6 +240,8 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             };
 
     Function<Processor, Stream<String>> activeTransformation = nop;
+    final Processor deathTrap = new Processor( "", "", ignore,
+            "ignore", 0, "//cs:ignore", "", "start" );
 
     // lookup
     final Map<String, Function<Processor, Stream<String>>> defaultTransforms = Map
@@ -238,6 +255,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                     entry( "UPPER", UPPER ),
                     entry( "lower", lower ),
                     entry( "include", include ),
+                    entry( "ignore", ignore ),
                     entry( "replaceFirst", replaceFirst ),
                     entry( "replaceAll", replaceAll )
             );
@@ -285,7 +303,17 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
 
     }
 
-    LoggerLevel logLevel = FINE;
+    private LoggerLevel logLevel = FINE;
+
+    /**
+     * Ste the logging level.
+     *
+     * @param level
+     */
+    public ProcessorFactory logLevel(LoggerLevel level) {
+        this.logLevel = level;
+        return this;
+    }
 
     void logFine(Supplier<String> msg) {
         if ( this.logLevel.compareTo( FINE ) >= 0 ) {

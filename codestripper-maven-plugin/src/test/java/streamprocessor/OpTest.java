@@ -305,6 +305,28 @@ public class OpTest {
 
 //        fail( "method UncommentSingle reached end. You know what to do." );
     }
+    //@Disabled("think TDD")
+    @Test @DisplayName( "ignore the remainder" )
+    public void testDeathTrap() {
+        var input = revealTags(
+                """
+            //CS:ignore
+            public class Test {
+            //      fail( "method NopEscapes reached end. You know what to do." );//CS:uncomment
+            }
+            """
+                        .lines() ).toList();
+        var expected = List.of();
+        var factory = new ProcessorFactory();
+        assertThat( input.stream()
+                .map( factory::apply ) // wrap in recipe
+                .flatMap( x -> x ) // flatten the result
+                //                .peek(l-> out.println("out "+ l))
+                .toList() ).isEqualTo( expected );
+
+//        fail( "method UncommentSingle reached end. You know what to do." );
+    }
+
     public static Stream<String> revealTags(Stream<String> in) {
         return in.map( l -> l.replaceFirst( "CS:", "cs" + ":" ) );
     }

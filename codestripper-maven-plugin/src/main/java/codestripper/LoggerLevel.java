@@ -5,9 +5,25 @@
 package codestripper;
 
 /**
+ * Levels of verbosity.
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
 public enum LoggerLevel {
-    MUTE, INFO, DEBUG, FINE;
+    /**
+     * Silent as in Quiet.
+     */
+    MUTE,
+    /**
+     * Default level
+     */
+    INFO,
+    /**
+     * show more info.
+     */
+    DEBUG,
+    /**
+     * show most info.
+     */
+    FINE;
 }
