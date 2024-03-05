@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>220</x>
+      <y>290</y>
+      <w>120</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>PROCESS
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>580</x>
+      <y>60</y>
+      <w>20</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes>type=initial</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>580</x>
+      <y>70</y>
+      <w>30</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>540</x>
+      <y>130</y>
+      <w>100</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>PASS</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>870</x>
+      <y>140</y>
+      <w>170</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>PROCESS_ONE
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>530</x>
+      <y>380</y>
+      <w>100</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>DROP</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>630</x>
+      <y>130</y>
+      <w>260</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+singleInstruction/
+  setInstruction(instruction)
+  pass
+  
+</panel_attributes>
+    <additional_attributes>10.0;20.0;240.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>630</x>
+      <y>200</y>
+      <w>260</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+anyLine/
+  process;
+  setInstruction(nop);
+  pass</panel_attributes>
+    <additional_attributes>240.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>580</x>
+      <y>240</y>
+      <w>190</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+
+
+start-remove/
+   setInstruction(nop)
+   drop
+
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;30.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>220</x>
+      <y>390</y>
+      <w>330</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+end-remove/
+   setInstruction(nop)
+	drop
+
+</panel_attributes>
+    <additional_attributes>310.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>130</x>
+      <y>380</y>
+      <w>100</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>END_DROP
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>160</x>
+      <y>140</y>
+      <w>400</w>
+      <h>260</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+anyLine/
+  setInstruction(nop)
+  pass</panel_attributes>
+    <additional_attributes>10.0;240.0;10.0;20.0;380.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>270</x>
+      <y>180</y>
+      <w>290</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+start-multiInstruction/
+   setInstruction(instruction)
+	pass</panel_attributes>
+    <additional_attributes>270.0;20.0;90.0;20.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>330</x>
+      <y>240</y>
+      <w>270</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+end-multiInstruction/
+   setInstruction(instruction)
+   pass</panel_attributes>
+    <additional_attributes>10.0;90.0;220.0;90.0;240.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>890</x>
+      <y>380</y>
+      <w>100</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>DROP_ONE</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>610</x>
+      <y>240</y>
+      <w>370</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+
+
+remove/
+   setInstruction(nop);
+   drop;
+
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;340.0;60.0;350.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>620</x>
+      <y>70</y>
+      <w>610</w>
+      <h>350</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+anyLine/
+  setInstruction(nop)
+  drop
+  </panel_attributes>
+    <additional_attributes>370.0;330.0;550.0;330.0;550.0;20.0;110.0;20.0;10.0;60.0</additional_attributes>
+  </element>
+</diagram>
