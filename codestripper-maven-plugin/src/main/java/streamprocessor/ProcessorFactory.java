@@ -306,7 +306,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     private LoggerLevel logLevel = FINE;
 
     /**
-     * Ste the logging level.
+     * Set the logging level.
      *
      * @param level
      */

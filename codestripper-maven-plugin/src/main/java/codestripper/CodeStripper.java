@@ -1,11 +1,14 @@
 package codestripper;
 
+import static codestripper.LoggerLevel.DEBUG;
+import static codestripper.LoggerLevel.FINE;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.maven.plugin.logging.Log;
@@ -20,6 +23,7 @@ import streamprocessor.ProcessorFactory;
 public class CodeStripper {
 
     private final Log log;
+    private final boolean dryRun;
 
     /**
      * Do the work starting at the root.
@@ -134,8 +138,9 @@ public class CodeStripper {
     private Path outDir = Path.of( "target/stripper-out" );
 
     private void process(Path javaFile, Zipper solution, Zipper assignment) {
+        logDebug( () -> "start stripping file " + javaFile.toString() );
         Path targetFile = outDir.resolve( javaFile );
-        var factory = new ProcessorFactory( javaFile );
+        var factory = new ProcessorFactory( javaFile ).logLevel( this.logLevel );
         try {
             var lines = Files.lines( javaFile ).toList();
             // unprocessed files go to solution
@@ -145,10 +150,12 @@ public class CodeStripper {
                     .flatMap( x -> x ) // flatten the result
                     .toList();
 
-            // add to assigmnet after processing
-            assignment
-                    .add( Path.of( "assignment", javaFile.toString() ), result );
-            if ( !result.isEmpty() ) {
+            if ( !dryRun && !result.isEmpty() ) {
+                // add to assigmnet after processing
+                logDebug( () -> "added " + javaFile.toString() );
+                assignment
+                        .add( Path.of( "assignment", javaFile.toString() ),
+                                result );
                 Files.createDirectories( targetFile.getParent() );
                 Files.write( targetFile, result );
             }
@@ -157,10 +164,11 @@ public class CodeStripper {
         }
 
         if ( factory.hasDanglingTag() ) {
-            System.out.println(
+            log.warn(
                     "file " + javaFile.toString() + " has dangling tag, started at " + factory
                     .danglingTag() );
         }
+        logDebug( () -> "completed stripping " + javaFile.toString() );
     }
 
     /**
@@ -177,8 +185,42 @@ public class CodeStripper {
      * No specialties needed.
      *
      * @param log to set
+     * @param dryRun flag
+     */
+    public CodeStripper(Log log, boolean dryRun) {
+        this.dryRun = dryRun;
+        this.log = log;
+    }
+
+    /**
+     * Default stripper with dryRun false;
+     *
+     * @param log
      */
     public CodeStripper(Log log) {
-        this.log = log;
+        this( log, false );
+    }
+    private LoggerLevel logLevel = FINE;
+
+    /**
+     * Set the logging level.
+     *
+     * @param level
+     */
+    public CodeStripper logLevel(LoggerLevel level) {
+        this.logLevel = level;
+        return this;
+    }
+
+    void logFine(Supplier<String> msg) {
+        if ( this.logLevel.compareTo( FINE ) >= 0 ) {
+            log.info( msg.get() );
+        }
+    }
+
+    void logDebug(Supplier<String> msg) {
+        if ( this.logLevel.compareTo( DEBUG ) >= 0 ) {
+            log.info( msg.get() );
+        }
     }
 }
