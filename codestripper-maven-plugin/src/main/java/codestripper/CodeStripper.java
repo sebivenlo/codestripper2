@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -33,8 +35,9 @@ public class CodeStripper {
      * @throws IOException hop to die
      */
     public final void strip(String root) throws IOException {
+        Instant start = Instant.now();
         try ( Zipper solution = new Zipper( "target/solution.zip" ); //
-                  Zipper assignment = new Zipper( "target/assignment.zip" ); ) {
+                 Zipper assignment = new Zipper( "target/assignment.zip" ); ) {
             processTextFiles( root, solution, assignment );
             processBinaryFiles( root, solution, assignment );
         } catch ( Exception ex ) {
@@ -42,11 +45,17 @@ public class CodeStripper {
                     .log( Level.SEVERE, null, ex );
         }
         // save file names for later zipping.
+        Instant end = Instant.now();
+
+        Duration took = Duration.between( start, end );
+        log.info(
+                "codestripper processed " + fileCount + " files in " + took
+                        .toMillis() + " milliseconds" );
     }
 
     Path target = Path.of( "target" );
     Path dotgit = Path.of( ".git" );
-
+    int fileCount = 0;
     /**
      * Process the files in the root directory. Typically this is the directory
      * that contains the maven pom file.
@@ -106,6 +115,7 @@ public class CodeStripper {
      * @param assignment zip container
      */
     void addFile(Path file, Zipper solution, Zipper assignment) {
+        fileCount++;
         // prepend solution in solution
         solution.add( Path.of( "solution", file.toString() ), file );
         assignment.add( Path.of( "assignment", file.toString() ), file );
@@ -138,6 +148,7 @@ public class CodeStripper {
     private Path outDir = Path.of( "target/stripper-out" );
 
     private void process(Path javaFile, Zipper solution, Zipper assignment) {
+        fileCount++;
         logDebug( () -> "start stripping file " + javaFile.toString() );
         Path targetFile = outDir.resolve( javaFile );
         var factory = new ProcessorFactory( javaFile ).logLevel( this.logLevel );
