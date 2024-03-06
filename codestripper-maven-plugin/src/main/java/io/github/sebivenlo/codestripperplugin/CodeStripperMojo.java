@@ -3,6 +3,8 @@ package io.github.sebivenlo.codestripperplugin;
 import codestripper.CodeStripper;
 import codestripper.LoggerLevel;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -23,8 +25,10 @@ public class CodeStripperMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
             getLog().info( "start code stripping." );
-            new CodeStripper( getLog(), dryRun ).logLevel( verbosity ).strip(
-                    workDir );
+            new CodeStripper( getLog(), dryRun, Path.of( outDir ) )
+                    .extraResources( extraResources )
+                    .logLevel( verbosity )
+                    .strip( Path.of( workDir ) );
             getLog().info( "stripped code, result in " + outDir );
         } catch ( IOException ex ) {
             getLog().error( ex.getMessage(), ex );
@@ -42,8 +46,8 @@ public class CodeStripperMojo extends AbstractMojo {
     protected String tag;
 //
     @Parameter( property = "codestripper.outDir",
-            defaultValue = "target/stripper-out" )
-    protected String outDir = "target/stripper-out";
+            defaultValue = CodeStripper.DEFAULT_OUTDIR )
+    protected String outDir = CodeStripper.DEFAULT_OUTDIR;
 //
     @Parameter( property = "codestripper.verbosity", defaultValue = "INFO" )
     protected LoggerLevel verbosity;
@@ -53,6 +57,9 @@ public class CodeStripperMojo extends AbstractMojo {
 //
     @Parameter( property = "codestripper.working-directory", defaultValue = "" )
     protected String workDir = "";
+
+    @Parameter( property = "extraResources", defaultValue = "" )
+    protected List<String> extraResources = List.of();
 
     /**
      * Used by maven framework.

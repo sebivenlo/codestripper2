@@ -5,11 +5,9 @@ import static codestripper.LoggerLevel.FINE;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +22,8 @@ import streamprocessor.ProcessorFactory;
  */
 public class CodeStripper {
 
+    public static final String DEFAULT_OUTDIR = "target/stripper.out";
+
     private final Log log;
     private final boolean dryRun;
 
@@ -34,12 +34,14 @@ public class CodeStripper {
      *
      * @throws IOException hop to die
      */
-    public final void strip(String root) throws IOException {
+    public final void strip(Path root) throws IOException {
         Instant start = Instant.now();
-        try ( Zipper solution = new Zipper( "target/solution.zip" ); //
-                 Zipper assignment = new Zipper( "target/assignment.zip" ); ) {
+        try ( Zipper solution = new Zipper( Path.of( "target", "solution.zip" ) ); //
+                 Zipper assignment = new Zipper( Path.of( "target",
+                        "/assignment.zip" ) ); ) {
             processTextFiles( root, solution, assignment );
-            processBinaryFiles( root, solution, assignment );
+            archiver.addBinaryFiles( root );//processBinaryFiles( root, solution, assignment );
+            archiver.addExtras( root, extraResources );//addExtraResources( root, solution, assignment );
         } catch ( Exception ex ) {
             Logger.getLogger( CodeStripper.class.getName() )
                     .log( Level.SEVERE, null, ex );
@@ -56,6 +58,7 @@ public class CodeStripper {
     Path target = Path.of( "target" );
     Path dotgit = Path.of( ".git" );
     int fileCount = 0;
+
     /**
      * Process the files in the root directory. Typically this is the directory
      * that contains the maven pom file.
@@ -67,95 +70,30 @@ public class CodeStripper {
      * @param assignment zip container for assignment files
      * @throws IOException should not occur.
      */
-    void processTextFiles(String root,
+    void processTextFiles(Path root,
             final Zipper solution, final Zipper assignment) throws IOException {
-        Files.walk( Path.of( root ), Integer.MAX_VALUE )
+
+        Files.walk( root, Integer.MAX_VALUE )
                 .filter( f -> !Files.isDirectory( f ) )
                 //                .filter( f -> !f.startsWith( out ) )
                 .filter( f -> !f.startsWith( target ) )
                 .filter( f -> !f.startsWith( dotgit ) )
-                .filter( this::isText )
+                .filter( Archiver::isText )
                 .filter( f -> !f.getFileName().toString().endsWith( "~" ) )
                 .sorted()
                 .forEach( file -> process( file, solution, assignment ) );
     }
 
-    /**
-     * Process the files in the root directory. Typically this is the directory
-     * that contains the maven pom file.
-     *
-     * Binary files are those that are not text according to
-     * CodeStripper#isText.
-     *
-     * @param root directory of the maven project
-     * @param target to not visit
-     * @param dotgit ignore
-     * @param solution zip container for solution files
-     * @param assignment zip container for assignment files
-     * @throws IOException should not occur.
-     */
-    void processBinaryFiles(String root,
-            final Zipper solution, final Zipper assignment) throws IOException {
-        Files.walk( Path.of( root ), Integer.MAX_VALUE )
-                .filter( f -> !Files.isDirectory( f ) )
-                //                .filter( f -> !f.startsWith( out ) )
-                .filter( f -> !f.startsWith( target ) )
-                .filter( f -> !f.startsWith( dotgit ) )
-                .filter( f -> !f.getFileName().toString().endsWith( "~" ) )
-                .filter( f -> !isText( f ) )
-                .sorted()
-                .forEach( file -> addFile( file, solution, assignment ) );
-    }
-
-    /**
-     * Adds file to solution, assignment and stripper out dir.
-     *
-     * @param file to add
-     * @param solution zip container
-     * @param assignment zip container
-     */
-    void addFile(Path file, Zipper solution, Zipper assignment) {
-        fileCount++;
-        // prepend solution in solution
-        solution.add( Path.of( "solution", file.toString() ), file );
-        assignment.add( Path.of( "assignment", file.toString() ), file );
-        // put file in outDir too, prepending
-        Path targetFile = outDir.resolve( file );
-        try {
-            Files.createDirectories( targetFile.getParent() );
-            Files.copy( file, targetFile, StandardCopyOption.REPLACE_EXISTING );
-
-        } catch ( IOException ex ) {
-            Logger.getLogger( CodeStripper.class.getName() )
-                    .log( Level.SEVERE, null, ex );
-        }
-    }
-    private final Set<String> textExtensions = Set.of( "java", "sql", "txt",
-            "sh",
-            "yaml", "yml" );
-
-    boolean isText(Path file) {
-        String fileNameString = file.getFileName().toString();
-        String[] split = fileNameString.split( "\\.", 2 );
-        if ( split.length < 2 ) {
-            // no extension
-            return false;
-        }
-        String extension = split[ 1 ];
-        return textExtensions.contains( extension );
-    }
-
-    private Path outDir = Path.of( "target/stripper-out" );
+    private final Path outDir;
 
     private void process(Path javaFile, Zipper solution, Zipper assignment) {
         fileCount++;
         logDebug( () -> "start stripping file " + javaFile.toString() );
-        Path targetFile = outDir.resolve( javaFile );
         var factory = new ProcessorFactory( javaFile ).logLevel( this.logLevel );
         try {
             var lines = Files.lines( javaFile ).toList();
             // unprocessed files go to solution
-            solution.add( Path.of( "solution", javaFile.toString() ), lines );
+            archiver.addSolutionLines( javaFile, lines );
             List<String> result = lines.stream()
                     .map( factory::apply )
                     .flatMap( x -> x ) // flatten the result
@@ -164,11 +102,7 @@ public class CodeStripper {
             if ( !dryRun && !result.isEmpty() ) {
                 // add to assigmnet after processing
                 logDebug( () -> "added " + javaFile.toString() );
-                assignment
-                        .add( Path.of( "assignment", javaFile.toString() ),
-                                result );
-                Files.createDirectories( targetFile.getParent() );
-                Files.write( targetFile, result );
+                archiver.addAssignmentLines( javaFile, lines );
             }
         } catch ( IOException ex ) {
             log.error( ex.getMessage() );
@@ -189,7 +123,8 @@ public class CodeStripper {
      * @throws IOException hope to die
      */
     public static void main(String... args) throws IOException {
-        new CodeStripper( new SystemStreamLog() ).strip( "" );
+        new CodeStripper( new SystemStreamLog(), Path
+                .of( DEFAULT_OUTDIR ) ).strip( Path.of( "" ) );
     }
 
     /**
@@ -198,18 +133,23 @@ public class CodeStripper {
      * @param log to set
      * @param dryRun flag
      */
-    public CodeStripper(Log log, boolean dryRun) {
+    public CodeStripper(Log log, boolean dryRun, Path outDir) {
         this.dryRun = dryRun;
         this.log = log;
+        this.outDir = outDir;
+        archiver = new Archiver( outDir.toString(), log );
     }
+
+    private final Archiver archiver;
 
     /**
      * Default stripper with dryRun false;
      *
      * @param log
+     * @param outDir for results.
      */
-    public CodeStripper(Log log) {
-        this( log, false );
+    public CodeStripper(Log log, Path outDir) {
+        this( log, false, outDir );
     }
     private LoggerLevel logLevel = FINE;
 
@@ -234,4 +174,12 @@ public class CodeStripper {
             log.info( msg.get() );
         }
     }
+
+    private List<String> extraResources = List.of();
+
+    public CodeStripper extraResources(List<String> resources) {
+        this.extraResources = resources;
+        return this;
+    }
+
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -23,7 +24,7 @@ import java.util.zip.ZipOutputStream;
  */
 class Zipper implements AutoCloseable {
 
-    final String zipFileName;
+    final Path zipFile;
     FileOutputStream fos;
     ZipOutputStream zos;
 
@@ -32,8 +33,9 @@ class Zipper implements AutoCloseable {
      *
      * @param zipFileName sic
      */
-    public Zipper(String zipFileName) {
-        this.zipFileName = zipFileName;
+    public Zipper(Path zipFile) {
+        Objects.requireNonNull( zipFile );
+        this.zipFile = zipFile;
     }
 
     /**
@@ -70,12 +72,13 @@ class Zipper implements AutoCloseable {
      * @param source the source of the data.
      */
     public void add(Path entryName, Path source) {
+        Objects.requireNonNull( source );
         if ( !Files.isRegularFile( source ) ) {
             return;
         }
         ensureOpen();
         try ( FileInputStream fis = new FileInputStream( source.toFile() ); ) {
-            ZipEntry ze = new ZipEntry( entryName.toString().toString() );
+            ZipEntry ze = new ZipEntry( entryName.toString() );
             zos.putNextEntry( ze );
             byte[] buffer = new byte[ 8192 ];
             try {
@@ -89,10 +92,12 @@ class Zipper implements AutoCloseable {
                 Logger.getLogger( Zipper.class.getName() ).log( Level.SEVERE,
                         null,
                         ex );
+                throw new RuntimeException( ex );
             }
         } catch ( IOException ex ) {
             Logger.getLogger( Zipper.class.getName() ).log( Level.SEVERE, null,
                     ex );
+            throw new RuntimeException( ex );
         }
     }
 
@@ -106,12 +111,13 @@ class Zipper implements AutoCloseable {
             if ( zos != null ) {
                 return;
             }
-            Files.createDirectories( Path.of( zipFileName ).getParent() );
-            fos = new FileOutputStream( zipFileName );
+            Files.createDirectories( zipFile.getParent() );
+            fos = new FileOutputStream( zipFile.toFile() );
             zos = new ZipOutputStream( fos );
         } catch ( IOException ex ) {
             Logger.getLogger( CodeStripper.class.getName() )
                     .log( Level.SEVERE, null, ex );
+            throw new RuntimeException( ex );
         }
     }
 
@@ -124,6 +130,7 @@ class Zipper implements AutoCloseable {
     public void close() throws Exception {
         try {
             if ( null != zos ) {
+                zos.finish();
                 zos.close();
             }
         } finally {

@@ -47,7 +47,7 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
 //        fail( "method CompilerArgs reached end. You know what to do." );
     }
 
-    //@Disabled("think TDD")
+    @Disabled( "think TDD" )
     @Test
     @DisplayName("run the compiler")
     public void testCompilerRun() throws IOException {

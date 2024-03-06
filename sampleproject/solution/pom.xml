@@ -21,6 +21,12 @@
                 <groupId>io.github.sebivenlo</groupId>
                 <artifactId>codestripper-maven-plugin</artifactId>
                 <version>0.1</version>
+                <configuration>
+                    <extraResources>
+                        <extraResource>../images</extraResource>
+                        <extraResource>../README.md</extraResource>
+                    </extraResources>
+                </configuration>
                 <executions>
                     <execution>
                         <id>strip</id>
@@ -28,6 +34,7 @@
                         <goals>
                             <goal>strip</goal>
                         </goals>
+                        
                     </execution>
                     <execution>
                         <id>verify</id>
