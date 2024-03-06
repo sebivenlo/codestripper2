@@ -5,12 +5,8 @@
 package codestripper;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static java.util.stream.Collectors.toList;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,18 +20,8 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
 @TestMethodOrder( OrderAnnotation.class )
-public class ArchiverTest {
+public class ArchiverTest extends StripperTestBase {
 
-    Path outDir;
-
-    public ArchiverTest() {
-        try {
-            outDir = Files.createTempDirectory( "codestripper-tests-" );
-        } catch ( IOException ex ) {
-            Logger.getLogger( ArchiverTest.class.getName() )
-                    .log( Level.SEVERE, null, ex );
-        }
-    }
 
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
     Log log = new SystemStreamLog();
@@ -83,12 +69,6 @@ public class ArchiverTest {
 //        fail( "method AddFile reached end. You know what to do." );
     }
 
-//    @AfterEach
-    public void cleanup() throws IOException {
-
-        cleanupStatic( outDir );
-    }
-
     @Order( 0 )
     //@Disabled("think TDD")
     @Test @DisplayName( "test path in archive" )
@@ -130,7 +110,6 @@ public class ArchiverTest {
     //    @Disabled( "think TDD" )
     @Test @DisplayName( "add extras" )
     public void testAddExtras() throws Exception {
-        cleanup();
         List<String> extras = List.of( "../README.md", "../images" );
         for ( String extra : extras ) {
             assumeThat( pwd.resolve( extra ) ).exists();
@@ -143,27 +122,9 @@ public class ArchiverTest {
                     .resolve( "../README.md" ).normalize();
             System.out.println( "expected Path " + expectedPath.toString() );
             assertThat( expectedPath.toAbsolutePath() ).exists();
-//            assertThat( outDir.resolve( "assignment" ).resolve( Path.of(
-//                    "images",
-//                    "lineprocessor-classdiagram.svg" ) ) )
-//                    .exists();
         }
 
 //        fail( "method AddExtras reached end. You know what to do." );
-    }
-
-    static void cleanupStatic(Path outDir) throws IOException {
-        if ( !outDir.toFile().exists() ) {
-            return;
-        }
-        List<Path> collect = Files.walk( outDir, Integer.MAX_VALUE )
-                .sorted( ( f1, f2 ) -> f2.compareTo( f1 ) )
-                .collect( toList() );
-        collect.stream()
-                .peek( System.out::println )
-                .forEach( f -> f.toFile().delete() );
-
-        assertThat( outDir.toFile() ).doesNotExist();
     }
 
 }

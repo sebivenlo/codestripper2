@@ -101,7 +101,7 @@ public class PathFinderTest {
                 .normalize()
                 .toAbsolutePath();
         System.out.println( "inAssesment = " + inAssesment.toString() );
-        fail( "method FindRelativePath reached end. You know what to do." );
+//        fail( "method FindRelativePath reached end. You know what to do." );
     }
 
     @AfterEach

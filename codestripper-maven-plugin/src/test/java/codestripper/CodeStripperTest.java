@@ -5,10 +5,7 @@
 package codestripper;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
@@ -16,25 +13,20 @@ import org.junit.jupiter.api.*;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-@Disabled
-public class CodeStripperTest {
-
-    Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    Path outDir = pwd.resolve( "target" ).resolve( "naked" );
-    Log log = new SystemStreamLog();
+//@Disabled
+public class CodeStripperTest extends StripperTestBase {
 
     //@Disabled("think TDD")
-    @Test @DisplayName( "some story line" )
+    @Test @DisplayName( "test the whole codestripper" )
     public void testTestStripper() throws IOException {
-
         var stripper = new CodeStripper( log, outDir ).extraResources( List.of(
                 "../README.md", "../images" ) );
         stripper.strip( pwd );
 
         assertThat( outDir.toFile() ).exists();
-        assertThat( outDir.resolve( "assessment" ).toFile() ).exists();
+        assertThat( outDir.resolve( "assignment" ).toFile() ).exists();
 
-        fail( "method TestStripper reached end. You know what to do." );
+//        fail( "method TestStripper reached end. You know what to do." );
     }
 
 }
