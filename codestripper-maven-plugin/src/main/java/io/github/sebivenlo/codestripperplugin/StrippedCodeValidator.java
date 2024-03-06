@@ -146,12 +146,13 @@ public class StrippedCodeValidator extends AbstractMojo {
 
     String[] getSourceFiles(Path startDir) {
         if ( null == sourceFiles ) {
-            String[] result = null;
+            String[] result = {};
             try ( Stream<Path> stream = Files.walk( startDir,
                     Integer.MAX_VALUE ) ) {
                 result = stream
                         .filter( path -> !Files.isDirectory( path ) )
                         .filter( this::isJavaFile )
+                        .peek( f -> System.out.println( "source " + f ) )
                         .map( Path::toString )
                         .toArray( String[]::new );
             } catch ( IOException ignored ) {

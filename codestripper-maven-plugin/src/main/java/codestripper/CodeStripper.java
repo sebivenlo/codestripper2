@@ -40,8 +40,8 @@ public class CodeStripper {
                  Zipper assignment = new Zipper( Path.of( "target",
                         "/assignment.zip" ) ); ) {
             processTextFiles( root, solution, assignment );
-            archiver.addBinaryFiles( root );//processBinaryFiles( root, solution, assignment );
-            archiver.addExtras( root, extraResources );//addExtraResources( root, solution, assignment );
+            archiver.addAssignmentFiles( root );//processBinaryFiles( root, solution, assignment );
+            archiver.addExtras( extraResources );//addExtraResources( root, solution, assignment );
         } catch ( Exception ex ) {
             Logger.getLogger( CodeStripper.class.getName() )
                     .log( Level.SEVERE, null, ex );

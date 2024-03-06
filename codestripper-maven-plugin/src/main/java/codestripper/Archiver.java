@@ -32,18 +32,27 @@ class Archiver implements AutoCloseable {
 
     final Log log;
     final Path outDir;
+    private final Path expandedArchive;
+    final Path pwd = Path.of( System.getProperty( "user.dir" ) )
+            .toAbsolutePath();
 
-    public Archiver(String outDir, Log log) {
-        this.outDir = Path.of( System.getProperty( "user.dir" ) ).resolve(
-                outDir );
+    public Archiver(String outDirName, Log log) {
+        this.outDir = pwd.resolve( outDirName );
         this.log = log;
-        solution = new Zipper( this.outDir.resolve( "solution.zip" ) );
-        assignment = new Zipper( this.outDir.resolve( "assignment.zip" ) );
+        solution = new Zipper( outDir.resolve( "solution.zip" ) );
+        assignment = new Zipper( outDir.resolve( "assignment.zip" ) );
+        this.expandedArchive = outDir.resolve( "assignment" );
     }
     final Zipper solution;
     final Zipper assignment;
 
-    ;
+    /**
+     *
+     * @return
+     */
+    public Path expandedArchive() {
+        return expandedArchive;
+    }
 
     /**
      * Archive the given lines in file in the assignment archive outDir and zip.
@@ -52,16 +61,15 @@ class Archiver implements AutoCloseable {
      * @param lines
      */
     void addAssignmentLines(Path file, List<String> lines) throws IOException {
-        addLinesToZip( assignment, file, lines );
-        // writeLinesToFile Path outdir+assignment+file
-        Path targetFile = outDir.resolve( "assignment/" + file.toString() );
+        Path path = Path.of( "assessment" ).resolve( file );
+        addLinesToZip( assignment, path, lines );
+        Path targetFile = this.expandedArchive.resolve( path );
         Files.createDirectories( targetFile.getParent() );
         Files.write( targetFile, lines );
-
     }
 
     void addSolutionLines(Path file, List<String> lines) throws IOException {
-        Path path = Path.of( "solution", file.toString() );
+        Path path = Path.of( "solution" ).resolve( file );
         addLinesToZip( solution, path, lines );
     }
 
@@ -73,8 +81,8 @@ class Archiver implements AutoCloseable {
     final Path dotgit = Path.of( ".git" );
 
     /**
-     * Process the files in the root directory. Typically this is the directory
-     * that contains the maven pom file.
+     * Process the non-text files in the root directory. Typically this is the
+     * directory that contains the maven pom file.
      *
      * Binary files are those that are not text according to
      * CodeStripper#isText.
@@ -82,7 +90,7 @@ class Archiver implements AutoCloseable {
      * @param root directory of the maven project
      * @throws IOException should not occur.
      */
-    void addBinaryFiles(Path root) throws IOException {
+    void addAssignmentFiles(Path root) throws IOException {
         Files.walk( root, Integer.MAX_VALUE )
                 .filter( f -> !Files.isDirectory( f ) )
                 //                .filter( f -> !f.startsWith( out ) )
@@ -116,58 +124,73 @@ class Archiver implements AutoCloseable {
      * @param file to add.
      */
     void addFile(Path file) {
-        System.out.println( "file = " + file.toString() );
-        Path inzip = Path.of( "solution", file.toString() );
-        System.out.println( "inzip = " + inzip );
-        solution.add( inzip, file );
-//        assignment.add( Path.of( "assignment", file.toString() ), file );
-        addConcreteFile( file );
+        // find relative path from pwd to file and use that in archive
+
+        Path insolution = pathInArchive( "solution", file );
+        solution.add( insolution, file );
+        Path inAssignment = pathInArchive( "assignment", file );
+        assignment.add( inAssignment, file );
+        addAssignmentFile( file, file );
     }
 
-    void addConcreteFile(Path file) {
-        Path targetFile = outDir.resolve( "assignment/" + file.toString() );
+    Path pathInArchive(String archive, Path file) {
+        Path relPath = pwd.relativize( file.toAbsolutePath().normalize() );
+        return Path.of( archive ).resolve( archive ).resolve( relPath )
+                .normalize();
+    }
+
+    void addAssignmentFile(Path inArchive, Path source) {
+        Path targetFile = expandedArchive.resolve( "assignment" ).resolve(
+                inArchive ).normalize();
         try {
             Files.createDirectories( targetFile.getParent() );
-            Files.copy( file, targetFile, StandardCopyOption.REPLACE_EXISTING );
+            Files.copy( source, targetFile,
+                    StandardCopyOption.REPLACE_EXISTING );
         } catch ( IOException ex ) {
-            log.warn( ex.getMessage() );
+            log.warn( "io exception on " + ex.getMessage() );
         }
     }
 
-    void addExtras(Path root, List<String> extraResources) {
+    /**
+     * Add the listed resources to the archives. The extraResources are resolved
+     * against the current working directory, which is typically the directory
+     * that contains the pom.xml file.
+     *
+     * @param extraResources
+     */
+    void addExtras(List<String> extraResources) {
         log.info( "Add extras" );
         if ( extraResources.isEmpty() ) {
             log.info( "no resources found" );
             return;
         }
-        // no deeper that parent, assuming this maven project lives in solution or similar.
-        Path parent = root.getParent();
-
         for ( String extraResource : extraResources ) {
             log.info( "considering extra resource " + extraResource );
             try {
-                var rPath = Path.of( extraResource );
+
+                var rPath = pwd.resolve( extraResource ).normalize();
                 if ( Files.notExists( rPath ) ) {
-                    log.warn( "file resource does not exist " + extraResource );
+                    log.warn( "file resource does not exist " + rPath
+                            .toString() );
                     continue;
                 }
-                // specify resource in unix style
-                var resourceReal = rPath.toRealPath();
-                var resourceInzip = parent.relativize( resourceReal );
+                var resourceInzip = pwd.relativize( rPath.toAbsolutePath() );
                 if ( Files.isRegularFile( rPath ) ) {
-                    addFileResource( solution, assignment, resourceInzip, rPath );
+                    log.info( "adding file " + resourceInzip.toString() );
+                    addAssignmentFile( resourceInzip, rPath );
                 } else if ( Files.isDirectory( rPath ) ) {
                     Files.walk( rPath, Integer.MAX_VALUE )
+                            .filter( Predicate.not( this::isOutDir ) )
                             .filter( f -> !Files.isDirectory( f ) )
-                            .peek( r -> log.info( "files" + r.toString() ) )
+                            .peek( r -> log.info( "adding file" + r.toString() ) )
+                            .map( f -> f.toAbsolutePath() )
                             .forEach(
-                                    p -> addFileResource( solution, assignment,
-                                            parent.relativize( p ), p )
+                                    p -> addAssignmentFile( pwd.relativize( p ),
+                                            p )
                             );
                 } else {
                     log.warn( "Not a file or dir" );
                 }
-//                addFile( resourceInzip, solution, assignment );
             } catch ( IOException ex ) {
                 Logger.getLogger( CodeStripper.class.getName() )
                         .log( Level.SEVERE, null, ex );
@@ -177,28 +200,8 @@ class Archiver implements AutoCloseable {
 
     }
 
-    /**
-     * Add a resource file to the destination solution, assignment and outDir.
-     *
-     * @param solution zipper
-     * @param assignment zipper
-     * @param resourceInzip name inside zip files
-     * @param rPath path the actual resource
-     */
-    private void addFileResource(Zipper solution, Zipper assignment,
-            Path resourceInzip, Path rPath) {
-        solution.add( resourceInzip, rPath );
-        assignment.add( resourceInzip, rPath );
-        Path targetFile = outDir.resolve( resourceInzip );
-        try {
-            Files.createDirectories( targetFile.getParent() );
-            Files.copy( rPath, targetFile,
-                    StandardCopyOption.REPLACE_EXISTING );
-
-        } catch ( IOException ex ) {
-            Logger.getLogger( CodeStripper.class.getName() )
-                    .log( Level.SEVERE, null, ex );
-        }
+    boolean isOutDir(Path p) {
+        return outDir.toAbsolutePath().equals( p.toAbsolutePath() );
     }
 
     @Override

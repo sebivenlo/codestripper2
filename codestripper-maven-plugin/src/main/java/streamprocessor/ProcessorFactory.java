@@ -280,6 +280,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
         String extension = filename.substring( lastIndex + 1 );
         switch ( extension ) {
             case "java": return "//";
+            case "sql": return "--";
             case "bat":
             case "cmd": return "@REM";
             case "py":

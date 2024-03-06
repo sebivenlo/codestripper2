@@ -53,13 +53,17 @@ public class ZipperTest {
             zipper.add( Path.of( "far", "far", "away" ).resolve( pom ), pom );
         }
         assertThat( pokZip ).exists();
-        ZipFile z = new ZipFile( pokZip.toFile() );
-        Enumeration<? extends ZipEntry> entries = z.entries();
-
-        long count = Collections.list( entries ).stream().count();
+        long count = countZipEntries( pokZip );
         assertThat( count ).isEqualTo( 1 );
 
 //        fail( "method AddFile reached end. You know what to do." );
+    }
+
+    static long countZipEntries(Path pokZip) throws IOException {
+        ZipFile z = new ZipFile( pokZip.toFile() );
+        Enumeration<? extends ZipEntry> entries = z.entries();
+        long count = Collections.list( entries ).stream().count();
+        return count;
     }
 
     @AfterEach

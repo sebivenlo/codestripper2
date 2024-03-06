@@ -22,9 +22,9 @@ import org.junit.jupiter.api.Test;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class PathFinder {
+public class PathFinderTest {
 
-    public PathFinder() {
+    public PathFinderTest() {
     }
 
     //@Disabled("think TDD")
@@ -58,7 +58,7 @@ public class PathFinder {
     }
 
     Path outDir = Path.of( System.getProperty( "user.dir" ) ).resolve( Path.of(
-            "puk" ) );
+            "PATHFINDER" ) );
 
     //@Disabled("think TDD")
     @Test @DisplayName( "non existing file" )
@@ -76,6 +76,32 @@ public class PathFinder {
         };
         assertThatCode( code ).doesNotThrowAnyException();
 //        fail( "method OpenFile reached end. You know what to do." );
+    }
+
+    //@Disabled("think TDD")
+    @Test @DisplayName( "how can you resolv a sibling" )
+    public void testFindPWDSibling() {
+        Path pwd = Path.of( System.getProperty( "user.dir" ) );
+        Path images = pwd.resolve( "../images" ).toAbsolutePath();
+        assertThat( images ).exists();
+//        fail( "method FindPWDSibling reached end. You know what to do." );
+    }
+
+    Path pwd = Path.of( System.getProperty( "user.dir" ) );
+
+    //@Disabled("think TDD")
+    @Test @DisplayName( "some story line" )
+    public void testFindRelativePath() {
+        Path p = Path.of( "..", "README.md" );
+        assumeThat( p ).exists();
+        Path relativize = pwd.relativize( p.toAbsolutePath() );
+        System.out.println( "relativize = " + relativize );
+        Path inAssesment = outDir
+                .resolve( "assignment" ).resolve( "assignment" ).resolve( p )
+                .normalize()
+                .toAbsolutePath();
+        System.out.println( "inAssesment = " + inAssesment.toString() );
+        fail( "method FindRelativePath reached end. You know what to do." );
     }
 
     @AfterEach

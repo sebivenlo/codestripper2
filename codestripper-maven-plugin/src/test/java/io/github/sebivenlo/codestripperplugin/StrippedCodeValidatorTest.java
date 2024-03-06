@@ -16,27 +16,33 @@ import org.junit.jupiter.api.*;
  */
 public class StrippedCodeValidatorTest extends StrippedCodeValidator {
 
+    Path pwd = Path.of( System.getProperty( "user.dir" ) );
+
     //@Disabled("think TDD")
     @Test
-    @DisplayName("Get source files")
+    @DisplayName( "Get source files" )
     public void testGetSourceFiles() {
-        Path sourceDir = Path.of( "src" );
+        Path sourceDir = pwd.resolve( Path.of( "src" ) );
         String[] sourceFiles = this.getSourceFiles( sourceDir );
 
         // massage the inpo paths
-        var actual = Arrays.asList( sourceFiles ).stream().map( l -> Path.of( l ) ).toList();
+        var actual = Arrays.asList( sourceFiles )
+                .stream().map( l -> pwd.relativize( Path.of( l ) ) )
+                .toList();
         var expected = List.of(
-                Path.of( "src/main/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidator.java" ),
-                Path.of( "src/test/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidatorTest.java" )
+                Path.of(
+                        "src/main/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidator.java" ),
+                Path.of(
+                        "src/test/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidatorTest.java" )
         );
 //        System.out.println( "sourceFiles = " + Arrays.toString( sourceFiles ) );
         assertThat( actual ).containsAll( expected );
 //        fail( "method SourceFiles reached end. You know what to do." );
     }
 
-    //@Disabled("think TDD")
+//    @Disabled( "think TDD" )
     @Test
-    @DisplayName("compiler args ")
+    @DisplayName( "compiler args " )
     public void testCompilerArgs() throws DependencyResolutionRequiredException, IOException {
         Path sourceDir = Path.of( "src" );
         String[] args = this.makeCompilerArguments( sourceDir, makeOutDir() );
@@ -47,9 +53,9 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
 //        fail( "method CompilerArgs reached end. You know what to do." );
     }
 
-    @Disabled( "think TDD" )
+//    @Disabled( "think TDD" )
     @Test
-    @DisplayName("run the compiler")
+    @DisplayName( "run the compiler" )
     public void testCompilerRun() throws IOException {
 
         codestripper.CodeStripper.main( new String[]{} );
