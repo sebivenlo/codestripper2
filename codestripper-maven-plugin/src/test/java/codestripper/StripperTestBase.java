@@ -10,6 +10,7 @@ import static java.util.stream.Collectors.toList;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import org.junit.jupiter.api.AfterEach;
 
 /**
@@ -25,7 +26,8 @@ public class StripperTestBase {
     public StripperTestBase() {
         try {
             outDir = Files.createTempDirectory( "codestripper-" + getClass()
-                    .getSimpleName() + "-tests-" );
+                    .getSimpleName() + "-" );
+            assumeThat( outDir ).exists();
         } catch ( IOException ex ) {
             Logger.getLogger( ArchiverTest.class.getName() )
                     .log( Level.SEVERE, null, ex );
@@ -34,7 +36,6 @@ public class StripperTestBase {
 
     @AfterEach
     public void cleanup() throws IOException {
-
         cleanupStatic( outDir );
     }
 

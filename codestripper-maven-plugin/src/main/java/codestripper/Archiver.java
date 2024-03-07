@@ -79,7 +79,6 @@ final class Archiver extends ChippenDale implements AutoCloseable {
                 .forEach( file -> addFile( file ) );
     }
 
-
     /**
      * Add file to all archive types.
      *
@@ -104,6 +103,7 @@ final class Archiver extends ChippenDale implements AutoCloseable {
     void addAssignmentFile(Path inArchive, Path source) {
         Path targetFile = expandedArchive.resolve( "assignment" ).resolve(
                 inArchive ).normalize();
+        log.info( "attempt to add " + targetFile.toString() );
         try {
             Files.createDirectories( targetFile.getParent() );
             Files.copy( source, targetFile,
@@ -136,20 +136,19 @@ final class Archiver extends ChippenDale implements AutoCloseable {
                             .toString() );
                     continue;
                 }
-                var resourceInzip = pwd.relativize( rPath.toAbsolutePath() );
                 if ( Files.isRegularFile( rPath ) ) {
+                    var resourceInzip = pwd.relativize( rPath.toAbsolutePath() );
                     log.info( "adding file " + resourceInzip.toString() );
-                    addAssignmentFile( resourceInzip, rPath );
+                    addFile( resourceInzip );
                 } else if ( Files.isDirectory( rPath ) ) {
                     Files.walk( rPath, Integer.MAX_VALUE )
                             .filter( f -> !f.startsWith( outDir ) )
                             .filter( f -> !f.startsWith( target ) )
                             .filter( f -> !Files.isDirectory( f ) )
                             .peek( r -> log.info( "adding file" + r.toString() ) )
-                            .map( f -> f.toAbsolutePath() )
+                            .map( f -> pwd.relativize( f.toAbsolutePath() ) )
                             .forEach(
-                                    p -> addAssignmentFile( pwd.relativize( p ),
-                                            p )
+                                    p -> addFile( p )
                             );
                 } else {
                     log.warn( "Not a file or dir" );

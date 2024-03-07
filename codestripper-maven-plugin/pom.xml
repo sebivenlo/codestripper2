@@ -46,11 +46,9 @@
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>3.11.0</version>
-                    <configuration>
-                        <goalPrefix>codestripper</goalPrefix>
-                    </configuration> 
                 </plugin>
             </plugins>
         </pluginManagement>
+        
     </build>
 </project>

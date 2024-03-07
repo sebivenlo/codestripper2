@@ -4,7 +4,6 @@
  */
 package codestripper;
 
-import static codestripper.StripperTestBase.cleanupStatic;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -104,9 +102,4 @@ public class PathFinderTest extends StripperTestBase {
 //        fail( "method FindRelativePath reached end. You know what to do." );
     }
 
-    @AfterEach
-    public void cleanup() throws IOException {
-
-        cleanupStatic( outDir );
-    }
 }

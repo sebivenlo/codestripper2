@@ -31,6 +31,8 @@ public class CodeStripperTest extends StripperTestBase {
     }
 
     @AfterEach
-    public void cleanup() {
+    @Override
+    public void cleanup() throws IOException {
+//        cleanupStatic( outDir );
     }
 }

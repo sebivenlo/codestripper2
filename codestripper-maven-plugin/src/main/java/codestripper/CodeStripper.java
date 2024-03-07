@@ -22,6 +22,9 @@ import streamprocessor.ProcessorFactory;
  */
 public final class CodeStripper extends ChippenDale {
 
+    /**
+     * Default out dir.
+     */
     public static final String DEFAULT_STRIPPER_OUTDIR = "target/stripper.out";
 
     private final boolean dryRun;
@@ -138,7 +141,7 @@ public final class CodeStripper extends ChippenDale {
     /**
      * Set the logging level.
      *
-     * @param level
+     * @param level logging level
      * @return this
      */
     public CodeStripper logLevel(LoggerLevel level) {
@@ -160,6 +163,12 @@ public final class CodeStripper extends ChippenDale {
 
     private List<String> extraResources = List.of();
 
+    /**
+     * Add extra resources.
+     *
+     * @param resources to add
+     * @return this
+     */
     public CodeStripper extraResources(List<String> resources) {
         this.extraResources = resources;
         return this;

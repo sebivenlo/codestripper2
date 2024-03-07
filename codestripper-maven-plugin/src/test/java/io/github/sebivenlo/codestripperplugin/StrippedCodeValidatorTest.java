@@ -21,6 +21,7 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
 
     public StrippedCodeValidatorTest() {
+
         try {
             outDir = Files.createTempDirectory( "codestripper-" + getClass()
                     .getSimpleName() + "-tests-" );

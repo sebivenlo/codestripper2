@@ -13,7 +13,13 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
- * Maven plugin entry for the code stripper plugin.
+ * Strips the text files in the project directory based on stripper tags.
+ *
+ *
+ * <pre> @{code Set.of( "java", "sql", "txt", "sh", "yaml", "yml" )}</pre>
+ *
+ * All text files are stripped in all subdirectories.
+ *
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */

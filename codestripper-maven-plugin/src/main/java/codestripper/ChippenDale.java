@@ -21,33 +21,45 @@ import org.apache.maven.plugin.logging.Log;
 sealed abstract class ChippenDale<C extends ChippenDale<C>>
         permits Archiver, CodeStripper {
 
+    /**
+     * known text formats
+     */
     protected static final Set<String> textExtensions = Set.of( "java", "sql",
-            "txt", "sh", "yaml", "yml" );
+            "txt", "sh", "yaml", "yml", "properties" );
 
+    /**
+     * Local path of .git.
+     */
     protected final Path dotgit = Path.of( ".git" );
+    /**
+     * The location of the 'unzipped' archive.
+     */
     protected final Path expandedArchive;
-    protected final Log log;
-    protected final Path outDir;
-    protected final Path pwd = Path.of( System.getProperty( "user.dir" ) )
+    /**
+     *
+     */
+    final Log log;
+    final Path outDir;
+    final Path pwd = Path.of( System.getProperty( "user.dir" ) )
             .toAbsolutePath();
-    protected final Path target = pwd.resolve( "target" ).toAbsolutePath();
-    protected LoggerLevel logLevel = LoggerLevel.FINE;
+    final Path target = pwd.resolve( "target" ).toAbsolutePath();
+    LoggerLevel logLevel = LoggerLevel.FINE;
 
     /**
      *
      * @return
      */
-    protected Path expandedArchive() {
+    Path expandedArchive() {
         return expandedArchive;
     }
 
-    protected ChippenDale(Log log, Path outDir) {
+    ChippenDale(Log log, Path outDir) {
         this.log = log;
         this.outDir = outDir.toAbsolutePath();
         this.expandedArchive = outDir.resolve( "assignment" );
     }
 
-    protected boolean isText(Path file) {
+    boolean isText(Path file) {
         String fileNameString = file.getFileName().toString();
         String[] split = fileNameString.split( "\\.", 2 );
         if ( split.length < 2 ) {
@@ -58,7 +70,14 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
         return Archiver.textExtensions.contains( extension );
     }
 
-    public boolean acceptablePath(Path p) {
+    /**
+     * Determine if a path is acceptable as location for resources. Used to test
+     * directories and files.
+     *
+     * @param p path to test
+     * @return true if acceptable false otherwise.
+     */
+    boolean acceptablePath(Path p) {
         if ( p.toString().startsWith( ".git" ) ) {
             return false;
         }
@@ -79,7 +98,7 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
         return true;
     }
 
-    public Path outDir() {
+    Path outDir() {
         return outDir;
     }
 

@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -61,6 +62,7 @@ public class StrippedCodeValidator extends AbstractMojo {
     Pattern problematicFile = Pattern.compile( "(?<file>.*):\\d+: error:.*" );
 
     void validate(Log log) throws InterruptedException, DependencyResolutionRequiredException, IOException {
+        getDependencies();
         outDir = makeOutDir();
         Path srcDir = Path.of( "target", "stripper-out", "src" );
         String[] args = makeCompilerArguments( srcDir, outDir );
@@ -207,4 +209,14 @@ public class StrippedCodeValidator extends AbstractMojo {
     public StrippedCodeValidator() {
     }
 
+    void getDependencies() {
+        Log log = getLog();
+        log.info( "===== depedencies ======" );
+        if ( null == project ) {
+            return;
+        }
+        project.getDependencies().stream()
+                .map( Dependency::toString )
+                .forEach( log::info );
+    }
 }
