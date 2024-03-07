@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,31 +27,15 @@ import org.apache.maven.plugin.logging.Log;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-class Archiver implements AutoCloseable {
-
-    final Log log;
-    final Path outDir;
-    private final Path expandedArchive;
-    final Path pwd = Path.of( System.getProperty( "user.dir" ) )
-            .toAbsolutePath();
+final class Archiver extends ChippenDale implements AutoCloseable {
 
     public Archiver(Path outDir, Log log) {
-        this.outDir = outDir.toAbsolutePath();
-        this.log = log;
+        super( log, outDir );
         solution = new Zipper( outDir.resolve( "solution.zip" ) );
         assignment = new Zipper( outDir.resolve( "assignment.zip" ) );
-        this.expandedArchive = outDir.resolve( "assignment" );
     }
     final Zipper solution;
     final Zipper assignment;
-
-    /**
-     *
-     * @return
-     */
-    public Path expandedArchive() {
-        return expandedArchive;
-    }
 
     /**
      * Archive the given lines in file in the assignment archive outDir and zip.
@@ -78,9 +61,6 @@ class Archiver implements AutoCloseable {
         zipper.add( file, lines );
     }
 
-    final Path target = Path.of( "target" ).toAbsolutePath();
-    final Path dotgit = Path.of( ".git" );
-
     /**
      * Process the non-text files in the root directory. Typically this is the
      * directory that contains the maven pom file.
@@ -93,32 +73,12 @@ class Archiver implements AutoCloseable {
      */
     void addAssignmentFiles(Path root) throws IOException {
         Files.walk( root, Integer.MAX_VALUE )
-                .filter( f -> !f.toAbsolutePath().startsWith( outDir ) )
-                .filter( f -> !f.toAbsolutePath().startsWith( target ) )
-                .filter( f -> !Files.isDirectory( f ) )
-                //                .filter( f -> !f.startsWith( out ) )
-                .filter( f -> !f.startsWith( dotgit ) )
-                .filter( f -> !f.getFileName().toString().endsWith( "~" ) )
-                .filter( Predicate.not( Archiver::isText ) )
+                .filter( this::acceptablePath )
+                .filter( Predicate.not( this::isText ) )
                 .sorted()
                 .forEach( file -> addFile( file ) );
     }
 
-    private static final Set<String> textExtensions = Set.of( "java", "sql",
-            "txt",
-            "sh",
-            "yaml", "yml" );
-
-    static boolean isText(Path file) {
-        String fileNameString = file.getFileName().toString();
-        String[] split = fileNameString.split( "\\.", 2 );
-        if ( split.length < 2 ) {
-            // no extension
-            return false;
-        }
-        String extension = split[ 1 ];
-        return textExtensions.contains( extension );
-    }
 
     /**
      * Add file to all archive types.

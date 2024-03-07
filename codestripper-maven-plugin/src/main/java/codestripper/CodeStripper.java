@@ -20,11 +20,10 @@ import streamprocessor.ProcessorFactory;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class CodeStripper {
+public final class CodeStripper extends ChippenDale {
 
-    public static final String DEFAULT_OUTDIR = "target/stripper.out";
+    public static final String DEFAULT_STRIPPER_OUTDIR = "target/stripper.out";
 
-    private final Log log;
     private final boolean dryRun;
 
     /**
@@ -36,13 +35,10 @@ public class CodeStripper {
      */
     public final void strip(Path root) throws IOException {
         Instant start = Instant.now();
-//        try ( Zipper solution = new Zipper( Path.of( "target", "solution.zip" ) ); //
-//                 Zipper assignment = new Zipper( Path.of( "target",
-//                        "/assignment.zip" ) ); ) {
         try ( Archiver archiver = new Archiver( outDir, log ); ) {
             processTextFiles( root, archiver );
-            archiver.addAssignmentFiles( root );//processBinaryFiles( root, solution, assignment );
-            archiver.addExtras( extraResources );//addExtraResources( root, solution, assignment );
+            archiver.addAssignmentFiles( root );
+            archiver.addExtras( extraResources );
         } catch ( Exception ex ) {
             Logger.getLogger( CodeStripper.class.getName() )
                     .log( Level.SEVERE, null, ex );
@@ -56,8 +52,6 @@ public class CodeStripper {
                         .toMillis() + " milliseconds" );
     }
 
-    Path target = Path.of( "target" );
-    Path dotgit = Path.of( ".git" );
     int fileCount = 0;
 
     /**
@@ -72,17 +66,11 @@ public class CodeStripper {
     void processTextFiles(Path root, Archiver archiver) throws IOException {
 
         Files.walk( root, Integer.MAX_VALUE )
-                .filter( f -> !Files.isDirectory( f ) )
-                //                .filter( f -> !f.startsWith( out ) )
-                .filter( f -> !f.startsWith( target ) )
-                .filter( f -> !f.startsWith( dotgit ) )
-                .filter( Archiver::isText )
-                .filter( f -> !f.getFileName().toString().endsWith( "~" ) )
+                .filter( this::acceptablePath )
+                .filter( this::isText )
                 .sorted()
                 .forEach( file -> process( file, archiver ) );
     }
-
-    private final Path outDir;
 
     private void process(Path javaFile, Archiver archiver) {
         fileCount++;
@@ -99,7 +87,7 @@ public class CodeStripper {
 
             if ( !dryRun && !result.isEmpty() ) {
                 // add to assigmnet after processing
-                logDebug( () -> "added " + javaFile.toString() );
+                logDebug( () -> "added stripped file" + javaFile.toString() );
                 archiver.addAssignmentLines( javaFile, lines );
             }
         } catch ( IOException ex ) {
@@ -122,7 +110,7 @@ public class CodeStripper {
      */
     public static void main(String... args) throws IOException {
         new CodeStripper( new SystemStreamLog(), Path
-                .of( DEFAULT_OUTDIR ) ).strip( Path.of( "" ) );
+                .of( DEFAULT_STRIPPER_OUTDIR ) ).strip( Path.of( "" ) );
     }
 
     /**
@@ -130,15 +118,12 @@ public class CodeStripper {
      *
      * @param log to set
      * @param dryRun flag
+     * @param outDir for action results.
      */
     public CodeStripper(Log log, boolean dryRun, Path outDir) {
+        super( log, outDir );
         this.dryRun = dryRun;
-        this.log = log;
-        this.outDir = outDir;
-//        archiver = new Archiver( outDir.toString(), log );
     }
-
-//    private final Archiver archiver;
 
     /**
      * Default stripper with dryRun false;
@@ -149,7 +134,6 @@ public class CodeStripper {
     public CodeStripper(Log log, Path outDir) {
         this( log, false, outDir );
     }
-    private LoggerLevel logLevel = FINE;
 
     /**
      * Set the logging level.

@@ -46,8 +46,8 @@ public class CodeStripperMojo extends AbstractMojo {
     protected String tag;
 //
     @Parameter( property = "codestripper.outDir",
-            defaultValue = CodeStripper.DEFAULT_OUTDIR )
-    protected String outDir = CodeStripper.DEFAULT_OUTDIR;
+            defaultValue = CodeStripper.DEFAULT_STRIPPER_OUTDIR )
+    protected String outDir = CodeStripper.DEFAULT_STRIPPER_OUTDIR;
 //
     @Parameter( property = "codestripper.verbosity", defaultValue = "INFO" )
     protected LoggerLevel verbosity;
