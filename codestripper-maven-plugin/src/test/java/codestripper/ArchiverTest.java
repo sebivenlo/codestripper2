@@ -34,7 +34,7 @@ public class ArchiverTest extends StripperTestBase {
                 "test info ===== " + info.getDisplayName() + " ========" );
         System.out.println( "outDir = " + outDir );
         try (
-                Archiver archiver = new Archiver( outDir.toString(), log ); ) {
+                Archiver archiver = new Archiver( outDir, log ); ) {
             Path source = Path.of( "..", "README.md" );
             archiver.addAssignmentFile( source, source );
             assertThat(
@@ -57,7 +57,7 @@ public class ArchiverTest extends StripperTestBase {
                 "ArchiverTest.java"
         );
         try (
-                Archiver archiver = new Archiver( outDir.toString(), log ); ) {
+                Archiver archiver = new Archiver( outDir, log ); ) {
             archiver.addFile( file );
             assertThat(
                     archiver.expandedArchive()
@@ -74,7 +74,7 @@ public class ArchiverTest extends StripperTestBase {
     @Test @DisplayName( "test path in archive" )
     public void testPathInArchive() throws Exception {
         Path readme = Path.of( "..", "README.md" );
-        try ( Archiver archiver = new Archiver( outDir.toString(), log ); ) {
+        try ( Archiver archiver = new Archiver( outDir, log ); ) {
             Path pathInArchive = archiver.pathInArchive( "puk", readme );
             assertThat( pathInArchive )
                     .isEqualTo( Path.of( "puk", "README.md" ) );
@@ -93,7 +93,7 @@ public class ArchiverTest extends StripperTestBase {
         System.out.println(
                 "test info ======= " + info.getDisplayName() + " ========" );
         try (
-                Archiver archiver = new Archiver( outDir.toString(), log ); ) {
+                Archiver archiver = new Archiver( outDir, log ); ) {
             archiver.addFile( fName );
             Path expected = archiver.expandedArchive()
                     //                    .resolve( "assignment" )
@@ -115,7 +115,7 @@ public class ArchiverTest extends StripperTestBase {
             assumeThat( pwd.resolve( extra ) ).exists();
         }
         try (
-                Archiver archiver = new Archiver( outDir.toString(), log ); ) {
+                Archiver archiver = new Archiver( outDir, log ); ) {
             archiver.addExtras( extras );
             Path expectedPath = archiver.expandedArchive()
                     .resolve( "assignment" )

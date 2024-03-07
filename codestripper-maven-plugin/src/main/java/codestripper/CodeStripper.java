@@ -36,10 +36,11 @@ public class CodeStripper {
      */
     public final void strip(Path root) throws IOException {
         Instant start = Instant.now();
-        try ( Zipper solution = new Zipper( Path.of( "target", "solution.zip" ) ); //
-                 Zipper assignment = new Zipper( Path.of( "target",
-                        "/assignment.zip" ) ); ) {
-            processTextFiles( root, solution, assignment );
+//        try ( Zipper solution = new Zipper( Path.of( "target", "solution.zip" ) ); //
+//                 Zipper assignment = new Zipper( Path.of( "target",
+//                        "/assignment.zip" ) ); ) {
+        try ( Archiver archiver = new Archiver( outDir, log ); ) {
+            processTextFiles( root, archiver );
             archiver.addAssignmentFiles( root );//processBinaryFiles( root, solution, assignment );
             archiver.addExtras( extraResources );//addExtraResources( root, solution, assignment );
         } catch ( Exception ex ) {
@@ -66,12 +67,9 @@ public class CodeStripper {
      * @param root directory of the maven project
      * @param target to not visit
      * @param dotgit ignore
-     * @param solution zip container for solution files
-     * @param assignment zip container for assignment files
      * @throws IOException should not occur.
      */
-    void processTextFiles(Path root,
-            final Zipper solution, final Zipper assignment) throws IOException {
+    void processTextFiles(Path root, Archiver archiver) throws IOException {
 
         Files.walk( root, Integer.MAX_VALUE )
                 .filter( f -> !Files.isDirectory( f ) )
@@ -81,12 +79,12 @@ public class CodeStripper {
                 .filter( Archiver::isText )
                 .filter( f -> !f.getFileName().toString().endsWith( "~" ) )
                 .sorted()
-                .forEach( file -> process( file, solution, assignment ) );
+                .forEach( file -> process( file, archiver ) );
     }
 
     private final Path outDir;
 
-    private void process(Path javaFile, Zipper solution, Zipper assignment) {
+    private void process(Path javaFile, Archiver archiver) {
         fileCount++;
         logDebug( () -> "start stripping file " + javaFile.toString() );
         var factory = new ProcessorFactory( javaFile ).logLevel( this.logLevel );
@@ -137,10 +135,10 @@ public class CodeStripper {
         this.dryRun = dryRun;
         this.log = log;
         this.outDir = outDir;
-        archiver = new Archiver( outDir.toString(), log );
+//        archiver = new Archiver( outDir.toString(), log );
     }
 
-    private final Archiver archiver;
+//    private final Archiver archiver;
 
     /**
      * Default stripper with dryRun false;
@@ -157,6 +155,7 @@ public class CodeStripper {
      * Set the logging level.
      *
      * @param level
+     * @return this
      */
     public CodeStripper logLevel(LoggerLevel level) {
         this.logLevel = level;

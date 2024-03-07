@@ -4,7 +4,7 @@
  */
 package codestripper;
 
-import static codestripper.ArchiverTest.cleanupStatic;
+import static codestripper.StripperTestBase.cleanupStatic;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class PathFinderTest {
+public class PathFinderTest extends StripperTestBase {
 
     public PathFinderTest() {
     }
@@ -63,7 +63,7 @@ public class PathFinderTest {
     //@Disabled("think TDD")
     @Test @DisplayName( "non existing file" )
     public void testNewFile() throws IOException {
-        var resource = Path.of( "puk", "puk.zip" );
+        var resource = outDir.resolve( "puk.zip" );
 
         Files.createDirectories( resource.getParent() );
         ThrowingCallable code = () -> {

@@ -1,5 +1,6 @@
 package io.github.sebivenlo.codestripperplugin;
 
+import codestripper.CodeStripper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -59,6 +60,9 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
     public void testCompilerRun() throws IOException {
 
         codestripper.CodeStripper.main( new String[]{} );
+        CodeStripper stripper = new CodeStripper( getLog(), outDir )
+                .extraResources( List.of( "..README.md", "../images" ) );
+        stripper.strip( pwd );
         ThrowableAssert.ThrowingCallable code = () -> {
             this.execute();
         };

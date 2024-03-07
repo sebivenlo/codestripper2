@@ -19,6 +19,7 @@ public class CodeStripperTest extends StripperTestBase {
     //@Disabled("think TDD")
     @Test @DisplayName( "test the whole codestripper" )
     public void testTestStripper() throws IOException {
+        System.out.println( "codestripper result in " + outDir.toString() );
         var stripper = new CodeStripper( log, outDir ).extraResources( List.of(
                 "../README.md", "../images" ) );
         stripper.strip( pwd );
@@ -29,4 +30,7 @@ public class CodeStripperTest extends StripperTestBase {
 //        fail( "method TestStripper reached end. You know what to do." );
     }
 
+    @AfterEach
+    public void cleanup() {
+    }
 }

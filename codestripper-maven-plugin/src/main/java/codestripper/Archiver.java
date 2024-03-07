@@ -36,8 +36,8 @@ class Archiver implements AutoCloseable {
     final Path pwd = Path.of( System.getProperty( "user.dir" ) )
             .toAbsolutePath();
 
-    public Archiver(String outDirName, Log log) {
-        this.outDir = pwd.resolve( outDirName );
+    public Archiver(Path outDir, Log log) {
+        this.outDir = outDir.toAbsolutePath();
         this.log = log;
         solution = new Zipper( outDir.resolve( "solution.zip" ) );
         assignment = new Zipper( outDir.resolve( "assignment.zip" ) );
@@ -61,23 +61,24 @@ class Archiver implements AutoCloseable {
      * @param lines
      */
     void addAssignmentLines(Path file, List<String> lines) throws IOException {
-        Path path = Path.of( "assessment" ).resolve( file );
-        addLinesToZip( assignment, path, lines );
+        Path path = Path.of( "assignment" ).resolve( file );
+        Path pathInZip = Path.of( "assignment" ).resolve( path );
+        addLinesToZip( assignment, pathInZip, lines );
         Path targetFile = this.expandedArchive.resolve( path );
         Files.createDirectories( targetFile.getParent() );
         Files.write( targetFile, lines );
     }
 
     void addSolutionLines(Path file, List<String> lines) throws IOException {
-        Path path = Path.of( "solution" ).resolve( file );
-        addLinesToZip( solution, path, lines );
+        Path pathInZip = Path.of( "solution" ).resolve( file );
+        addLinesToZip( solution, pathInZip, lines );
     }
 
     void addLinesToZip(Zipper zipper, Path file, List<String> lines) throws IOException {
         zipper.add( file, lines );
     }
 
-    final Path target = Path.of( "target" );
+    final Path target = Path.of( "target" ).toAbsolutePath();
     final Path dotgit = Path.of( ".git" );
 
     /**
@@ -92,9 +93,10 @@ class Archiver implements AutoCloseable {
      */
     void addAssignmentFiles(Path root) throws IOException {
         Files.walk( root, Integer.MAX_VALUE )
+                .filter( f -> !f.toAbsolutePath().startsWith( outDir ) )
+                .filter( f -> !f.toAbsolutePath().startsWith( target ) )
                 .filter( f -> !Files.isDirectory( f ) )
                 //                .filter( f -> !f.startsWith( out ) )
-                .filter( f -> !f.startsWith( target ) )
                 .filter( f -> !f.startsWith( dotgit ) )
                 .filter( f -> !f.getFileName().toString().endsWith( "~" ) )
                 .filter( Predicate.not( Archiver::isText ) )
@@ -180,7 +182,8 @@ class Archiver implements AutoCloseable {
                     addAssignmentFile( resourceInzip, rPath );
                 } else if ( Files.isDirectory( rPath ) ) {
                     Files.walk( rPath, Integer.MAX_VALUE )
-                            .filter( Predicate.not( this::isOutDir ) )
+                            .filter( f -> !f.startsWith( outDir ) )
+                            .filter( f -> !f.startsWith( target ) )
                             .filter( f -> !Files.isDirectory( f ) )
                             .peek( r -> log.info( "adding file" + r.toString() ) )
                             .map( f -> f.toAbsolutePath() )
@@ -198,10 +201,6 @@ class Archiver implements AutoCloseable {
 
         }
 
-    }
-
-    boolean isOutDir(Path p) {
-        return outDir.toAbsolutePath().equals( p.toAbsolutePath() );
     }
 
     @Override
