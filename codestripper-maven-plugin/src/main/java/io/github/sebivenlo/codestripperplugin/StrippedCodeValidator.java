@@ -62,9 +62,10 @@ public class StrippedCodeValidator extends AbstractMojo {
 
     void validate(Log log) throws InterruptedException, DependencyResolutionRequiredException, IOException {
         getDependencies();
-        outDir = makeOutDir();
-        Path srcDir = Path.of( "target", "stripper-out", "src" );
-        String[] args = makeCompilerArguments( srcDir, outDir );
+        Path compilerOutDir = makeOutDir();
+        Path srcDir = Path.of( "target", "stripper.out", "assignment",
+                "assignment", "src" );
+        String[] args = makeCompilerArguments( srcDir, compilerOutDir );
         ProcessBuilder pb = new ProcessBuilder( args );
         getLog()
                 .info( "validating " + validatedClassCount + " stripped classes" );
@@ -111,9 +112,10 @@ public class StrippedCodeValidator extends AbstractMojo {
     Path outDir;
 
     Path makeOutDir() throws IOException {
-        outDir = Files.createTempDirectory( "cs-target" );
-        outDir.toFile().deleteOnExit();
-        return outDir;
+        Path result = Files.createTempDirectory( "cs-" + getClass()
+                .getSimpleName() + "-" );
+        result.toFile().deleteOnExit();
+        return result;
     }
 
     static final String pathSep = System.getProperty( "path.separator" );

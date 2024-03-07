@@ -1,4 +1,4 @@
-package io.github.sebivenlo.codestripperplugin;
+package codestripper;
 
 /**
  *

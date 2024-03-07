@@ -3,6 +3,7 @@ package codestripper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,21 +23,24 @@ public class StripperTestBase {
     Path outDir;
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
     Log log = new SystemStreamLog();
+//    Path parentDir = pwd.getParent().getFileName();
 
     public StripperTestBase() {
+        Path tmpDir = Path.of( "/", "tmp", "codestripper-" + getClass()
+                .getSimpleName() + "-" + LocalDateTime.now().toString()
+                        .replaceAll( "[:T]", "-" ) );
         try {
-            outDir = Files.createTempDirectory( "codestripper-" + getClass()
-                    .getSimpleName() + "-" );
-            assumeThat( outDir ).exists();
+            outDir = Files.createDirectory( tmpDir );
         } catch ( IOException ex ) {
             Logger.getLogger( ArchiverTest.class.getName() )
                     .log( Level.SEVERE, null, ex );
         }
+        assumeThat( outDir ).exists();
     }
 
     @AfterEach
     public void cleanup() throws IOException {
-        cleanupStatic( outDir );
+//        cleanupStatic( outDir );
     }
 
     static void cleanupStatic(Path outDir) throws IOException {

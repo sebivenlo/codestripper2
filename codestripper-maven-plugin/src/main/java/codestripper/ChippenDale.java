@@ -4,6 +4,7 @@
  */
 package codestripper;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
@@ -35,15 +36,24 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
      * The location of the 'unzipped' archive.
      */
     protected final Path expandedArchive;
+    public Path getExpandedArchive() {
+        return expandedArchive;
+    }
     /**
      *
      */
     final Log log;
-    final Path outDir;
+    private final Path outDir;
     final Path pwd = Path.of( System.getProperty( "user.dir" ) )
             .toAbsolutePath();
     final Path target = pwd.resolve( "target" ).toAbsolutePath();
     LoggerLevel logLevel = LoggerLevel.FINE;
+
+    final String projectName = pwd.getParent().getFileName().toString();
+
+    public String projectName() {
+        return projectName;
+    }
 
     /**
      *
@@ -53,10 +63,11 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
         return expandedArchive;
     }
 
-    ChippenDale(Log log, Path outDir) {
+    ChippenDale(Log log, Path outDir) throws IOException {
         this.log = log;
-        this.outDir = outDir.toAbsolutePath();
-        this.expandedArchive = outDir.resolve( "assignment" );
+        System.out.println( "outDir = " + outDir );
+        this.outDir = outDir.toRealPath().toAbsolutePath();
+        this.expandedArchive = outDir().resolve( "assignment" );
     }
 
     boolean isText(Path file) {

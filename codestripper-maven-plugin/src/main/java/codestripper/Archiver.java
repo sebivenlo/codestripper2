@@ -29,10 +29,10 @@ import org.apache.maven.plugin.logging.Log;
  */
 final class Archiver extends ChippenDale implements AutoCloseable {
 
-    public Archiver(Path outDir, Log log) {
+    public Archiver(Path outDir, Log log) throws IOException {
         super( log, outDir );
-        solution = new Zipper( outDir.resolve( "solution.zip" ) );
-        assignment = new Zipper( outDir.resolve( "assignment.zip" ) );
+        solution = new Zipper( outDir().resolve( "solution.zip" ) );
+        assignment = new Zipper( outDir().resolve( "assignment.zip" ) );
     }
     final Zipper solution;
     final Zipper assignment;
@@ -87,26 +87,34 @@ final class Archiver extends ChippenDale implements AutoCloseable {
     void addFile(Path file) {
         // find relative path from pwd to file and use that in archive
 
-        Path insolution = pathInArchive( "solution", file );
+        Path insolution = relPathInArchive( "solution", file );
         solution.add( insolution, file );
-        Path inAssignment = pathInArchive( "assignment", file );
+        Path inAssignment = relPathInArchive( "assignment", file );
         assignment.add( inAssignment, file );
-        addAssignmentFile( file, file );
+        addAssignmentFile( inAssignment, file );
     }
 
-    Path pathInArchive(String archive, Path file) {
-        Path relPath = pwd.relativize( file.toAbsolutePath().normalize() );
-        return Path.of( archive ).resolve( archive ).resolve( relPath )
+    Path relPathInArchive(String archive, Path file) {
+        Path relPath = pwd.relativize( pwd.resolve( file ).normalize() );
+        System.out.println( "   resolved against pwd = " + relPath );
+        var relPathResult = Path.of( archive ).resolve( projectName ).resolve(
+                relPath )
                 .normalize();
+        System.out.println( "   relPathResult = " + relPathResult );
+        return relPathResult;
     }
 
     void addAssignmentFile(Path inArchive, Path source) {
-        Path targetFile = expandedArchive.resolve( "assignment" ).resolve(
-                inArchive ).normalize();
         log.info( "attempt to add " + inArchive.toString() );
+        System.out.println( "attempt to add " + inArchive.toString() );
         try {
-            Files.createDirectories( targetFile.getParent() );
-            Files.copy( source, targetFile,
+            System.out.println( "++++ inArchive = " + inArchive );
+            System.out.println( "++++ source = " + source.toString() );
+            Path archiveFile = expandedArchive().resolve( inArchive );
+            System.out.println( "++++ outDir = " + outDir() );
+            System.out.println( "++++ archiveFile = " + archiveFile );
+            Files.createDirectories( archiveFile.getParent() );
+            Files.copy( source, archiveFile,
                     StandardCopyOption.REPLACE_EXISTING );
         } catch ( IOException ex ) {
             log.warn( "io exception on " + ex.getMessage() );

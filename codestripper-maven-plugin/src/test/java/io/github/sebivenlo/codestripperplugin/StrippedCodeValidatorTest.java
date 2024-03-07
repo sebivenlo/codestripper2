@@ -70,7 +70,6 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
     @DisplayName( "run the compiler" )
     public void testCompilerRun() throws IOException {
 
-        codestripper.CodeStripper.main( new String[]{} );
         CodeStripper stripper = new CodeStripper( getLog(), outDir )
                 .extraResources( List.of( "..README.md", "../images" ) );
         stripper.strip( pwd );

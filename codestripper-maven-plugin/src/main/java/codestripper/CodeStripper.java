@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -38,7 +37,7 @@ public final class CodeStripper extends ChippenDale {
      */
     public final void strip(Path root) throws IOException {
         Instant start = Instant.now();
-        try ( Archiver archiver = new Archiver( outDir, log ); ) {
+        try ( Archiver archiver = new Archiver( outDir(), log ); ) {
             processTextFiles( root, archiver );
             archiver.addAssignmentFiles( root );
             archiver.addExtras( extraResources );
@@ -106,24 +105,13 @@ public final class CodeStripper extends ChippenDale {
     }
 
     /**
-     * Who doesn't need me.
-     *
-     * @param args to ignore
-     * @throws IOException hope to die
-     */
-    public static void main(String... args) throws IOException {
-        new CodeStripper( new SystemStreamLog(), Path
-                .of( DEFAULT_STRIPPER_OUTDIR ) ).strip( Path.of( "" ) );
-    }
-
-    /**
      * No specialties needed.
      *
      * @param log to set
      * @param dryRun flag
      * @param outDir for action results.
      */
-    public CodeStripper(Log log, boolean dryRun, Path outDir) {
+    public CodeStripper(Log log, boolean dryRun, Path outDir) throws IOException {
         super( log, outDir );
         this.dryRun = dryRun;
     }
@@ -134,7 +122,7 @@ public final class CodeStripper extends ChippenDale {
      * @param log
      * @param outDir for results.
      */
-    public CodeStripper(Log log, Path outDir) {
+    public CodeStripper(Log log, Path outDir) throws IOException {
         this( log, false, outDir );
     }
 
