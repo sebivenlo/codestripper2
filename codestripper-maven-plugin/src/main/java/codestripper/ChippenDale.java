@@ -88,7 +88,7 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
         var itr = absPath.iterator();
         // no .git in dir name
         while ( itr.hasNext() ) {
-            if ( itr.next().equals( ".git" ) ) {
+            if ( itr.next().getFileName().toString().equals( ".git" ) ) {
                 return false;
             }
         }
