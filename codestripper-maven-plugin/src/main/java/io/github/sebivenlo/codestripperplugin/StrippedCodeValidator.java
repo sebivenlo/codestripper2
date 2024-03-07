@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -209,14 +208,14 @@ public class StrippedCodeValidator extends AbstractMojo {
     public StrippedCodeValidator() {
     }
 
-    void getDependencies() {
+    void getDependencies() throws DependencyResolutionRequiredException {
         Log log = getLog();
         log.info( "===== depedencies ======" );
         if ( null == project ) {
             return;
         }
-        project.getDependencies().stream()
-                .map( Dependency::toString )
-                .forEach( log::info );
+        project.getTestClasspathElements().stream()
+                //                .map( Dependency::toString )
+                .forEach( s -> log.info( "class path element " + s ) );
     }
 }

@@ -103,7 +103,7 @@ final class Archiver extends ChippenDale implements AutoCloseable {
     void addAssignmentFile(Path inArchive, Path source) {
         Path targetFile = expandedArchive.resolve( "assignment" ).resolve(
                 inArchive ).normalize();
-        log.info( "attempt to add " + targetFile.toString() );
+        log.info( "attempt to add " + inArchive.toString() );
         try {
             Files.createDirectories( targetFile.getParent() );
             Files.copy( source, targetFile,
@@ -142,10 +142,7 @@ final class Archiver extends ChippenDale implements AutoCloseable {
                     addFile( resourceInzip );
                 } else if ( Files.isDirectory( rPath ) ) {
                     Files.walk( rPath, Integer.MAX_VALUE )
-                            .filter( f -> !f.startsWith( outDir ) )
-                            .filter( f -> !f.startsWith( target ) )
-                            .filter( f -> !Files.isDirectory( f ) )
-                            .peek( r -> log.info( "adding file" + r.toString() ) )
+                            .filter( this::acceptablePath )
                             .map( f -> pwd.relativize( f.toAbsolutePath() ) )
                             .forEach(
                                     p -> addFile( p )
