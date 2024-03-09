@@ -5,14 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import org.junit.jupiter.api.AfterEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -22,7 +20,7 @@ public class StripperTestBase {
 
     Path outDir;
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    Log log = new SystemStreamLog();
+    Logger log = LoggerFactory.getLogger( StripperTestBase.class );
 //    Path parentDir = pwd.getParent().getFileName();
 
     public StripperTestBase() {
@@ -32,8 +30,8 @@ public class StripperTestBase {
         try {
             outDir = Files.createDirectory( tmpDir );
         } catch ( IOException ex ) {
-            Logger.getLogger( ArchiverTest.class.getName() )
-                    .log( Level.SEVERE, null, ex );
+
+            log.error( ex.getMessage() );
         }
         assumeThat( outDir ).exists();
     }

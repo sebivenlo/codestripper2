@@ -11,7 +11,7 @@
     <artifactId>sampleproject</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
-    <name>codestripper example project</name>
+    <name>codestripper sampleproject</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -26,6 +26,7 @@
                         <extraResource>../images</extraResource>
                         <extraResource>../README.md</extraResource>
                     </extraResources>
+                    <outDir>target/out</outDir>
                 </configuration>
                 <executions>
                     <execution>

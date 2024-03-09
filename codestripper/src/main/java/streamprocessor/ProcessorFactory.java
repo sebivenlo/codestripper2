@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static java.util.stream.Stream.of;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creator of Processor boxes based on the content os strings and previous
@@ -41,6 +41,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      */
     public ProcessorFactory() {
         this( JAVA_PATH );
+
     }
 
     /**
@@ -51,7 +52,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     public ProcessorFactory(Path filePath) {
         this( filePath, "cs" );
     }
-    private static Log log = new SystemStreamLog();
+    private Logger logger;
 
     /**
      * Create a factory for the given file and specify the tag
@@ -73,6 +74,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 ;
         pattern = Pattern.compile( myPreciousRegex );
         this.transforms = new HashMap<>( defaultTransforms );
+        this.logger = LoggerFactory.getLogger( ProcessorFactory.class );
     }
 
     /**
@@ -185,13 +187,13 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
 
     int lineNumber = 0;
 
-    static Stream<String> include(Processor proc) {
+    Stream<String> include(Processor proc) {
         try {
             return Files.lines( Path.of( proc.payLoad().trim() ) ).map(
                     l -> proc.indent() + l );
         } catch ( IOException ex ) {
 
-            log.error( ex.getMessage() );
+            logger.error( ex.getMessage() );
             return Stream.empty();
         }
     }
@@ -209,8 +211,8 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     final Function<Processor, Stream<String>> remove
             = p -> {
                 if ( !p.payLoad().isBlank() ) {
-            logFine( () -> "replaced line '" + p.lineNumber()
-                    + ":'" + p.line() + "'" );
+                    logFine( () -> "replaced line '" + p.lineNumber()
+                            + ":'" + p.line() + "'" );
             return Stream.of( p.payLoad() );
         }
         logFine( () -> "dropped line '" + p.lineNumber()
@@ -219,7 +221,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             };
 
     final Function<Processor, Stream<String>> include
-            = ProcessorFactory::include;
+            = this::include;
     final Function<Processor, Stream<String>> UPPER
             = p -> Stream.of( p.text().toUpperCase() );
     final Function<Processor, Stream<String>> lower
@@ -318,13 +320,13 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
 
     void logFine(Supplier<String> msg) {
         if ( this.logLevel.compareTo( FINE ) >= 0 ) {
-            log.info( msg.get() );
+            logger.info( msg.get() );
         }
     }
 
     void logDebug(Supplier<String> msg) {
         if ( this.logLevel.compareTo( DEBUG ) >= 0 ) {
-            log.info( msg.get() );
+            logger.info( msg.get() );
         }
     }
 

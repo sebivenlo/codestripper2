@@ -9,9 +9,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -37,19 +36,18 @@ public final class CodeStripper extends ChippenDale {
      */
     public final void strip(Path root) throws IOException {
         Instant start = Instant.now();
-        try ( Archiver archiver = new Archiver( outDir(), log ); ) {
+        try ( Archiver archiver = new Archiver( outDir(), logger ); ) {
             processTextFiles( root, archiver );
             archiver.addAssignmentFiles( root );
             archiver.addExtras( extraResources );
         } catch ( Exception ex ) {
-            Logger.getLogger( CodeStripper.class.getName() )
-                    .log( Level.SEVERE, null, ex );
+            logger.error( ex.getMessage() );
         }
         // save file names for later zipping.
         Instant end = Instant.now();
 
         Duration took = Duration.between( start, end );
-        log.info(
+        logger.info(
                 "codestripper processed " + fileCount + " files in " + took
                         .toMillis() + " milliseconds" );
     }
@@ -93,11 +91,11 @@ public final class CodeStripper extends ChippenDale {
                 archiver.addAssignmentLines( javaFile, lines );
             }
         } catch ( IOException ex ) {
-            log.error( ex.getMessage() );
+            logger.error( ex.getMessage() );
         }
 
         if ( factory.hasDanglingTag() ) {
-            log.warn(
+            logger.warn(
                     "file " + javaFile.toString() + " has dangling tag, started at " + factory
                     .danglingTag() );
         }
@@ -107,12 +105,12 @@ public final class CodeStripper extends ChippenDale {
     /**
      * No specialties needed.
      *
-     * @param log to set
+     * @param logger to set
      * @param dryRun flag
      * @param outDir for action results.
      */
-    public CodeStripper(Log log, boolean dryRun, Path outDir) throws IOException {
-        super( log, outDir );
+    public CodeStripper(Logger logger, boolean dryRun, Path outDir) throws IOException {
+        super( logger, outDir );
         this.dryRun = dryRun;
     }
 
@@ -122,7 +120,7 @@ public final class CodeStripper extends ChippenDale {
      * @param log
      * @param outDir for results.
      */
-    public CodeStripper(Log log, Path outDir) throws IOException {
+    public CodeStripper(Logger log, Path outDir) throws IOException {
         this( log, false, outDir );
     }
 
@@ -139,13 +137,13 @@ public final class CodeStripper extends ChippenDale {
 
     void logFine(Supplier<String> msg) {
         if ( this.logLevel.compareTo( FINE ) >= 0 ) {
-            log.info( msg.get() );
+            logger.info( msg.get() );
         }
     }
 
     void logDebug(Supplier<String> msg) {
         if ( this.logLevel.compareTo( DEBUG ) >= 0 ) {
-            log.info( msg.get() );
+            logger.info( msg.get() );
         }
     }
 
@@ -162,4 +160,10 @@ public final class CodeStripper extends ChippenDale {
         return this;
     }
 
+    public static void main(String[] args) throws IOException {
+        var codestripper = new CodeStripper( LoggerFactory.getLogger(
+                CodeStripper.class ), Path.of(
+                        "target/puk" ) );
+        codestripper.strip( Path.of( "" ) );
+    }
 }

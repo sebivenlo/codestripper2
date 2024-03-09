@@ -7,12 +7,14 @@ package codestripper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.assertj.core.api.Assumptions.assumeThatCode;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tets the archiver.
@@ -23,8 +25,13 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 public class ArchiverTest extends StripperTestBase {
 
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    Log log = new SystemStreamLog();
+    Logger log = LoggerFactory.getLogger( ArchiverTest.class );
 
+//    //@Disabled("think TDD")
+//    @Test @DisplayName( "creating a new archiver should cause no problems" )
+//    public void testNewArchiverIsOkay() {
+//        fail( "method NewArchiverIsOkay reached end. You know what to do." );
+//    }
     @Order( 0 )
     //    @Disabled( "think TDD" )
     @Test @DisplayName( "test dot dot file in archive" )
@@ -176,6 +183,16 @@ public class ArchiverTest extends StripperTestBase {
 
     public ArchiverTest() {
         super();
+        ThrowingCallable code = () -> {
+            try (
+                    Archiver archiver = new Archiver( outDir, log ); ) {
+            } catch ( Throwable ex ) {
+                ex.printStackTrace();
+                throw ex;
+            }
+        };
+
+        assumeThatCode( code ).doesNotThrowAnyException();
     }
 
 }

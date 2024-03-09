@@ -1,14 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package codestripper;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
-import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
 
 /**
  * Parent of classes in this package that should have the same view on things.
@@ -36,20 +32,21 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
      * The location of the 'unzipped' archive.
      */
     protected final Path expandedArchive;
+
     public Path getExpandedArchive() {
         return expandedArchive;
     }
     /**
      *
      */
-    final Log log;
+    protected Logger logger;
     private final Path outDir;
     final Path pwd = Path.of( System.getProperty( "user.dir" ) )
             .toAbsolutePath();
-    final Path target = pwd.resolve( "target" ).toAbsolutePath();
+    private final Path target = pwd.resolve( "target" ).toAbsolutePath();
     LoggerLevel logLevel = LoggerLevel.FINE;
 
-    final String projectName = pwd.getParent().getFileName().toString();
+    private final String projectName = pwd.getParent().getFileName().toString();
 
     public String projectName() {
         return projectName;
@@ -63,9 +60,12 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
         return expandedArchive;
     }
 
-    ChippenDale(Log log, Path outDir) throws IOException {
-        this.log = log;
+    ChippenDale(Logger logger, Path outDir) throws IOException {
+        this.logger = logger;
         System.out.println( "outDir = " + outDir );
+        if ( !outDir.toFile().exists() ) {
+            Files.createDirectory( outDir );
+        }
         this.outDir = outDir.toRealPath().toAbsolutePath();
         this.expandedArchive = outDir().resolve( "assignment" );
     }

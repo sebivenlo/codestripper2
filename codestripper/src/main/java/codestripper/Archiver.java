@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package codestripper;
 
 import java.io.IOException;
@@ -10,9 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
 
 /**
  * Archives for codestripper.
@@ -29,7 +23,7 @@ import org.apache.maven.plugin.logging.Log;
  */
 final class Archiver extends ChippenDale implements AutoCloseable {
 
-    public Archiver(Path outDir, Log log) throws IOException {
+    public Archiver(Path outDir, Logger log) throws IOException {
         super( log, outDir );
         solution = new Zipper( outDir().resolve( "solution.zip" ) );
         assignment = new Zipper( outDir().resolve( "assignment.zip" ) );
@@ -40,20 +34,19 @@ final class Archiver extends ChippenDale implements AutoCloseable {
     /**
      * Archive the given lines in file in the assignment archive outDir and zip.
      *
-     * @param file
-     * @param lines
+     * @param file name of zip entry
+     * @param lines to add
      */
     void addAssignmentLines(Path file, List<String> lines) throws IOException {
-        Path path = Path.of( "assignment" ).resolve( file );
-        Path pathInZip = Path.of( "assignment" ).resolve( path );
+        Path pathInZip = relPathInArchive( "assignment", file );
         addLinesToZip( assignment, pathInZip, lines );
-        Path targetFile = this.expandedArchive.resolve( path );
+        Path targetFile = this.expandedArchive.resolve( pathInZip );
         Files.createDirectories( targetFile.getParent() );
         Files.write( targetFile, lines );
     }
 
     void addSolutionLines(Path file, List<String> lines) throws IOException {
-        Path pathInZip = Path.of( "solution" ).resolve( file );
+        Path pathInZip = relPathInArchive( "solution", file );
         addLinesToZip( solution, pathInZip, lines );
     }
 
@@ -87,18 +80,21 @@ final class Archiver extends ChippenDale implements AutoCloseable {
     void addFile(Path file) {
         // find relative path from pwd to file and use that in archive
 
-        Path insolution = relPathInArchive( "solution", file );
-        solution.add( insolution, file );
+        Path inZip = Path.of( projectName() ).resolve( file );
+        solution.add( inZip, file );
+        assignment.add( inZip, file );
         Path inAssignment = relPathInArchive( "assignment", file );
-        assignment.add( inAssignment, file );
         addAssignmentFile( inAssignment, file );
     }
 
     Path relPathInArchive(String archive, Path file) {
         Path relPath = pwd.relativize( pwd.resolve( file ).normalize() );
-        var relPathResult = Path.of( archive ).resolve( projectName ).resolve(
+        var relPathResult = Path.of( archive ).resolve( projectName() ).resolve(
                 relPath )
                 .normalize();
+        if ( relPathResult.normalize().isAbsolute() ) {
+            throw new RuntimeException( "illegal path constructed" );
+        }
         return relPathResult;
     }
 
@@ -109,7 +105,7 @@ final class Archiver extends ChippenDale implements AutoCloseable {
             Files.copy( source, archiveFile,
                     StandardCopyOption.REPLACE_EXISTING );
         } catch ( IOException ex ) {
-            log.warn( "io exception on " + ex.getMessage() );
+            logger.warn( "io exception on " + ex.getMessage() );
         }
     }
 
@@ -121,24 +117,24 @@ final class Archiver extends ChippenDale implements AutoCloseable {
      * @param extraResources
      */
     void addExtras(List<String> extraResources) {
-        log.info( "Add extras" );
+        logger.info( "Add extras" );
         if ( extraResources.isEmpty() ) {
-            log.info( "no resources found" );
+            logger.info( "no resources found" );
             return;
         }
         for ( String extraResource : extraResources ) {
-            log.info( "considering extra resource " + extraResource );
+            logger.info( "considering extra resource " + extraResource );
             try {
 
                 var rPath = pwd.resolve( extraResource ).normalize();
                 if ( Files.notExists( rPath ) ) {
-                    log.warn( "file resource does not exist " + rPath
+                    logger.warn( "file resource does not exist " + rPath
                             .toString() );
                     continue;
                 }
                 if ( Files.isRegularFile( rPath ) ) {
                     var resourceInzip = pwd.relativize( rPath.toAbsolutePath() );
-                    log.info( "adding file " + resourceInzip.toString() );
+                    logger.info( "adding file " + resourceInzip.toString() );
                     addFile( resourceInzip );
                 } else if ( Files.isDirectory( rPath ) ) {
                     Files.walk( rPath, Integer.MAX_VALUE )
@@ -148,11 +144,10 @@ final class Archiver extends ChippenDale implements AutoCloseable {
                                     p -> addFile( p )
                             );
                 } else {
-                    log.warn( "Not a file or dir" );
+                    logger.warn( "Not a file or dir" );
                 }
             } catch ( IOException ex ) {
-                Logger.getLogger( CodeStripper.class.getName() )
-                        .log( Level.SEVERE, null, ex );
+                logger.error( ex.getMessage() );
             }
 
         }
