@@ -27,11 +27,6 @@ public class ArchiverTest extends StripperTestBase {
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
     Logger log = LoggerFactory.getLogger( ArchiverTest.class );
 
-//    //@Disabled("think TDD")
-//    @Test @DisplayName( "creating a new archiver should cause no problems" )
-//    public void testNewArchiverIsOkay() {
-//        fail( "method NewArchiverIsOkay reached end. You know what to do." );
-//    }
     @Order( 0 )
     //    @Disabled( "think TDD" )
     @Test @DisplayName( "test dot dot file in archive" )
@@ -61,7 +56,8 @@ public class ArchiverTest extends StripperTestBase {
 
             assertThat( actual.toString().startsWith( "/" ) ).isFalse();
             System.out.println( "java pathInArchive = " + actual );
-            var expected = Path.of( "solution" ).resolve( archiver.projectName() )
+            var expected = Path.of( "solution" )
+                    .resolve( archiver.projectName() )
                     .resolve( javaFile );
             System.out.println( "expected = " + expected );
             System.out.println( "actual = " + actual );
@@ -88,7 +84,6 @@ public class ArchiverTest extends StripperTestBase {
                     .expandedArchive() );
             assertThat(
                     archiver.expandedArchive()
-                            .resolve( "assignment" ) // one assignment
                             .resolve( "README.md" ).toAbsolutePath()
             )
                     .exists();
@@ -110,7 +105,7 @@ public class ArchiverTest extends StripperTestBase {
                 Archiver archiver = new Archiver( outDir, log ); ) {
             archiver.addFile( file );
             var expected = archiver.expandedArchive()
-                    .resolve( "assignment" )
+                    //                    .resolve( "assignment" )
                     .resolve( archiver.projectName() )
                     .resolve( file );
             System.out.println( "expected = " + expected );
@@ -134,7 +129,6 @@ public class ArchiverTest extends StripperTestBase {
                 Archiver archiver = new Archiver( outDir, log ); ) {
             archiver.addFile( fName );
             Path expected = archiver.expandedArchive()
-                    .resolve( "assignment" )
                     .resolve( "README.md" )
                     .toAbsolutePath();
             System.out.println( "expectedPath = '" + expected + "'" );
@@ -158,7 +152,6 @@ public class ArchiverTest extends StripperTestBase {
             for ( String extra : extras ) {
 
                 Path expectedPath = archiver.expandedArchive()
-                        .resolve( "assignment" )
                         .resolve( archiver.projectName() )
                         .resolve( extra ).normalize();
                 System.out.println( "expected Path " + expectedPath.toString() );

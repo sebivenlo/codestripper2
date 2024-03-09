@@ -75,7 +75,7 @@ public final class CodeStripper extends ChippenDale {
     private void process(Path javaFile, Archiver archiver) {
         fileCount++;
         logDebug( () -> "start stripping file " + javaFile.toString() );
-        var factory = new ProcessorFactory( javaFile ).logLevel( this.logLevel );
+        var factory = new ProcessorFactory( javaFile ).logLevel( LoggerLevel.FINE );
         try {
             var lines = Files.lines( javaFile ).toList();
             // unprocessed files go to solution

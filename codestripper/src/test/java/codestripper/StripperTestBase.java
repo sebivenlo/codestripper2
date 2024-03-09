@@ -21,8 +21,7 @@ public class StripperTestBase {
     Path outDir;
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
     Logger log = LoggerFactory.getLogger( StripperTestBase.class );
-//    Path parentDir = pwd.getParent().getFileName();
-
+    String projectName = pwd.getFileName().toString();
     public StripperTestBase() {
         Path tmpDir = Path.of( "/", "tmp", "codestripper-" + getClass()
                 .getSimpleName() + "-" + LocalDateTime.now().toString()

@@ -46,7 +46,7 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
     private final Path target = pwd.resolve( "target" ).toAbsolutePath();
     LoggerLevel logLevel = LoggerLevel.FINE;
 
-    private final String projectName = pwd.getParent().getFileName().toString();
+    private final String projectName = pwd.getFileName().toString();
 
     public String projectName() {
         return projectName;

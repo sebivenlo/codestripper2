@@ -100,7 +100,7 @@ final class Archiver extends ChippenDale implements AutoCloseable {
 
     void addAssignmentFile(Path inArchive, Path source) {
         try {
-            Path archiveFile = expandedArchive().resolve( inArchive );
+            Path archiveFile = outDir().resolve( inArchive );
             Files.createDirectories( archiveFile.getParent() );
             Files.copy( source, archiveFile,
                     StandardCopyOption.REPLACE_EXISTING );
