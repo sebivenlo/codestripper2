@@ -88,7 +88,7 @@ public final class CodeStripper extends ChippenDale {
             if ( !dryRun && !result.isEmpty() ) {
                 // add to assigmnet after processing
                 logDebug( () -> "added stripped file" + javaFile.toString() );
-                archiver.addAssignmentLines( javaFile, lines );
+                archiver.addAssignmentLines( javaFile, result );
             }
         } catch ( IOException ex ) {
             logger.error( ex.getMessage() );

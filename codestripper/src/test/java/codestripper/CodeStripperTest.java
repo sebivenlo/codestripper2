@@ -22,7 +22,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 public class CodeStripperTest extends StripperTestBase {
 
     @Order( 3 )
-    @Disabled( "think TDD" )
+    //    @Disabled( "think TDD" )
     @Test @DisplayName( "test the whole codestripper" )
     public void testTestStripper() throws IOException {
         System.out.println( "codestripper result in " + outDir.toString() );
@@ -91,6 +91,6 @@ public class CodeStripperTest extends StripperTestBase {
         long size2 = Files.size( strippedRoadKill );
         assertThat( size2 ).isLessThan( size1 );
 
-        fail( "method TestThatStripperStrips reached end. You know what to do." );
+//        fail( "method TestThatStripperStrips reached end. You know what to do." );
     }
 }
