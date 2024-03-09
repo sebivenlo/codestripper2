@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -158,12 +157,5 @@ public final class CodeStripper extends ChippenDale {
     public CodeStripper extraResources(List<String> resources) {
         this.extraResources = resources;
         return this;
-    }
-
-    public static void main(String[] args) throws IOException {
-        var codestripper = new CodeStripper( LoggerFactory.getLogger(
-                CodeStripper.class ), Path.of(
-                        "target/puk" ) );
-        codestripper.strip( Path.of( "" ) );
     }
 }

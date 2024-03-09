@@ -55,9 +55,6 @@ public class PathFinderTest extends StripperTestBase {
 //        fail( "method OpenFile reached end. You know what to do." );
     }
 
-    Path outDir = Path.of( System.getProperty( "user.dir" ) ).resolve( Path.of(
-            "PATHFINDER" ) );
-
     //@Disabled("think TDD")
     @Test @DisplayName( "non existing file" )
     public void testNewFile() throws IOException {
@@ -84,8 +81,6 @@ public class PathFinderTest extends StripperTestBase {
         assertThat( images ).exists();
 //        fail( "method FindPWDSibling reached end. You know what to do." );
     }
-
-    Path pwd = Path.of( System.getProperty( "user.dir" ) );
 
     //@Disabled("think TDD")
     @Test @DisplayName( "some story line" )

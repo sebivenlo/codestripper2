@@ -21,7 +21,7 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 @TestMethodOrder( OrderAnnotation.class )
 public class CodeStripperTest extends StripperTestBase {
 
-    @Order( 3 )
+    @Order( 4 )
     //    @Disabled( "think TDD" )
     @Test @DisplayName( "test the whole codestripper" )
     public void testTestStripper() throws IOException {
@@ -92,5 +92,19 @@ public class CodeStripperTest extends StripperTestBase {
         assertThat( size2 ).isLessThan( size1 );
 
 //        fail( "method TestThatStripperStrips reached end. You know what to do." );
+    }
+
+    //@Disabled("think TDD")
+    @Test @DisplayName( "test that files land in proper place" )
+    public void testFilesLandAtProperPlace() throws IOException {
+        assumeThat( Path.of( "pom.xml" ) ).exists();
+        var stripper = new CodeStripper( log, outDir );
+        stripper.logLevel = LoggerLevel.FINE;
+        stripper.strip( pwd );
+
+        assertThat( outDir.resolve( "assigmnent" ).resolve( projectName )
+                .resolve( "pom.xml" ) ).exists();
+
+        fail( "method FilesLandAtProperPlace reached end. You know what to do." );
     }
 }

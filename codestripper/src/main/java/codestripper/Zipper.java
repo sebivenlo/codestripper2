@@ -77,7 +77,10 @@ class Zipper implements AutoCloseable {
             return;
         }
         if ( entryName.isAbsolute() ) {
-            throw new IllegalArgumentException( "Absolute Path now allowed" );
+            IllegalArgumentException ex
+                    = new IllegalArgumentException( "Absolute Path now allowed" );
+            ex.printStackTrace();
+            throw ex;
         }
         ensureOpen();
         try ( FileInputStream fis = new FileInputStream( source.toFile() ); ) {

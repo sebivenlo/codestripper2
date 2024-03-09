@@ -37,7 +37,7 @@ public class StripperTestBase {
 
     @AfterEach
     public void cleanup() throws IOException {
-//        cleanupStatic( outDir );
+        cleanupStatic( outDir );
     }
 
     static void cleanupStatic(Path outDir) throws IOException {
