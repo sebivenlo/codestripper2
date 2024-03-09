@@ -33,11 +33,16 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
      */
     protected final Path expandedArchive;
 
+    /**
+     * Where the stuff from the expanded archive land.
+     *
+     * @return the path of the expanded archive.
+     */
     public Path getExpandedArchive() {
         return expandedArchive;
     }
     /**
-     *
+     * SLF4J logger.
      */
     protected Logger logger;
     private final Path outDir;
@@ -48,6 +53,12 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
 
     private final String projectName = pwd.getFileName().toString();
 
+    /**
+     * Get the project name. The project defaults to the name of the project
+     * directory, i.e. the parent of pom.xml.
+     *
+     * @return project name
+     */
     public String projectName() {
         return projectName;
     }
@@ -67,7 +78,7 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
             Files.createDirectory( outDir );
         }
         this.outDir = outDir.toRealPath().toAbsolutePath();
-        this.expandedArchive = outDir().resolve( "assignment" );
+        this.expandedArchive = outDir().resolve( "expandedArchive" );
     }
 
     boolean isText(Path file) {

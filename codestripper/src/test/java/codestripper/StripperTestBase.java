@@ -22,12 +22,14 @@ public class StripperTestBase {
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
     Logger log = LoggerFactory.getLogger( StripperTestBase.class );
     String projectName = pwd.getFileName().toString();
+    Path expandedArchive;
     public StripperTestBase() {
         Path tmpDir = Path.of( "/", "tmp", "codestripper-" + getClass()
                 .getSimpleName() + "-" + LocalDateTime.now().toString()
                         .replaceAll( "[:T]", "-" ) );
         try {
             outDir = Files.createDirectory( tmpDir );
+            expandedArchive = outDir.resolve( "expandedArchive" );
         } catch ( IOException ex ) {
 
             log.error( ex.getMessage() );

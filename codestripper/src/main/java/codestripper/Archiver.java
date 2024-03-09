@@ -68,7 +68,9 @@ final class Archiver extends ChippenDale implements AutoCloseable {
         Files.walk( root, Integer.MAX_VALUE )
                 .filter( this::acceptablePath )
                 .filter( Predicate.not( this::isText ) )
-                .sorted()
+                .map( p -> pwd.relativize( p ) )
+                .peek( f -> System.out.println( "bin file " + f.toString() ) )
+                //                .sorted()
                 .forEach( file -> addFile( file ) );
     }
 
@@ -80,11 +82,11 @@ final class Archiver extends ChippenDale implements AutoCloseable {
     void addFile(Path file) {
         // find relative path from pwd to file and use that in archive
 
-        Path inZip = Path.of( projectName() ).resolve( file );
-        solution.add( inZip, file );
-        assignment.add( inZip, file );
-        Path inAssignment = relPathInArchive( "assignment", file );
-        addAssignmentFile( inAssignment, file );
+        Path inZip = Path.of( projectName() ).resolve( file ).normalize();
+        solution.add( relPathInArchive( "solution", file ), file );
+        Path relPathInArchive = relPathInArchive( "assignment", file );
+        assignment.add( relPathInArchive, file );
+        addAssignmentFile( relPathInArchive, file );
     }
 
     Path relPathInArchive(String archive, Path file) {
@@ -100,7 +102,7 @@ final class Archiver extends ChippenDale implements AutoCloseable {
 
     void addAssignmentFile(Path inArchive, Path source) {
         try {
-            Path archiveFile = outDir().resolve( inArchive );
+            Path archiveFile = expandedArchive().resolve( inArchive );
             Files.createDirectories( archiveFile.getParent() );
             Files.copy( source, archiveFile,
                     StandardCopyOption.REPLACE_EXISTING );
@@ -126,18 +128,17 @@ final class Archiver extends ChippenDale implements AutoCloseable {
             logger.info( "considering extra resource " + extraResource );
             try {
 
-                var rPath = pwd.resolve( extraResource ).normalize();
-                if ( Files.notExists( rPath ) ) {
-                    logger.warn( "file resource does not exist " + rPath
+                var inZip = pwd.resolve( extraResource ).normalize();
+                if ( Files.notExists( inZip ) ) {
+                    logger.warn( "file resource does not exist " + inZip
                             .toString() );
                     continue;
                 }
-                if ( Files.isRegularFile( rPath ) ) {
-                    var resourceInzip = pwd.relativize( rPath.toAbsolutePath() );
-                    logger.info( "adding file " + resourceInzip.toString() );
-                    addFile( resourceInzip );
-                } else if ( Files.isDirectory( rPath ) ) {
-                    Files.walk( rPath, Integer.MAX_VALUE )
+                if ( Files.isRegularFile( inZip ) ) {
+                    logger.info( "adding file " + inZip.toString() );
+                    addFile( inZip );
+                } else if ( Files.isDirectory( inZip ) ) {
+                    Files.walk( inZip, Integer.MAX_VALUE )
                             .filter( this::acceptablePath )
                             .map( f -> pwd.relativize( f.toAbsolutePath() ) )
                             .forEach(

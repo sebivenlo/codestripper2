@@ -107,6 +107,7 @@ public final class CodeStripper extends ChippenDale {
      * @param logger to set
      * @param dryRun flag
      * @param outDir for action results.
+     * @throws java.io.IOException should not occur.
      */
     public CodeStripper(Logger logger, boolean dryRun, Path outDir) throws IOException {
         super( logger, outDir );
@@ -116,8 +117,9 @@ public final class CodeStripper extends ChippenDale {
     /**
      * Default stripper with dryRun false;
      *
-     * @param log
+     * @param log to use
      * @param outDir for results.
+     * @throws java.io.IOException should not occur
      */
     public CodeStripper(Logger log, Path outDir) throws IOException {
         this( log, false, outDir );

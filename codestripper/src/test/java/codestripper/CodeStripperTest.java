@@ -30,16 +30,10 @@ public class CodeStripperTest extends StripperTestBase {
                 "../README.md", "../images" ) );
         stripper.strip( pwd );
 
-        assertThat( outDir.toFile() ).exists();
-        assertThat( outDir.resolve( "assignment" ).toFile() ).exists();
+        assertThat( expandedArchive.toFile() ).exists();
+        assertThat( expandedArchive.resolve( "assignment" ).toFile() ).exists();
 
 //        fail( "method TestStripper reached end. You know what to do." );
-    }
-
-    @AfterEach
-    @Override
-    public void cleanup() throws IOException {
-//        cleanupStatic( outDir );
     }
 
     @Order( 1 )
@@ -60,7 +54,6 @@ public class CodeStripperTest extends StripperTestBase {
                 "../README.md", "../images" ) );
         stripper.logLevel = LoggerLevel.MUTE;
         stripper.strip( pwd );
-        Path expandedArchive = stripper.expandedArchive();
         System.out.println( "expandedArchive = " + expandedArchive );
         Path stripped = expandedArchive.resolve( "assignment" ).resolve(
                 projectName ).resolve( roadKill );
@@ -102,9 +95,10 @@ public class CodeStripperTest extends StripperTestBase {
         stripper.logLevel = LoggerLevel.FINE;
         stripper.strip( pwd );
 
-        assertThat( outDir.resolve( "assigmnent" ).resolve( projectName )
+        assertThat( expandedArchive.resolve( "assignment" )
+                .resolve( projectName )
                 .resolve( "pom.xml" ) ).exists();
 
-        fail( "method FilesLandAtProperPlace reached end. You know what to do." );
+//        fail( "method FilesLandAtProperPlace reached end. You know what to do." );
     }
 }

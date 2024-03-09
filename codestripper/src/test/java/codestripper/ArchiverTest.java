@@ -7,9 +7,11 @@ package codestripper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.core.api.Assumptions.assumeThatCode;
+import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -34,11 +36,14 @@ public class ArchiverTest extends StripperTestBase {
         Path readme = Path.of( "..", "README.md" );
         try ( Archiver archiver = new Archiver( outDir, log ); ) {
             Path pathInArchive = archiver
-                    .relPathInArchive( "assessment", readme );
+                    .relPathInArchive( "assignment", readme );
             assertThat( pathInArchive.toString().startsWith( "/" ) ).isFalse();
             System.out.println( "dot dot pathInArchive = " + pathInArchive );
             assertThat( pathInArchive.toString() )
-                    .isEqualTo( Path.of( "assessment", "README.md" ).toString() );
+                    .isEqualTo(
+                            Path.of( "assignment" )
+                                    .resolve( "README.md" )
+                                    .toString() );
         }
 
 //        fail( "method PathInArchive reached end. You know what to do." );
@@ -69,7 +74,8 @@ public class ArchiverTest extends StripperTestBase {
 
 //    @Disabled( "think TDD" )
     @Order( 2 )
-    @Test @DisplayName( "test add assignment file" )
+    @Test
+    //    @DisplayName( "test add assignment file" )
     public void testAssignmentFile(TestInfo info) throws Exception {
         System.out.println(
                 "test info ===== " + info.getDisplayName() + " ========" );
@@ -83,7 +89,7 @@ public class ArchiverTest extends StripperTestBase {
             System.out.println( "archiver.expandedArchive() = " + archiver
                     .expandedArchive() );
             assertThat(
-                    archiver.expandedArchive()
+                    archiver.expandedArchive().resolve( "assignment" )
                             .resolve( "README.md" ).toAbsolutePath()
             )
                     .exists();
@@ -104,8 +110,8 @@ public class ArchiverTest extends StripperTestBase {
         try (
                 Archiver archiver = new Archiver( outDir, log ); ) {
             archiver.addFile( file );
-            var expected = archiver.expandedArchive()
-                    //                    .resolve( "assignment" )
+            var expected = expandedArchive
+                    .resolve( "assignment" )
                     .resolve( archiver.projectName() )
                     .resolve( file );
             System.out.println( "expected = " + expected );
@@ -119,7 +125,6 @@ public class ArchiverTest extends StripperTestBase {
     //    @Disabled( "think TDD" )
     @Test @DisplayName( "add file using archiver.addFile" )
     public void testAddFile(TestInfo info) throws Exception {
-//        cleanup();
 
         var fName = Path.of( "..", "README.md" );
         assumeThat( fName ).exists();
@@ -128,7 +133,8 @@ public class ArchiverTest extends StripperTestBase {
         try (
                 Archiver archiver = new Archiver( outDir, log ); ) {
             archiver.addFile( fName );
-            Path expected = archiver.expandedArchive()
+            Path expected = expandedArchive
+                    .resolve( "assignment" )
                     .resolve( "README.md" )
                     .toAbsolutePath();
             System.out.println( "expectedPath = '" + expected + "'" );
@@ -146,18 +152,26 @@ public class ArchiverTest extends StripperTestBase {
         for ( String extra : extras ) {
             assumeThat( pwd.resolve( extra ) ).exists();
         }
-        try (
-                Archiver archiver = new Archiver( outDir, log ); ) {
-            archiver.addExtras( extras );
-            for ( String extra : extras ) {
+        SoftAssertions.assertSoftly( softly -> {
+            try (
+                    Archiver archiver = new Archiver( outDir, log ); ) {
+                archiver.addExtras( extras );
+                for ( String extra : extras ) {
 
-                Path expectedPath = archiver.expandedArchive()
-                        .resolve( archiver.projectName() )
-                        .resolve( extra ).normalize();
-                System.out.println( "expected Path " + expectedPath.toString() );
-                assertThat( expectedPath.toAbsolutePath() ).exists();
+                    Path expectedPath = expandedArchive
+                            .resolve( "assignment" )
+                            .resolve( archiver.projectName() )
+                            .resolve( extra ).normalize();
+                    System.out.println( "expected Path " + expectedPath
+                            .toString() );
+                    softly.assertThat( expectedPath.toAbsolutePath() ).exists();
+                }
+            } catch ( Exception ex ) {
+                java.util.logging.Logger
+                        .getLogger( ArchiverTest.class.getName() )
+                        .log( Level.SEVERE, null, ex );
             }
-        }
+        } );
 
 //        fail( "method AddExtras reached end. You know what to do." );
     }

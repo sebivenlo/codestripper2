@@ -294,10 +294,20 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
 
     private Processor openStart;
 
+    /**
+     * Are the warning during stripping.
+     *
+     * @return true if warnings were generated.
+     */
     public boolean hasDanglingTag() {
         return openStart != null;
     }
 
+    /**
+     * Return dangling tag info, that is the last tag not closed.
+     *
+     * @return the dangling tag info.
+     */
     public String danglingTag() {
         if ( openStart == null ) {
             return "";
@@ -311,7 +321,8 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     /**
      * Set the logging level.
      *
-     * @param level
+     * @param level for the logging.
+     * @return this.
      */
     public ProcessorFactory logLevel(LoggerLevel level) {
         this.logLevel = level;
