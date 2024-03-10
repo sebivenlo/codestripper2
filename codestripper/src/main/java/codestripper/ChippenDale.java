@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
-import org.slf4j.Logger;
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * Parent of classes in this package that should have the same view on things.
@@ -44,7 +44,7 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
     /**
      * SLF4J logger.
      */
-    protected Logger logger;
+    protected Log logger;
     private final Path outDir;
     final Path pwd = Path.of( System.getProperty( "user.dir" ) )
             .toAbsolutePath();
@@ -71,11 +71,11 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
         return expandedArchive;
     }
 
-    ChippenDale(Logger logger, Path outDir) throws IOException {
+    ChippenDale(Log logger, Path outDir) throws IOException {
         this.logger = logger;
         System.out.println( "outDir = " + outDir );
         if ( !outDir.toFile().exists() ) {
-            Files.createDirectory( outDir );
+            Files.createDirectories( outDir );
         }
         this.outDir = outDir.toRealPath().toAbsolutePath();
         this.expandedArchive = outDir().resolve( "expandedArchive" );

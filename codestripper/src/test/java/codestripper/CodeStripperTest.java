@@ -49,13 +49,13 @@ public class CodeStripperTest extends StripperTestBase {
         System.out.println( "src = " + roadKill );
 //        Path source = pwd.resolve( src );
         assumeThat( roadKill ).exists();
-        long size1 = Files.size( roadKill );
         var stripper = new CodeStripper( log, outDir ).extraResources( List.of(
                 "../README.md", "../images" ) );
         stripper.logLevel = LoggerLevel.MUTE;
-        stripper.strip( pwd );
-        System.out.println( "expandedArchive = " + expandedArchive );
-        Path stripped = expandedArchive.resolve( "assignment" ).resolve(
+        Path output = stripper.strip( pwd );
+        assertThat( output ).exists();
+        System.out.println( "expandedArchive = " + output );
+        Path stripped = output.resolve( "assignment" ).resolve(
                 projectName ).resolve( roadKill );
         System.out.println( "stripped = " + stripped );
         assertThat( stripped ).as( " expecting dir with src to exists " )

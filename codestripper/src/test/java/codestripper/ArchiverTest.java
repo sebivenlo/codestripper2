@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.core.api.Assumptions.assumeThatCode;
@@ -15,8 +17,6 @@ import org.assertj.core.api.SoftAssertions;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Tests the Archiver.
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class ArchiverTest extends StripperTestBase {
 
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    Logger log = LoggerFactory.getLogger( ArchiverTest.class );
+    Log log = new SystemStreamLog();
 
     @Order( 0 )
     //    @Disabled( "think TDD" )

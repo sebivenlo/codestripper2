@@ -5,8 +5,11 @@ package codestripper;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 /**
  * Starter for CLI version.
@@ -23,11 +26,12 @@ public class CodeStripperMain {
      */
     public static void main(String[] args) throws IOException {
 
-        Logger logger = LoggerFactory.getLogger( CodeStripperMain.class );
+        Log logger = new SystemStreamLog();
         CodeStripper codeStripper = new CodeStripper( logger,
-                Path.of( "target", "stripper-out" ) );
+                Path.of( "target", "stripper-out" ) ).extraResources(
+                List.of( "../README.md", "../images" ) );
         codeStripper.strip( Path.of( "" ) );
-        logger.atInfo().log( "Hello {}", "World!" );
+//        logger.info( "Hello World!" );
     }
 
     /**

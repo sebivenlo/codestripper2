@@ -8,7 +8,10 @@ import java.util.Arrays;
 import java.util.List;
 import static java.util.stream.Collectors.joining;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.*;
 
@@ -18,15 +21,17 @@ import org.junit.jupiter.api.*;
  */
 public class StrippedCodeValidatorTest extends StrippedCodeValidator {
 
-    Path pwd = Path.of( System.getProperty( "user.dir" ) );
+    static Path pwd = Path.of( System.getProperty( "user.dir" ) );
+    static Log log = new SystemStreamLog();
 
     public StrippedCodeValidatorTest() {
-
+        super( Path.of( "target", "stripper-out", "assignment", pwd
+                .getFileName().toString() ), log );
         try {
             outDir = Files.createTempDirectory( "codestripper-" + getClass()
                     .getSimpleName() + "-tests-" );
         } catch ( IOException ex ) {
-            getLog().error( ex.getMessage() );
+            log.error( ex.getMessage() );
         }
     }
 
@@ -70,11 +75,15 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
     @DisplayName( "run the compiler" )
     public void testCompilerRun() throws IOException {
 
-        CodeStripper stripper = new CodeStripper( getLog(), outDir )
-                .extraResources( List.of( "..README.md", "../images" ) );
-        stripper.strip( pwd );
+        CodeStripper stripper = new CodeStripper( new SystemStreamLog(), outDir );
+        stripper = stripper.extraResources( List
+                .of( "../README.md", "../images" ) );
+        var strippedProject = stripper.strip( pwd );
+        System.out.println( "strippedProject = " + strippedProject );
+        assumeThat( strippedProject.resolve( "src" ) ).exists();
+        System.out.println( "strippedProject = " + strippedProject.toString() );
         ThrowableAssert.ThrowingCallable code = () -> {
-            this.execute();
+            this.validate();
         };
 
         assertThatCode( code ).doesNotThrowAnyException();

@@ -5,9 +5,12 @@ import codestripper.LoggerLevel;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -29,15 +32,23 @@ public class CodeStripperMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        Log log = getLog();
         try {
-            getLog().info( "start code stripping." );
-            new CodeStripper( getLog(), dryRun, Path.of( outDir ) )
+            log.info( "start code stripping." );
+            var stripper = new CodeStripper( getLog(), dryRun,
+                    Path.of( outDir ) )
                     .extraResources( extraResources )
-                    .logLevel( verbosity )
-                    .strip( Path.of( workDir ) );
-            getLog().info( "stripped code, result in " + outDir );
+                    .logLevel( verbosity );
+            Path resultingProject
+                    = stripper.strip( Path.of( workDir ) );
+            getLog().info( "stripped code, result in " + resultingProject );
+            var checker = new StrippedCodeValidator( resultingProject, log );
+            checker.validate();
         } catch ( IOException ex ) {
             getLog().error( ex.getMessage(), ex );
+        } catch ( InterruptedException ex ) {
+            Logger.getLogger( CodeStripperMojo.class.getName() )
+                    .log( Level.SEVERE, null, ex );
         }
     }
 //    all files in the solution directory undergo processing.

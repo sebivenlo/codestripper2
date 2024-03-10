@@ -18,6 +18,6 @@
     </properties>
     <modules>
         <module>../codestripper</module>
-        <module>..codestripper-maven-plugin</module>
+        <!--<module>..codestripper-maven-plugin</module>-->
     </modules>
 </project>

@@ -31,16 +31,8 @@
                 <executions>
                     <execution>
                         <id>strip</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>strip</goal>
-                        </goals>
-                        
-                    </execution>
-                    <execution>
-                        <id>verify</id>
-                        <goals>
-                            <goal>validate-stripped-code</goal>
                         </goals>
                     </execution>
                 </executions>

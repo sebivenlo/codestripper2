@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.Predicate;
-import org.slf4j.Logger;
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * Archives for codestripper.
@@ -23,7 +23,7 @@ import org.slf4j.Logger;
  */
 final class Archiver extends ChippenDale implements AutoCloseable {
 
-    public Archiver(Path outDir, Logger log) throws IOException {
+    public Archiver(Path outDir, Log log) throws IOException {
         super( log, outDir );
         solution = new Zipper( outDir().resolve( "solution.zip" ) );
         assignment = new Zipper( outDir().resolve( "assignment.zip" ) );
@@ -68,8 +68,8 @@ final class Archiver extends ChippenDale implements AutoCloseable {
         Files.walk( root, Integer.MAX_VALUE )
                 .filter( this::acceptablePath )
                 .filter( Predicate.not( this::isText ) )
-                .map( p -> pwd.relativize( p ) )
-                .peek( f -> System.out.println( "bin file " + f.toString() ) )
+                .map( p -> pwd.relativize( p.toAbsolutePath() ) )
+                .peek( f -> logger.info( "bin file added" + f.toString() ) )
                 //                .sorted()
                 .forEach( file -> addFile( file ) );
     }

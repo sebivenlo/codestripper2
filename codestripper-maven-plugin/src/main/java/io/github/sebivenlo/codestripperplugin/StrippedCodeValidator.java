@@ -17,15 +17,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 
 /**
  * Validates that the stripped code is compilable. It does this by running 'mvn
@@ -33,47 +25,31 @@ import org.apache.maven.project.MavenProject;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-@Mojo( name = "validate-stripped-code",
-        defaultPhase = LifecyclePhase.NONE )
-public class StrippedCodeValidator extends AbstractMojo {
+public class StrippedCodeValidator {
 
-    @Parameter( defaultValue = "${project}", required = true, readonly = true )
-    MavenProject project;
+    final Pattern problematicFile = Pattern.compile(
+            "(?<file>.*):\\d+: error:.*" );
 
-    @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        Log log = getLog();
+    final Path strippedProject;
+    final Log log;
 
-        log.info( "start stripped code validation" );
-
-        /*
-         make compile outdir in temp
-         javac -d outdir file -p classpath -cp classpath filestocompile
-         for test compile,
-         */
-        try {
-            validate( log );
-        } catch ( IOException | InterruptedException | DependencyResolutionRequiredException ex ) {
-            getLog().error( ex.getMessage() );
-        }
+    public StrippedCodeValidator(Path strippedProject, Log log) {
+        this.strippedProject = strippedProject;
+        this.log = log;
     }
 
-    Pattern problematicFile = Pattern.compile( "(?<file>.*):\\d+: error:.*" );
-
-    void validate(Log log) throws InterruptedException, DependencyResolutionRequiredException, IOException {
-        getDependencies();
+    void validate() throws InterruptedException, IOException {
+        var projectName = strippedProject.getFileName().toString();
         Path compilerOutDir = makeOutDir();
-        Path srcDir = Path.of( "target", "stripper.out", "assignment",
-                "assignment", "src" );
+        Path srcDir = strippedProject.resolve( "src" );
+        System.out.println( "srcDir = " + srcDir );
         String[] args = makeCompilerArguments( srcDir, compilerOutDir );
         ProcessBuilder pb = new ProcessBuilder( args );
-        getLog()
-                .info( "validating " + validatedClassCount + " stripped classes" );
+        log.info( "validating " + validatedClassCount + " stripped classes" );
         Process process = pb.start();
         BufferedReader reader
                 = new BufferedReader( new InputStreamReader(
                         process.getErrorStream() )
-                //                        process                        .getInputStream() )
                 );
         String line;
         List<String> compilerOutput = new ArrayList<>();
@@ -88,9 +64,9 @@ public class StrippedCodeValidator extends AbstractMojo {
 
         int exitCode = process.waitFor();
         if ( compilerOutput.isEmpty() ) {
-            getLog().info( "all stripped files passed compiler test" );
+            log.info( "all stripped files passed compiler test" );
         } else {
-            getLog().info(
+            log.info(
                     "\033[31;1mCompiling the stipped files causes some compiler errors\033[m" );
             Arrays.stream( sourceFiles )
                     .forEach( l -> {
@@ -120,9 +96,7 @@ public class StrippedCodeValidator extends AbstractMojo {
 
     static final String pathSep = System.getProperty( "path.separator" );
 
-    String[] makeCompilerArguments(Path sourceDir, Path outDir
-    ) throws
-            DependencyResolutionRequiredException {
+    String[] makeCompilerArguments(Path sourceDir, Path outDir) {
         String[] sources = getSourceFiles( sourceDir );
         validatedClassCount = sources.length;
         String compileClassPath = getSneakyClassPath();
@@ -165,15 +139,6 @@ public class StrippedCodeValidator extends AbstractMojo {
         return sourceFiles;
     }
 
-    /**
-     * Used in tests to avoid reflection.
-     *
-     * @param p project (or mock) to insert
-     */
-    void setProject(MavenProject p) {
-        this.project = p;
-    }
-
     // cache
     private String sneakyClassPath;
 
@@ -197,27 +162,11 @@ public class StrippedCodeValidator extends AbstractMojo {
                 }
                 int exitCode = process.waitFor();
             } catch ( IOException | InterruptedException ex ) {
-                getLog().error( ex );
+                log.error( ex );
             }
             sneakyClassPath = result;
         }
         return sneakyClassPath;
     }
 
-    /**
-     * Used by the maven framework.
-     */
-    public StrippedCodeValidator() {
-    }
-
-    void getDependencies() throws DependencyResolutionRequiredException {
-        Log log = getLog();
-        log.info( "===== depedencies ======" );
-        if ( null == project ) {
-            return;
-        }
-        project.getTestClasspathElements().stream()
-                //                .map( Dependency::toString )
-                .forEach( s -> log.info( "class path element " + s ) );
-    }
 }

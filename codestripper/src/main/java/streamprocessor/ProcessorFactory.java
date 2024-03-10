@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static java.util.stream.Stream.of;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 
 /**
  * Creator of Processor boxes based on the content os strings and previous
@@ -52,7 +52,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     public ProcessorFactory(Path filePath) {
         this( filePath, "cs" );
     }
-    private Logger logger;
+    private Log logger;
 
     /**
      * Create a factory for the given file and specify the tag
@@ -74,7 +74,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 ;
         pattern = Pattern.compile( myPreciousRegex );
         this.transforms = new HashMap<>( defaultTransforms );
-        this.logger = LoggerFactory.getLogger( ProcessorFactory.class );
+        this.logger = new SystemStreamLog();
     }
 
     /**

@@ -9,7 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
-import org.slf4j.Logger;
+import org.apache.maven.plugin.logging.Log;
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -22,7 +22,7 @@ public final class CodeStripper extends ChippenDale {
     /**
      * Default out dir.
      */
-    public static final String DEFAULT_STRIPPER_OUTDIR = "target/stripper.out";
+    public static final String DEFAULT_STRIPPER_OUTDIR = "target/stripper-out";
 
     private final boolean dryRun;
 
@@ -30,14 +30,17 @@ public final class CodeStripper extends ChippenDale {
      * Do the work starting at the root.
      *
      * @param root of the stripping action.
+     * @return the directory containing the stripped project.
      *
      * @throws IOException hop to die
      */
-    public final void strip(Path root) throws IOException {
+    public final Path strip(Path root) throws IOException {
         Instant start = Instant.now();
         try ( Archiver archiver = new Archiver( outDir(), logger ); ) {
             processTextFiles( root, archiver );
+            logger.info( " adding non stripables" );
             archiver.addAssignmentFiles( root );
+            logger.info( " adding extras" );
             archiver.addExtras( extraResources );
         } catch ( Exception ex ) {
             logger.error( ex.getMessage() );
@@ -49,6 +52,7 @@ public final class CodeStripper extends ChippenDale {
         logger.info(
                 "codestripper processed " + fileCount + " files in " + took
                         .toMillis() + " milliseconds" );
+        return expandedArchive.resolve( "assignment" ).resolve( projectName() );
     }
 
     int fileCount = 0;
@@ -109,7 +113,7 @@ public final class CodeStripper extends ChippenDale {
      * @param outDir for action results.
      * @throws java.io.IOException should not occur.
      */
-    public CodeStripper(Logger logger, boolean dryRun, Path outDir) throws IOException {
+    public CodeStripper(Log logger, boolean dryRun, Path outDir) throws IOException {
         super( logger, outDir );
         this.dryRun = dryRun;
     }
@@ -121,7 +125,7 @@ public final class CodeStripper extends ChippenDale {
      * @param outDir for results.
      * @throws java.io.IOException should not occur
      */
-    public CodeStripper(Logger log, Path outDir) throws IOException {
+    public CodeStripper(Log log, Path outDir) throws IOException {
         this( log, false, outDir );
     }
 
@@ -159,5 +163,13 @@ public final class CodeStripper extends ChippenDale {
     public CodeStripper extraResources(List<String> resources) {
         this.extraResources = resources;
         return this;
+    }
+
+    public class Builder {
+
+        boolean dryRun;
+        List<String> extraResources;
+        String outDir;
+        Log logger;
     }
 }

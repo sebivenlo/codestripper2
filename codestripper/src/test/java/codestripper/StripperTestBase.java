@@ -6,11 +6,11 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import org.junit.jupiter.api.AfterEach;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -20,7 +20,7 @@ public class StripperTestBase {
 
     Path outDir;
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    Logger log = LoggerFactory.getLogger( StripperTestBase.class );
+    Log log = new SystemStreamLog();
     String projectName = pwd.getFileName().toString();
     Path expandedArchive;
     public StripperTestBase() {
