@@ -27,9 +27,10 @@ public class CodeStripperMain {
     public static void main(String[] args) throws IOException {
 
         Log logger = new SystemStreamLog();
-        CodeStripper codeStripper = new CodeStripper( logger,
-                Path.of( "target", "stripper-out" ) ).extraResources(
-                List.of( "../README.md", "../images" ) );
+        CodeStripper codeStripper
+                = new CodeStripper.Builder()
+                        .extraResources( List.of( "../README.md", "../images" ) )
+                        .build();
         codeStripper.strip( Path.of( "" ) );
 //        logger.info( "Hello World!" );
     }

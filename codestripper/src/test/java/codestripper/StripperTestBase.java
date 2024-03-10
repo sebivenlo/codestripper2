@@ -3,13 +3,11 @@ package codestripper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assumptions.assumeThat;
 import org.junit.jupiter.api.AfterEach;
 
 /**
@@ -21,21 +19,8 @@ public class StripperTestBase {
     Path outDir;
     Path pwd = Path.of( System.getProperty( "user.dir" ) );
     Log log = new SystemStreamLog();
-    String projectName = pwd.getFileName().toString();
-    Path expandedArchive;
-    public StripperTestBase() {
-        Path tmpDir = Path.of( "/", "tmp", "codestripper-" + getClass()
-                .getSimpleName() + "-" + LocalDateTime.now().toString()
-                        .replaceAll( "[:T]", "-" ) );
-        try {
-            outDir = Files.createDirectory( tmpDir );
-            expandedArchive = outDir.resolve( "expandedArchive" );
-        } catch ( IOException ex ) {
-
-            log.error( ex.getMessage() );
-        }
-        assumeThat( outDir ).exists();
-    }
+    //    String projectName = pwd.getFileName().toString();
+    //    Path expandedArchive;
 
     @AfterEach
     public void cleanup() throws IOException {
@@ -50,7 +35,7 @@ public class StripperTestBase {
                 .sorted( ( f1, f2 ) -> f2.compareTo( f1 ) )
                 .collect( toList() );
         collect.stream()
-                .peek( System.out::println )
+                //                .peek( System.out::println )
                 .forEach( f -> f.toFile().delete() );
 
         assertThat( outDir.toFile() ).doesNotExist();

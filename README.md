@@ -514,11 +514,11 @@ where the script file is
 
 migrate.sed
 ```sed
-s#//Start Solution::replacewith::#//cs:remove:start:#
-s#//End Solution::replacewith::#//cs:remove:end:#
-s#//Start Solution#//cs:remove:start#
-s#//End Solution#//cs:remove:end#
-```
+s#//[[:blank:]]*Start Solution::replacewith::#//cs:remove:start:#
+s#//[[:blank:]]*End Solution::replacewith::#//cs:remove:end:#
+s#//[[:blank:]]*Start Solution#//cs:remove:start#
+s#//[[:blank:]]*End Solution#//cs:remove:end#
+``` 
 
 Note that the payload-full versions are adapted first.
 

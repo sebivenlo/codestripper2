@@ -37,10 +37,10 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     private final Pattern pattern;
 
     /**
-     * Assume java files.
+     * Assume java files and use default log.
      */
     public ProcessorFactory() {
-        this( JAVA_PATH );
+        this( JAVA_PATH, new SystemStreamLog() );
 
     }
 
@@ -49,8 +49,8 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      *
      * @param filePath to use
      */
-    public ProcessorFactory(Path filePath) {
-        this( filePath, "cs" );
+    public ProcessorFactory(Path filePath, Log log) {
+        this( filePath, "cs", log );
     }
     private Log logger;
 
@@ -60,7 +60,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      * @param filePath to use
      * @param tag to use
      */
-    public ProcessorFactory(Path filePath, String tag) {
+    public ProcessorFactory(Path filePath, String tag, Log log) {
         commentToken = commentTokenFor( filePath );
         myPreciousRegex
                 = "(?<indent>\\s*)" //optional indentation
@@ -74,7 +74,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 ;
         pattern = Pattern.compile( myPreciousRegex );
         this.transforms = new HashMap<>( defaultTransforms );
-        this.logger = new SystemStreamLog();
+        this.logger = log;
     }
 
     /**

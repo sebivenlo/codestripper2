@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
-import org.apache.maven.plugin.logging.Log;
 
 /**
  * Parent of classes in this package that should have the same view on things.
@@ -15,43 +14,28 @@ import org.apache.maven.plugin.logging.Log;
  *
  * @param C subclass
  */
-sealed abstract class ChippenDale<C extends ChippenDale<C>>
-        permits Archiver, CodeStripper {
+sealed interface ChippenDale permits Archiver, CodeStripper {
 
     /**
      * known text formats
      */
-    protected static final Set<String> textExtensions = Set.of( "java", "sql",
+    static final Set<String> textExtensions = Set.of( "java", "sql",
             "txt", "sh", "yaml", "yml", "properties" );
 
     /**
      * Local path of .git.
      */
-    protected final Path dotgit = Path.of( ".git" );
+    static final Path dotgit = Path.of( ".git" );
     /**
      * The location of the 'unzipped' archive.
      */
-    protected final Path expandedArchive;
 
     /**
-     * Where the stuff from the expanded archive land.
-     *
-     * @return the path of the expanded archive.
+     * SLF4J log.
      */
-    public Path getExpandedArchive() {
-        return expandedArchive;
-    }
-    /**
-     * SLF4J logger.
-     */
-    protected Log logger;
-    private final Path outDir;
     final Path pwd = Path.of( System.getProperty( "user.dir" ) )
             .toAbsolutePath();
-    private final Path target = pwd.resolve( "target" ).toAbsolutePath();
-    LoggerLevel logLevel = LoggerLevel.FINE;
-
-    private final String projectName = pwd.getFileName().toString();
+    static final Path target = pwd.resolve( "target" ).toAbsolutePath();
 
     /**
      * Get the project name. The project defaults to the name of the project
@@ -59,29 +43,16 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
      *
      * @return project name
      */
-    public String projectName() {
-        return projectName;
-    }
+    String projectName();
 
-    /**
-     *
-     * @return
-     */
-    Path expandedArchive() {
-        return expandedArchive;
-    }
-
-    ChippenDale(Log logger, Path outDir) throws IOException {
-        this.logger = logger;
-        System.out.println( "outDir = " + outDir );
-        if ( !outDir.toFile().exists() ) {
-            Files.createDirectories( outDir );
+    default void checkPath(Path outDirPath1) throws IllegalArgumentException, IOException {
+        if ( !outDirPath1.toRealPath().toFile().exists() ) {
+            throw new IllegalArgumentException(
+                    "Path " + outDirPath1 + "must exists" );
         }
-        this.outDir = outDir.toRealPath().toAbsolutePath();
-        this.expandedArchive = outDir().resolve( "expandedArchive" );
     }
 
-    boolean isText(Path file) {
+    static boolean isText(Path file) {
         String fileNameString = file.getFileName().toString();
         String[] split = fileNameString.split( "\\.", 2 );
         if ( split.length < 2 ) {
@@ -91,7 +62,6 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
         String extension = split[ 1 ];
         return Archiver.textExtensions.contains( extension );
     }
-
     /**
      * Determine if a path is acceptable as location for resources. Used to test
      * directories and files.
@@ -99,7 +69,7 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
      * @param p path to test
      * @return true if acceptable false otherwise.
      */
-    boolean acceptablePath(Path p) {
+    default boolean acceptablePath(Path p, Path forbidden) {
         if ( p.toString().startsWith( ".git" ) ) {
             return false;
         }
@@ -114,7 +84,7 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
                 return false;
             }
         }
-        if ( absPath.startsWith( outDir ) ) {
+        if ( absPath.startsWith( forbidden ) ) {
             return false;
         }
         if ( absPath.startsWith( target ) ) {
@@ -127,10 +97,6 @@ sealed abstract class ChippenDale<C extends ChippenDale<C>>
             return false;
         }
         return true;
-    }
-
-    Path outDir() {
-        return outDir;
     }
 
 }

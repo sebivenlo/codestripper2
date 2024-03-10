@@ -8,8 +8,12 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -17,14 +21,19 @@ import streamprocessor.ProcessorFactory;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public final class CodeStripper extends ChippenDale {
+public final class CodeStripper implements ChippenDale {
 
     /**
      * Default out dir.
      */
-    public static final String DEFAULT_STRIPPER_OUTDIR = "target/stripper-out";
+    public static final Path DEFAULT_STRIPPER_OUTDIR = Path.of( "target",
+            "stripper-out" );
 
     private final boolean dryRun;
+    private Log logger;
+    private final Path outDirPath;
+    private Path outDir = null;
+    LoggerLevel logLevel = LoggerLevel.INFO;
 
     /**
      * Do the work starting at the root.
@@ -36,7 +45,11 @@ public final class CodeStripper extends ChippenDale {
      */
     public final Path strip(Path root) throws IOException {
         Instant start = Instant.now();
-        try ( Archiver archiver = new Archiver( outDir(), logger ); ) {
+        Objects.requireNonNull( logger );
+        Path projectDir = null;
+        try ( Archiver archiver = new Archiver( logger, outDir(),
+                "assignment", projectName() ); ) {
+            projectDir = archiver.projectDir();
             processTextFiles( root, archiver );
             logger.info( " adding non stripables" );
             archiver.addAssignmentFiles( root );
@@ -44,18 +57,25 @@ public final class CodeStripper extends ChippenDale {
             archiver.addExtras( extraResources );
         } catch ( Exception ex ) {
             logger.error( ex.getMessage() );
-        }
-        // save file names for later zipping.
-        Instant end = Instant.now();
+        } finally {
+            // save file names for later zipping.
+            Instant end = Instant.now();
 
-        Duration took = Duration.between( start, end );
-        logger.info(
-                "codestripper processed " + fileCount + " files in " + took
-                        .toMillis() + " milliseconds" );
-        return expandedArchive.resolve( "assignment" ).resolve( projectName() );
+            Duration took = Duration.between( start, end );
+            logger.info(
+                    "codestripper processed " + fileCount + " files in " + took
+                            .toMillis() + " milliseconds" );
+        }
+
+        return projectDir;
     }
 
     int fileCount = 0;
+
+    @Override
+    public String projectName() {
+        return pwd.getFileName().toString();
+    }
 
     /**
      * Process the files in the root directory. Typically this is the directory
@@ -69,29 +89,29 @@ public final class CodeStripper extends ChippenDale {
     void processTextFiles(Path root, Archiver archiver) throws IOException {
 
         Files.walk( root, Integer.MAX_VALUE )
-                .filter( this::acceptablePath )
-                .filter( this::isText )
-                .sorted()
+                .filter( f -> acceptablePath( f, outDir ) )
+                .filter( ChippenDale::isText )
                 .forEach( file -> process( file, archiver ) );
     }
 
     private void process(Path javaFile, Archiver archiver) {
         fileCount++;
         logDebug( () -> "start stripping file " + javaFile.toString() );
-        var factory = new ProcessorFactory( javaFile ).logLevel( LoggerLevel.FINE );
+        var factory = new ProcessorFactory( javaFile, logger ).logLevel(
+                LoggerLevel.FINE );
         try {
             var lines = Files.lines( javaFile ).toList();
             // unprocessed files go to solution
             archiver.addSolutionLines( javaFile, lines );
-            List<String> result = lines.stream()
+            List<String> stripped = lines.stream()
                     .map( factory::apply )
                     .flatMap( x -> x ) // flatten the result
                     .toList();
 
-            if ( !dryRun && !result.isEmpty() ) {
+            if ( !dryRun && !stripped.isEmpty() ) {
                 // add to assigmnet after processing
                 logDebug( () -> "added stripped file" + javaFile.toString() );
-                archiver.addAssignmentLines( javaFile, result );
+                archiver.addAssignmentLines( javaFile, stripped );
             }
         } catch ( IOException ex ) {
             logger.error( ex.getMessage() );
@@ -113,8 +133,9 @@ public final class CodeStripper extends ChippenDale {
      * @param outDir for action results.
      * @throws java.io.IOException should not occur.
      */
-    public CodeStripper(Log logger, boolean dryRun, Path outDir) throws IOException {
-        super( logger, outDir );
+    private CodeStripper(Log logger, boolean dryRun, Path outDir) throws IOException {
+        this.logger = logger;
+        this.outDirPath = outDir;
         this.dryRun = dryRun;
     }
 
@@ -125,18 +146,18 @@ public final class CodeStripper extends ChippenDale {
      * @param outDir for results.
      * @throws java.io.IOException should not occur
      */
-    public CodeStripper(Log log, Path outDir) throws IOException {
+    private CodeStripper(Log log, Path outDir) throws IOException {
         this( log, false, outDir );
     }
-
+    Path pwd = Path.of( "" ).toAbsolutePath();
     /**
      * Set the logging level.
      *
      * @param level logging level
      * @return this
      */
-    public CodeStripper logLevel(LoggerLevel level) {
-        this.logLevel = level;
+    private CodeStripper logLevel(LoggerLevel level) {
+//        this.logLevel = level;
         return this;
     }
 
@@ -165,11 +186,63 @@ public final class CodeStripper extends ChippenDale {
         return this;
     }
 
-    public class Builder {
-
-        boolean dryRun;
-        List<String> extraResources;
-        String outDir;
-        Log logger;
+    final Path outDir() {
+        if ( null == this.outDir ) {
+            try {
+                if ( !outDirPath.toRealPath().toFile().exists() ) {
+                    this.outDir = Files.createDirectories( outDirPath
+                            .toAbsolutePath() );
+                }
+            } catch ( IOException ex ) {
+                Logger.getLogger( ChippenDale.class.getName() )
+                        .log( Level.SEVERE, null, ex );
+                ex.printStackTrace();
+            }
+        }
+        return outDir;
     }
+
+    public static class Builder {
+
+        // sensible defaults.
+        private boolean dryRun = false;
+        private List<String> extraResources = List.of();
+        private Path outDir = DEFAULT_STRIPPER_OUTDIR;
+        private Log logger = new SystemStreamLog();
+
+        public Builder dryRun(boolean dryRun) {
+            this.dryRun = dryRun;
+            return this;
+        }
+
+        public Builder extraResources(List<String> extraResources) {
+            this.extraResources = extraResources;
+            return this;
+        }
+
+        public Builder outDir(Path outDir) {
+            this.outDir = outDir;
+            return this;
+        }
+
+        public Builder logger(Log logger) {
+            this.logger = logger;
+            return this;
+        }
+
+        CodeStripper build() {
+            CodeStripper result = null;
+            try {
+                result = new CodeStripper( logger, dryRun, outDir )
+                        .extraResources(
+                                extraResources );
+            } catch ( IOException ex ) {
+                this.logger.error( ex.getMessage() );
+                throw new RuntimeException( ex );
+            }
+            return result;
+        }
+
+    }
+
 }

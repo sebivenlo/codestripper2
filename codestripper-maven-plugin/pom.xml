@@ -3,13 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.sebivenlo</groupId>
-        <artifactId>codestripper_parent</artifactId>
-        <version>0.1</version>
-        <relativePath>../codestripper_parent</relativePath>
+        <artifactId>informaticspom</artifactId>
+        <version>1.4.1</version>
     </parent>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper-maven-plugin</artifactId>
-    <version>0.1</version>
+    <version>0.2.1</version>
     <packaging>maven-plugin</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,7 +20,7 @@
         <dependency>
             <groupId>io.github.sebivenlo</groupId>
             <artifactId>codestripper</artifactId>
-            <version>0.1</version>
+            <version>0.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>

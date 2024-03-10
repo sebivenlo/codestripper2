@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.sebivenlo</groupId>
         <artifactId>informaticspom</artifactId>
-        <version>1.4</version>
+        <version>1.4.1</version>
         <relativePath/>
     </parent>
     <groupId>com.example</groupId>
@@ -15,28 +15,4 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>io.github.sebivenlo</groupId>
-                <artifactId>codestripper-maven-plugin</artifactId>
-                <version>0.1</version>
-                <configuration>
-                    <extraResources>
-                        <extraResource>../images</extraResource>
-                        <extraResource>../README.md</extraResource>
-                    </extraResources>
-                    <outDir>target/out</outDir>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>strip</id>
-                        <goals>
-                            <goal>strip</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
