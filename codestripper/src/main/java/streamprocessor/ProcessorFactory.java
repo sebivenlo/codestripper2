@@ -198,22 +198,22 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
         }
     }
     final Function<Processor, Stream<String>> ignore = p -> Stream.empty();
-    final Function<Processor, Stream<String>> replace = p -> of( p
+    final Function<Processor, Stream<String>> replace = p -> of( p.indent() + p
             .payLoad() );
-    final Function<Processor, Stream<String>> add = p -> of( p
+    final Function<Processor, Stream<String>> add = p -> of( p.indent() + p
             .payLoad() );
     final Function<Processor, Stream<String>> uncomment
-            = p -> of( p.text().replaceFirst( "//", "" ) );
+            = p -> of( p.indent() + p.text().replaceFirst( "//", "" ) );
     final Function<Processor, Stream<String>> comment
-            = p -> of( "//" + p.text() );
+            = p -> of( p.indent() + "//" + p.text() );
     final Function<Processor, Stream<String>> nop
-            = p -> of( p.text() );
+            = p -> of( p.indent() + p.text() );
     final Function<Processor, Stream<String>> remove
             = p -> {
                 if ( !p.payLoad().isBlank() ) {
                     logFine( () -> "replaced line '" + p.lineNumber()
                             + ":'" + p.line() + "'" );
-            return Stream.of( p.payLoad() );
+                    return Stream.of( p.indent() + p.payLoad() );
         }
         logFine( () -> "dropped line '" + p.lineNumber()
                 + ":'" + p.line() + "'" );
