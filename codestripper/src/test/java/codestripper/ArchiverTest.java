@@ -23,30 +23,12 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
  */
 @TestMethodOrder( OrderAnnotation.class )
 public class ArchiverTest extends StripperTestBase {//    String projectName = pwd.getFileName().toString();
-//    Path expandedArchive;
-    //    String projectName = pwd.getFileName().toString();
-//    Path expandedArchive;
 
-    Path tempDir;
-    public ArchiverTest() {
-        Path tmpDir = Path.of( "/", "tmp", "codestripper-" + getClass()
-                .getSimpleName() + "-" + LocalDateTime.now().toString()
-                        .replaceAll( "[:T]", "-" ) );
-        try {
-            tempDir = Files.createDirectories( tmpDir );
-//            expandedArchive = outDir.resolve( "expandedArchive" );
-        } catch ( IOException ex ) {
-
-            log.error( ex.getMessage() );
-        }
-    }
-
+//    Path tempDir;
 //    Path pwd = Path.of( System.getProperty( "user.dir" ) );
 //    Log log = new SystemStreamLog();
-
     Archiver newArchiver() throws IOException {
-        return new Archiver( log, tempDir, "assignment", pwd.getFileName()
-                .toString() );
+        return new Archiver( log, locations );
     }
 
     @Order( 0 )
@@ -64,6 +46,7 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
                                     .resolve( "README.md" )
                                     .toString() );
         }
+        super.cleanup();
 
 //        fail( "method PathInArchive reached end. You know what to do." );
     }
@@ -85,6 +68,7 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
             assertThat( actual )
                     .isEqualTo( expected );
         }
+        super.cleanup();
 //        fail( "method PathInArchive reached end. You know what to do." );
     }
 
@@ -105,6 +89,7 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
             )
                     .exists();
         }
+        super.cleanup();
 
 //        fail( "method AddFile reached end. You know what to do." );
     }
@@ -129,6 +114,7 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
             assertThat( expected ).exists();
         }
 
+        super.cleanup();
 //        fail( "method AddFile reached end. You know what to do." );
     }
 
@@ -150,6 +136,7 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
             assertThat( expected ).exists();
         }
 
+        super.cleanup();
 //        fail( "method AddExtras reached end. You know what to do." );
     }
 
@@ -159,7 +146,7 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
     public void testAddExtras() throws Exception {
         List<String> extras = List.of( "../LICENSE", "../images" );
         for ( String extra : extras ) {
-            assumeThat( pwd.resolve( extra ) ).exists();
+            assumeThat( locations.work().resolve( extra ) ).exists();
         }
         SoftAssertions.assertSoftly( softly -> {
             try (
@@ -180,17 +167,23 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
             }
         } );
 
+        super.cleanup();
 //        fail( "method AddExtras reached end. You know what to do." );
     }
 
     @Order( 4 )
     //    @Disabled( "think TDD" )
-    @Test @DisplayName( "test the whole codestripper" )
+    @Test @DisplayName( "test the if names are respected" )
     public void testTestArchivePaths() throws IOException {
-        System.out.println( "codestripper result in " + outDir.toString() );
-        final var archiver = new Archiver( log, outDir, "zip1", "projectName" );
+        System.out.println( "codestripper result in " + locations.out()
+                .toString() );
 
-        archiver.addAssignmentFiles( pwd );
+        PathLocations locs = new PathLocations( locations.logger(), locations
+                .work(), locations.out(),
+                "zip1", "projectName" );
+        final var archiver = new Archiver( log, locs );
+
+        archiver.addAssignmentFiles( locations.work() );
 
         assertThat( archiver.expandedArchive() )
                 .exists();
@@ -215,6 +208,11 @@ public class ArchiverTest extends StripperTestBase {//    String projectName = p
     public void pullDown(TestInfo info) {
         System.out.println(
                 "finish test ======= " + info.getDisplayName() + " ========" );
+    }
+
+    @Override
+    public void cleanup() throws IOException {
+//        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
 
 }

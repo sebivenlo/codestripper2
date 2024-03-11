@@ -23,6 +23,7 @@ import streamprocessor.ProcessorFactory;
  */
 public final class CodeStripper implements ChippenDale {
 
+    static String fileSep = System.getProperty( "file.seperator", "/" );
     /**
      * Default out dir.
      */
@@ -31,8 +32,8 @@ public final class CodeStripper implements ChippenDale {
 
     private final boolean dryRun;
     private Log logger;
-    private final Path outDirPath;
-    private Path outDir = null;
+//    private final Path outDirPath;
+//    private Path outDir = null;
     LoggerLevel logLevel = LoggerLevel.INFO;
 
     /**
@@ -47,8 +48,7 @@ public final class CodeStripper implements ChippenDale {
         Instant start = Instant.now();
         Objects.requireNonNull( logger );
         Path projectDir = null;
-        try ( Archiver archiver = new Archiver( logger, outDir(),
-                "assignment", projectName() ); ) {
+        try ( Archiver archiver = new Archiver( logger, locations ); ) {
             projectDir = archiver.projectDir();
             processTextFiles( root, archiver );
             logger.info( " adding non stripables" );
@@ -89,7 +89,7 @@ public final class CodeStripper implements ChippenDale {
     void processTextFiles(Path root, Archiver archiver) throws IOException {
 
         Files.walk( root, Integer.MAX_VALUE )
-                .filter( f -> acceptablePath( f, outDir ) )
+                .filter( f -> acceptablePath( f, locations.out() ) )
                 .filter( ChippenDale::isText )
                 .forEach( file -> process( file, archiver ) );
     }
@@ -133,33 +133,12 @@ public final class CodeStripper implements ChippenDale {
      * @param outDir for action results.
      * @throws java.io.IOException should not occur.
      */
-    private CodeStripper(Log logger, boolean dryRun, Path outDir) throws IOException {
+    private CodeStripper(Log logger, boolean dryRun, PathLocations locs) throws IOException {
         this.logger = logger;
-        this.outDirPath = outDir;
+        this.locations = locs;
         this.dryRun = dryRun;
     }
-
-    /**
-     * Default stripper with dryRun false;
-     *
-     * @param log to use
-     * @param outDir for results.
-     * @throws java.io.IOException should not occur
-     */
-    private CodeStripper(Log log, Path outDir) throws IOException {
-        this( log, false, outDir );
-    }
-    Path pwd = Path.of( "" ).toAbsolutePath();
-    /**
-     * Set the logging level.
-     *
-     * @param level logging level
-     * @return this
-     */
-    private CodeStripper logLevel(LoggerLevel level) {
-//        this.logLevel = level;
-        return this;
-    }
+    final PathLocations locations;
 
     void logFine(Supplier<String> msg) {
         if ( this.logLevel.compareTo( FINE ) >= 0 ) {
@@ -186,28 +165,28 @@ public final class CodeStripper implements ChippenDale {
         return this;
     }
 
-    final Path outDir() {
-        if ( null == this.outDir ) {
-            try {
-                if ( !outDirPath.toRealPath().toFile().exists() ) {
-                    this.outDir = Files.createDirectories( outDirPath
-                            .toAbsolutePath() );
-                }
-            } catch ( IOException ex ) {
-                Logger.getLogger( ChippenDale.class.getName() )
-                        .log( Level.SEVERE, null, ex );
-                ex.printStackTrace();
-            }
-        }
-        return outDir;
-    }
-
+//    final Path outDir() {
+//        if ( null == this.outDir ) {
+//            try {
+//                if ( !outDirPath.toRealPath().toFile().exists() ) {
+//                    this.outDir = Files.createDirectories( outDirPath
+//                            .toAbsolutePath() );
+//                }
+//            } catch ( IOException ex ) {
+//                Logger.getLogger( ChippenDale.class.getName() )
+//                        .log( Level.SEVERE, null, ex );
+//                ex.printStackTrace();
+//            }
+//        }
+//        return outDir;
+//    }
     public static class Builder {
 
         // sensible defaults.
         private boolean dryRun = false;
         private List<String> extraResources = List.of();
         private Path outDir = DEFAULT_STRIPPER_OUTDIR;
+        private PathLocations locations;
         private Log logger = new SystemStreamLog();
 
         public Builder dryRun(boolean dryRun) {
@@ -220,8 +199,8 @@ public final class CodeStripper implements ChippenDale {
             return this;
         }
 
-        public Builder outDir(Path outDir) {
-            this.outDir = outDir;
+        public Builder pathLocations(PathLocations locations) {
+            this.locations = locations;
             return this;
         }
 
@@ -233,7 +212,7 @@ public final class CodeStripper implements ChippenDale {
         CodeStripper build() {
             CodeStripper result = null;
             try {
-                result = new CodeStripper( logger, dryRun, outDir )
+                result = new CodeStripper( logger, dryRun, locations )
                         .extraResources(
                                 extraResources );
             } catch ( IOException ex ) {

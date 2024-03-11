@@ -27,7 +27,7 @@ public class ZipperTest extends StripperTestBase {
 
     @Test @DisplayName( "some story line" )
     public void testAddLines() throws IOException, Exception {
-        Path pukZip = outDir.resolve( "puk.zip" );
+        Path pukZip = locations.out().resolve( "puk.zip" );
         try (
                 Zipper zipper = new Zipper( pukZip ); ) {
             Path pom = Path.of( "pom.xml" );
@@ -41,7 +41,7 @@ public class ZipperTest extends StripperTestBase {
 
     @Test @DisplayName( "adding entry with path to zip" )
     public void testAddFile() throws Exception {
-        Path pokZip = outDir.resolve( "pok.zip" );
+        Path pokZip = locations.out().resolve( "pok.zip" );
         Path pom = Path.of( "pom.xml" );
         assumeThat( pom ).exists();
         var pathInZip = Path.of( "far", "far", "away" ).resolve( pom );

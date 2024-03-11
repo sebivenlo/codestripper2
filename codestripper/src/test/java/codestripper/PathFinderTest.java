@@ -58,7 +58,7 @@ public class PathFinderTest extends StripperTestBase {
     //@Disabled("think TDD")
     @Test @DisplayName( "non existing file" )
     public void testNewFile() throws IOException {
-        var resource = outDir.resolve( "puk.zip" );
+        var resource = locations.out().resolve( "puk.zip" );
 
         Files.createDirectories( resource.getParent() );
         ThrowingCallable code = () -> {
@@ -87,9 +87,9 @@ public class PathFinderTest extends StripperTestBase {
     public void testFindRelativePath() {
         Path p = Path.of( "..", "README.md" );
         assumeThat( p ).exists();
-        Path relativize = pwd.relativize( p.toAbsolutePath() );
+        Path relativize = locations.work().relativize( p.toAbsolutePath() );
         System.out.println( "relativize = " + relativize );
-        Path inAssesment = outDir
+        Path inAssesment = locations.out()
                 .resolve( "assignment" ).resolve( "assignment" ).resolve( p )
                 .normalize()
                 .toAbsolutePath();

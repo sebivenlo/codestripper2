@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -16,15 +18,28 @@ import org.junit.jupiter.api.AfterEach;
  */
 public class StripperTestBase {
 
-    Path outDir;
-    Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    Log log = new SystemStreamLog();
+    Path tempDir;
+//    Path pwd = Path.of( System.getProperty( "user.dir" ) );
+    final Log log = new SystemStreamLog();
     //    String projectName = pwd.getFileName().toString();
     //    Path expandedArchive;
 
+    final PathLocations locations;
+
+    public StripperTestBase() {
+        try {
+            tempDir = Files.createTempDirectory( "codestripper-" + this
+                    .getClass().getSimpleName() + "-" );
+            locations = new PathLocations( log, tempDir );
+        } catch ( IOException ex ) {
+            log.error( ex.getMessage() );
+            throw new IllegalArgumentException( ex );
+        }
+    }
+
     @AfterEach
     public void cleanup() throws IOException {
-        cleanupStatic( outDir );
+        cleanupStatic( tempDir );
     }
 
     static void cleanupStatic(Path outDir) throws IOException {

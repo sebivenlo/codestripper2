@@ -23,37 +23,30 @@ import org.apache.maven.plugin.logging.Log;
  */
 final class Archiver implements ChippenDale, AutoCloseable {
 
-    private final Path outDir;
+    private final PathLocations locations;
     private final Log logger;
 
-    private final String projectName;
-    private final String assignmentZipName;
-
     /**
-     * Create a new archiver
+     * Create a new archiver.
      *
      * @param log to use
-     * @param outDirPath base of archives
-     * @param assignmentZipName assignment zip has configurable name
-     * @param projectName of the project
+     * @param locations directory and name info to use
      * @throws IOException should not occur.
      */
-    public Archiver(Log log, Path outDirPath, String assignmentZipName,
-            String projectName)
+    public Archiver(Log log, PathLocations locations)
             throws IOException {
+        this.locations = locations;
         this.logger = log;
-        this.outDir = outDir( outDirPath );
-        this.assignmentZipName = assignmentZipName;
-        this.projectName = projectName;
-        this.solution = new Zipper( outDir().resolve( "solution.zip" ) );
-        assignment = new Zipper( outDir().resolve( "assignment.zip" ) );
+        this.solution = new Zipper( locations.out().resolve( "solution.zip" ) );
+        assignment = new Zipper( locations.out().resolve( locations
+                .assignmentName() + ".zip" ) );
     }
     final Zipper solution;
     final Zipper assignment;
 
     @Override
     public String projectName() {
-        return this.projectName;
+        return locations.projectName();
     }
 
     /**
@@ -63,7 +56,7 @@ final class Archiver implements ChippenDale, AutoCloseable {
      * @param lines to add
      */
     void addAssignmentLines(Path file, List<String> lines) throws IOException {
-        Path pathInZip = relPathInArchive( "assignment", file );
+        Path pathInZip = relPathInArchive( locations.assignmentName(), file );
         addLinesToZip( assignment, pathInZip, lines );
         Path targetFile = expandedArchive().resolve( pathInZip );
         Files.createDirectories( targetFile.getParent() );
@@ -87,16 +80,17 @@ final class Archiver implements ChippenDale, AutoCloseable {
      * @param file to add.
      */
     void addFile(Path file) {
-        // find relative path from pwd to file and use that in archive
+        // find relative path from work dir to file and use that in archive
 
         solution.add( relPathInArchive( "solution", file ), file );
-        Path relPathInArchive = relPathInArchive( "assignment", file );
+        Path relPathInArchive = relPathInArchive( locations.assignmentName(),
+                file );
         assignment.add( relPathInArchive, file );
         addAssignmentFile( relPathInArchive, file );
     }
 
     Path relPathInArchive(String archive, Path file) {
-        Path relPath = pwd.relativize( pwd.resolve( file ).normalize() );
+        Path relPath = locations.workRelative( file ).normalize();
         var relPathResult = Path.of( archive ).resolve( projectName() ).resolve(
                 relPath )
                 .normalize();
@@ -145,11 +139,10 @@ final class Archiver implements ChippenDale, AutoCloseable {
                     addFile( inZip );
                 } else if ( Files.isDirectory( inZip ) ) {
                     Files.walk( inZip, Integer.MAX_VALUE )
-                            .filter( f -> acceptablePath( f, outDir ) )
-                            .map( f -> pwd.relativize( f.toAbsolutePath() ) )
-                            .forEach(
-                                    p -> addFile( p )
-                            );
+                            .filter(
+                                    f -> acceptablePath( f, locations.out() ) )
+                            .map( f -> locations.work().relativize( f ) )
+                            .forEach( p -> addFile( p ) );
                 } else {
                     logger.warn( "Not a file or dir" );
                 }
@@ -186,17 +179,18 @@ final class Archiver implements ChippenDale, AutoCloseable {
         return result;
     }
 
-    public Path outDir() {
-        return outDir;
-    }
-
+//    public Path outDir() {
+//        return outDir;
+//    }
     /**
+     * Get the location of the expanded archive.
      *
      * @return the location of the expanded Archive.
      */
-    Path expandedArchive() throws IOException {
+    Path expandedArchive() {
         if ( null == expandedArchive ) {
-            this.expandedArchive = outDir().resolve( "expandedArchive" );
+            this.expandedArchive
+                    = locations.out().resolve( "expandedArchive" );
         }
         return expandedArchive;
     }
@@ -223,7 +217,7 @@ final class Archiver implements ChippenDale, AutoCloseable {
      */
     void addAssignmentFiles(Path root) throws IOException {
         Files.walk( root, Integer.MAX_VALUE )
-                .filter( f -> acceptablePath( f, outDir ) )
+                .filter( f -> acceptablePath( f, locations.out() ) )
                 .filter( Predicate.not( ChippenDale::isText ) )
                 .map( p -> pwd.relativize( p.toAbsolutePath() ) )
                 .peek( f -> logger.info( "bin file added" + f.toString() ) )

@@ -21,12 +21,22 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 @TestMethodOrder( OrderAnnotation.class )
 public class CodeStripperTest extends StripperTestBase {
 
+    final CodeStripper stripper;
+
+    public CodeStripperTest() {
+        stripper = new CodeStripper.Builder()
+                .logger( log )
+                .pathLocations( locations )
+                .extraResources( List.of(
+                        "../README.md", "../images" ) )
+                .build();
+    }
 
     @Order( 1 )
     //@Disabled("think TDD")
     @Test @DisplayName( "check that the files land in the proper archive" )
     public void testProperOutput() throws IOException {
-        System.out.println( "outDir = " + outDir );
+        System.out.println( "outDir = " + locations.out() );
         Path roadKill = Path.of( "src",
                 "test",
                 "java",
@@ -35,14 +45,8 @@ public class CodeStripperTest extends StripperTestBase {
         System.out.println( "src = " + roadKill );
 //        Path source = pwd.resolve( src );
         assumeThat( roadKill ).exists();
-        var stripper = new CodeStripper.Builder()
-                .logger( log )
-                .outDir( outDir )
-                .extraResources( List.of(
-                        "../README.md", "../images" ) )
-                .build();
         stripper.logLevel = LoggerLevel.MUTE;
-        Path output = stripper.strip( pwd );
+        Path output = stripper.strip( locations.work() );
         assertThat( output ).exists();
         System.out.println( "expandedArchive = " + output );
         Path stripped = output.resolve( roadKill );
@@ -62,15 +66,9 @@ public class CodeStripperTest extends StripperTestBase {
                 "codestripper",
                 "StripperRoadKill.java" );
         long size1 = Files.size( roadKill );
-        var stripper = new CodeStripper.Builder()
-                .logger( log )
-                .outDir( outDir )
-                .extraResources( List.of(
-                        "../README.md", "../images" ) )
-                .build();
         stripper.logLevel = LoggerLevel.FINE;
-        stripper.strip( pwd );
-        Path expandedArchive = stripper.outDir().resolve( "expandedArchive" );
+        stripper.strip( locations.work() );
+        Path expandedArchive = locations.out().resolve( "expandedArchive" );
         System.out.println( "expandedArchive = " + expandedArchive );
         Path strippedRoadKill = expandedArchive.resolve( roadKill );
         assumeThat( strippedRoadKill ).exists();
@@ -86,10 +84,10 @@ public class CodeStripperTest extends StripperTestBase {
         assumeThat( Path.of( "pom.xml" ) ).exists();
         var stripper = new CodeStripper.Builder()
                 .logger( log )
-                .outDir( outDir )
+                .pathLocations( locations )
                 .build();
         stripper.logLevel = LoggerLevel.FINE;
-        Path output = stripper.strip( pwd );
+        Path output = stripper.strip( locations.work() );
         System.out.println( "outDir = " + output );
         assertThat( output.resolve( "pom.xml" ) ).exists();
 
@@ -100,12 +98,8 @@ public class CodeStripperTest extends StripperTestBase {
     @Test @DisplayName( "are assignment files such as pom.xml adde properly" )
     public void testAddAssignmentFiles() throws IOException {
         assumeThat( Path.of( "pom.xml" ) ).exists();
-        var stripper = new CodeStripper.Builder()
-                .logger( log )
-                .outDir( outDir )
-                .build();
         stripper.logLevel = LoggerLevel.FINE;
-        Path output = stripper.strip( pwd );
+        Path output = stripper.strip( locations.work() );
         System.out.println( "output = " + output );
         assumeThat( output ).exists();
 
