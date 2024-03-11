@@ -65,6 +65,10 @@ record PathLocations(Log logger, Path work, Path out,
         return relTo( work, other );
     }
 
+    public Path workRelative(String other) {
+        return relTo( work, Path.of( other ) );
+    }
+
     Path relTo(final Path x, Path other) {
         if ( !other.isAbsolute() ) {
             other = other.toAbsolutePath();

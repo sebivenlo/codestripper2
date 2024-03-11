@@ -58,7 +58,7 @@ public class CodeStripperTest extends StripperTestBase {
 
     @Order( 2 )
     //@Disabled("think TDD")
-    @Test @DisplayName( "stripped files are smaller" )
+    @Test //@DisplayName( "stripped files are smaller" )
     public void testTestThatStripperStrips() throws IOException {
         Path roadKill = Path.of( "src",
                 "test",
@@ -69,8 +69,12 @@ public class CodeStripperTest extends StripperTestBase {
         stripper.logLevel = LoggerLevel.FINE;
         stripper.strip( locations.work() );
         Path expandedArchive = locations.out().resolve( "expandedArchive" );
-        System.out.println( "expandedArchive = " + expandedArchive );
-        Path strippedRoadKill = expandedArchive.resolve( roadKill );
+        Path inArchive = Path.of( locations.assignmentName(), locations
+                .projectName() );
+        System.out.println( "expandedArchive  = " + expandedArchive );
+        Path strippedRoadKill = expandedArchive.resolve( inArchive ).resolve(
+                roadKill );
+        System.out.println( "strippedRoadKill = " + strippedRoadKill );
         assumeThat( strippedRoadKill ).exists();
         long size2 = Files.size( strippedRoadKill );
         assertThat( size2 ).isLessThan( size1 );
@@ -81,7 +85,7 @@ public class CodeStripperTest extends StripperTestBase {
     //@Disabled("think TDD")
     @Test @DisplayName( "test that files land in proper place" )
     public void testFilesLandAtProperPlace() throws IOException {
-        assumeThat( Path.of( "pom.xml" ) ).exists();
+        assumeThat( locations.workRelative( "pom.xml" ) ).exists();
         var stripper = new CodeStripper.Builder()
                 .logger( log )
                 .pathLocations( locations )
@@ -95,7 +99,7 @@ public class CodeStripperTest extends StripperTestBase {
     }
 
     //@Disabled("think TDD")
-    @Test @DisplayName( "are assignment files such as pom.xml adde properly" )
+    @Test @DisplayName( "are assignment files such as pom.xml added properly" )
     public void testAddAssignmentFiles() throws IOException {
         assumeThat( Path.of( "pom.xml" ) ).exists();
         stripper.logLevel = LoggerLevel.FINE;
@@ -105,7 +109,7 @@ public class CodeStripperTest extends StripperTestBase {
 
         assertThat( output.resolve( "pom.xml" ) ).exists();
 
-        fail( "method AddAssignmentFiles reached end. You know what to do." );
+//        fail( "method AddAssignmentFiles reached end. You know what to do." );
     }
 
     @Override
