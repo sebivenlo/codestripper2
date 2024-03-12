@@ -49,7 +49,7 @@ public class PathLocationsTest extends StripperTestBase {
     }
 
     //@Disabled("think TDD")
-    @DisplayName( "test that illagal params cause trouble" )
+    @DisplayName( "ensure that illagal params cause trouble" )
     @ParameterizedTest
     @CsvSource( {
         // work,     out,  assiName, project,  expected       ,  words in msg
@@ -60,6 +60,7 @@ public class PathLocationsTest extends StripperTestBase {
         "writable,   parent,      a,       p,  IllegalArgument, work|should|not|be|a|child|of|out" //
     } )
     public void testVerifyParams(String workPath, String outPath,
+            String assignmentName, String projectName,
             String except,
             String words
     ) {

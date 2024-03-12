@@ -85,25 +85,55 @@ public record PathLocations(Log logger, Path work, Path out,
                         .toString() );
     }
 
+    /**
+     * Get the working directory
+     *
+     * @return the work dir
+     */
     public Path pwd() {
-        return of( getProperty( "user.dir" ) );
+        return work();//of( getProperty( "user.dir" ) );
     }
 
+    /**
+     * Compute a relative path to the working directory.
+     *
+     * @param other the path whose relative path to work dir is wanted
+     * @return the relative path
+     */
     public Path workRelative(Path other) {
         return relTo( work, other );
     }
 
+    /**
+     * See #workRelative(Path) nut with string as input.
+     *
+     * @param other used as path
+     * @return the relative path
+     */
     public Path workRelative(String other) {
         return relTo( work, Path.of( other ) );
     }
 
-    Path relTo(final Path x, Path other) {
+    /**
+     * Computes the relative of other relative to the given root.
+     *
+     * @param root from which the result is relative.
+     * @param other input
+     * @return the relative path of other to root
+     */
+    Path relTo(final Path root, Path other) {
         if ( !other.isAbsolute() ) {
             other = other.toAbsolutePath();
         }
-        return x.toAbsolutePath().relativize( other );
+        return root.toAbsolutePath().relativize( other );
     }
 
+    /**
+     * Compute the Path relative to out.
+     *
+     * @param other path
+     * @return the relative path
+     */
     public Path outRelative(Path other) {
         return relTo( work, other );
     }
@@ -128,10 +158,6 @@ public record PathLocations(Log logger, Path work, Path out,
      */
     public Path inWorkFile(String filePath) {
         return work.resolve( filePath );
-    }
-
-    public static Path createTempOut(String prefix) throws IOException {
-        return Files.createTempDirectory( prefix );
     }
 
 }
