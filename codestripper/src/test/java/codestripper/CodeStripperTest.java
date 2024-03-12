@@ -25,7 +25,7 @@ public class CodeStripperTest extends StripperTestBase {
     PathLocations locations;
 
     public CodeStripperTest() {
-        Path sampleProject = Path.of( "..", "sampleproject", "solution" )
+        Path sampleProject = Path.of( "..", "sampleproject", "example" )
                 .toAbsolutePath().normalize();
         System.out.println( "sampleProject = " + sampleProject );
         assumeThat( sampleProject ).exists();
@@ -103,7 +103,8 @@ public class CodeStripperTest extends StripperTestBase {
         stripper.logLevel = LoggerLevel.FINE;
         Path output = stripper.strip( locations.work() );
         System.out.println( "outDir = " + output );
-        assertThat( locations.out().resolve( locations.assignmentName() )
+        assertThat( locations.expandedArchive().resolve( locations
+                .assignmentName() )
                 .resolve( locations.projectName() ).resolve( "pom.xml" ) )
                 .exists();
 
@@ -126,7 +127,7 @@ public class CodeStripperTest extends StripperTestBase {
 
     @Override
     public void cleanup() throws IOException {
-        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+//        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
 
 }

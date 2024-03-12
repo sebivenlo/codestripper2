@@ -11,7 +11,7 @@
     <artifactId>sampleproject</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
-    <name>codestripper sampleproject</name>
+    <name>codestripper example</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

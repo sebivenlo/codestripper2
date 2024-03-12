@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import org.junit.jupiter.api.AfterEach;
 
 /**
@@ -29,7 +28,8 @@ public class StripperTestBase {
     public StripperTestBase() {
         try {
             Path sampleproject = Path.of( "..",
-                    "sampleproject" ).toAbsolutePath();
+                    "sampleproject", "example" ).toAbsolutePath();
+            assumeThat( sampleproject ).exists();
             tempDir = Files.createTempDirectory( "codestripper-" + this
                     .getClass().getSimpleName() + "-" );
             locations = new PathLocations( log, sampleproject, tempDir );

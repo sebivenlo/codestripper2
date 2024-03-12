@@ -1,6 +1,7 @@
 package codestripper;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import static java.nio.file.Path.of;
@@ -77,7 +78,7 @@ public record PathLocations(Log logger, Path work, Path out,
      * Create locations with default assignment name and default work dir pwd.
      *
      * @param logger to use
-     * @param out wriable dir.
+     * @param out writable dir.
      */
     public PathLocations(Log logger, Path out) {
         this( logger, Path.of( getProperty( "user.dir" ) ), out, "assignment",
@@ -101,6 +102,7 @@ public record PathLocations(Log logger, Path work, Path out,
      * @return the relative path
      */
     public Path workRelative(Path other) {
+
         return relTo( work, other );
     }
 
@@ -115,17 +117,16 @@ public record PathLocations(Log logger, Path work, Path out,
     }
 
     /**
-     * Computes the relative of other relative to the given root.
+     * Computes the relative of other relative to the given root. If other is
+     * not absolute resolve against root then relativize. Otherwise relativize
+     * against root.
      *
      * @param root from which the result is relative.
      * @param other input
      * @return the relative path of other to root
      */
     Path relTo(final Path root, Path other) {
-        if ( !other.isAbsolute() ) {
-            other = other.toAbsolutePath();
-        }
-        return root.toAbsolutePath().relativize( other );
+        return root.relativize( root.resolve( other ) );
     }
 
     /**
@@ -143,7 +144,6 @@ public record PathLocations(Log logger, Path work, Path out,
      *
      * @param filePath the path of a file
      * @return the path of the file with the parent existing
-     * @throws IOException should not occur.
      */
     public Path inOutFile(String filePath) {
         return out.resolve( filePath );
@@ -154,10 +154,66 @@ public record PathLocations(Log logger, Path work, Path out,
      *
      * @param filePath the path of a file
      * @return the path of the file with the parent existing
-     * @throws IOException should not occur.
      */
     public Path inWorkFile(String filePath) {
         return work.resolve( filePath );
+    }
+
+    public Path expandedArchive() {
+        Path p = out().resolve( "expandedArchive" ).toAbsolutePath();
+        if ( Files.exists( p ) ) {
+            return p;
+        }
+        try {
+            return Files.createDirectories( p );
+        } catch ( IOException ex ) {
+            logger.error( ex.getMessage() );
+            throw new UncheckedIOException( ex );
+        }
+    }
+
+    /**
+     * Path to a file in or relative to the project.
+     *
+     * @param file projectDir relative Path to file
+     * @return the file resolved.
+     */
+    public Path projectFile(Path file) {
+        return work().resolve( file );
+    }
+
+    /**
+     * Determine if a source path is acceptable as location for resources. Used
+     * to test     * directories and files.
+     *
+     * @param p path to test
+     * @return true if acceptable false otherwise.
+     */
+    boolean acceptablePath(Path p) {
+        if ( p.toString().startsWith( ".git" ) ) {
+            return false;
+        }
+        if ( p.getFileName().toString().startsWith( ".git" ) ) {
+            return false;
+        }
+        Path absPath = p.toAbsolutePath();
+        var itr = absPath.iterator();
+        // no .git in dir name
+        while ( itr.hasNext() ) {
+            if ( itr.next().getFileName().toString().equals( ".git" ) ) {
+                return false;
+            }
+        }
+        if ( absPath.startsWith( out ) ) {
+            return false;
+        }
+        if ( absPath.startsWith( work().resolve( "target" ) ) ) {
+            return false;
+        }
+        if ( Files.isDirectory( absPath ) ) {
+            return false;
+        }
+        return !absPath.getFileName().toString().endsWith( "~" );
     }
 
 }

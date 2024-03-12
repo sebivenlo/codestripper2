@@ -1,5 +1,6 @@
 package codestripper;
 
+import static codestripper.ChippenDale.DEFAULT_STRIPPER_OUTDIR;
 import static codestripper.LoggerLevel.DEBUG;
 import static codestripper.LoggerLevel.FINE;
 import java.io.IOException;
@@ -10,8 +11,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import streamprocessor.ProcessorFactory;
@@ -21,14 +20,12 @@ import streamprocessor.ProcessorFactory;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public final class CodeStripper implements ChippenDale {
+public final class CodeStripper {
 
     static String fileSep = System.getProperty( "file.seperator", "/" );
     /**
      * Default out dir.
      */
-    public static final Path DEFAULT_STRIPPER_OUTDIR = Path.of( "target",
-            "stripper-out" );
 
     private final boolean dryRun;
     private Log logger;
@@ -72,11 +69,6 @@ public final class CodeStripper implements ChippenDale {
 
     int fileCount = 0;
 
-    @Override
-    public String projectName() {
-        return pwd.getFileName().toString();
-    }
-
     /**
      * Process the files in the root directory. Typically this is the directory
      * that contains the maven pom file.
@@ -89,7 +81,7 @@ public final class CodeStripper implements ChippenDale {
     void processTextFiles(Path root, Archiver archiver) throws IOException {
 
         Files.walk( root, Integer.MAX_VALUE )
-                .filter( f -> acceptablePath( f, locations.out() ) )
+                .filter( f -> locations.acceptablePath( f ) )
                 .filter( ChippenDale::isText )
                 .forEach( file -> process( file, archiver ) );
     }
@@ -165,21 +157,9 @@ public final class CodeStripper implements ChippenDale {
         return this;
     }
 
-//    final Path outDir() {
-//        if ( null == this.outDir ) {
-//            try {
-//                if ( !outDirPath.toRealPath().toFile().exists() ) {
-//                    this.outDir = Files.createDirectories( outDirPath
-//                            .toAbsolutePath() );
-//                }
-//            } catch ( IOException ex ) {
-//                Logger.getLogger( ChippenDale.class.getName() )
-//                        .log( Level.SEVERE, null, ex );
-//                ex.printStackTrace();
-//            }
-//        }
-//        return outDir;
-//    }
+    /**
+     * Build a stripper.
+     */
     public static class Builder {
 
         // sensible defaults.

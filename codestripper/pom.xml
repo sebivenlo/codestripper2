@@ -9,9 +9,10 @@
     </parent>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
     <packaging>jar</packaging>
     <properties>
+        <java.release>17</java.release>
         <exec.mainClass>io.github.sebivenlo.codestripper.Codestripper</exec.mainClass>
     </properties>
     

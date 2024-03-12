@@ -14,45 +14,24 @@ import java.util.Set;
  *
  * @param C subclass
  */
-sealed interface ChippenDale permits Archiver, CodeStripper {
+class ChippenDale {
 
     /**
      * known text formats
      */
-    static final Set<String> textExtensions = Set.of( "java", "sql",
+    public static final Set<String> textExtensions = Set.of( "java", "sql",
             "txt", "sh", "yaml", "yml", "properties" );
 
     /**
      * Local path of .git.
      */
-    static final Path dotgit = Path.of( ".git" );
+    public static final Path dotgit = Path.of( ".git" );
+
     /**
      * The location of the 'unzipped' archive.
      */
 
-    /**
-     * SLF4J log.
-     */
-    final Path pwd = Path.of( System.getProperty( "user.dir" ) )
-            .toAbsolutePath();
-    static final Path target = pwd.resolve( "target" ).toAbsolutePath();
-
-    /**
-     * Get the project name. The project defaults to the name of the project
-     * directory, i.e. the parent of pom.xml.
-     *
-     * @return project name
-     */
-    String projectName();
-
-    default void checkPath(Path outDirPath1) throws IllegalArgumentException, IOException {
-        if ( !outDirPath1.toRealPath().toFile().exists() ) {
-            throw new IllegalArgumentException(
-                    "Path " + outDirPath1 + "must exists" );
-        }
-    }
-
-    static boolean isText(Path file) {
+    public static boolean isText(Path file) {
         String fileNameString = file.getFileName().toString();
         String[] split = fileNameString.split( "\\.", 2 );
         if ( split.length < 2 ) {
@@ -60,43 +39,10 @@ sealed interface ChippenDale permits Archiver, CodeStripper {
             return false;
         }
         String extension = split[ 1 ];
-        return Archiver.textExtensions.contains( extension );
+        return textExtensions.contains( extension );
     }
-    /**
-     * Determine if a path is acceptable as location for resources. Used to test
-     * directories and files.
-     *
-     * @param p path to test
-     * @return true if acceptable false otherwise.
-     */
-    default boolean acceptablePath(Path p, Path forbidden) {
-        if ( p.toString().startsWith( ".git" ) ) {
-            return false;
-        }
-        if ( p.getFileName().toString().startsWith( ".git" ) ) {
-            return false;
-        }
-        Path absPath = p.toAbsolutePath();
-        var itr = absPath.iterator();
-        // no .git in dir name
-        while ( itr.hasNext() ) {
-            if ( itr.next().getFileName().toString().equals( ".git" ) ) {
-                return false;
-            }
-        }
-        if ( absPath.startsWith( forbidden ) ) {
-            return false;
-        }
-        if ( absPath.startsWith( target ) ) {
-            return false;
-        }
-        if ( Files.isDirectory( absPath ) ) {
-            return false;
-        }
-        if ( absPath.getFileName().toString().endsWith( "~" ) ) {
-            return false;
-        }
-        return true;
-    }
+
+    public static final Path DEFAULT_STRIPPER_OUTDIR = Path.of( "target",
+            "stripper-out" );
 
 }
