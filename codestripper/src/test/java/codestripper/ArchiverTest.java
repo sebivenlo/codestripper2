@@ -22,11 +22,8 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
 @TestMethodOrder( OrderAnnotation.class )
-public class ArchiverTest extends StripperTestBase {//    String projectName = pwd.getFileName().toString();
+public class ArchiverTest extends StripperTestBase {
 
-//    Path tempDir;
-//    Path pwd = Path.of( System.getProperty( "user.dir" ) );
-//    Log log = new SystemStreamLog();
     Archiver newArchiver() throws IOException {
         return new Archiver( log, locations );
     }

@@ -103,7 +103,9 @@ public class CodeStripperTest extends StripperTestBase {
         stripper.logLevel = LoggerLevel.FINE;
         Path output = stripper.strip( locations.work() );
         System.out.println( "outDir = " + output );
-        assertThat( locations.out().resolve( "pom.xml" ) ).exists();
+        assertThat( locations.out().resolve( locations.assignmentName() )
+                .resolve( locations.projectName() ).resolve( "pom.xml" ) )
+                .exists();
 
 //        fail( "method FilesLandAtProperPlace reached end. You know what to do." );
     }
@@ -124,7 +126,7 @@ public class CodeStripperTest extends StripperTestBase {
 
     @Override
     public void cleanup() throws IOException {
-//        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
 
 }

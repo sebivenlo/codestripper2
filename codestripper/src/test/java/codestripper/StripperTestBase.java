@@ -28,9 +28,11 @@ public class StripperTestBase {
 
     public StripperTestBase() {
         try {
+            Path sampleproject = Path.of( "..",
+                    "sampleproject" ).toAbsolutePath();
             tempDir = Files.createTempDirectory( "codestripper-" + this
                     .getClass().getSimpleName() + "-" );
-            locations = new PathLocations( log, tempDir );
+            locations = new PathLocations( log, sampleproject, tempDir );
         } catch ( IOException ex ) {
             log.error( ex.getMessage() );
             throw new IllegalArgumentException( ex );

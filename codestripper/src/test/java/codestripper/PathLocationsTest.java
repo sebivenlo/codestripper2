@@ -24,12 +24,6 @@ import org.junit.jupiter.params.provider.CsvSource;
  */
 public class PathLocationsTest extends StripperTestBase {
 
-    final Log logger;
-
-    public PathLocationsTest() {
-        logger = new SystemStreamLog();
-    }
-
     //@Disabled("think TDD")
     @Test @DisplayName( "test that empty strings can produce real paths" )
     public void testWorkDir() throws IOException {
