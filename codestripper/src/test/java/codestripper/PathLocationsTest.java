@@ -12,6 +12,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.jupiter.api.Test;
 //import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,24 +52,29 @@ public class PathLocationsTest extends StripperTestBase {
     @DisplayName( "test that illagal params cause trouble" )
     @ParameterizedTest
     @CsvSource( {
-        "none,         none,  IllegalArgument, work|should|already|exists",
-        "existing,     none,  IllegalArgument, out|should|already|exists",
-        "existing, readonly,  IllegalArgument, writable",
-        "existing, writable,   ''            ,''"
+        // work,     out,  assiName, project,  expected       ,  words in msg
+        "none,         none,      a,       p,  IllegalArgument, work|should|already|exists",
+        "existing,     none,      a,       p,  IllegalArgument, out|should|already|exists",
+        "existing, readonly,      a,       p,  IllegalArgument, not|writable",
+        "writable, writable,      a,       p,  IllegalArgument, out|work|should|be|different",
+        "writable,   parent,      a,       p,  IllegalArgument, work|should|not|be|a|child|of|out" //
     } )
     public void testVerifyParams(String workPath, String outPath,
             String except,
             String words
     ) {
+        Path tmp = Path.of( System.getProperty( "java.io.tmpdir" ) );
+        assumeThat( tempDir ).startsWith( tmp );
         String exception = except.trim();
-        String[] requiredWords = words.split( "\\|" );
+        String[] requiredWords = words.trim().split( "\\|" );
         final Path none = Path.of( "nix" );
         Path pwd = Path.of( System.getProperty( "user.dir" ) );
         Map<String, Path> selectedPath = Map.of(
                 "existing", pwd,
                 "writable", tempDir,
                 "readonly", Path.of( "/" ),
-                "none", Path.of( "nix" )
+                "none", Path.of( "nix" ),
+                "parent", tmp
         );
 
         ThrowingCallable code = () -> {

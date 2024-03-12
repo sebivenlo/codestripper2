@@ -24,7 +24,7 @@ public class StripperTestBase {
     //    String projectName = pwd.getFileName().toString();
     //    Path expandedArchive;
 
-    final PathLocations locations;
+    PathLocations locations;
 
     public StripperTestBase() {
         try {
