@@ -4,7 +4,7 @@
  */
 package streamprocessor;
 
-import loggerwrapper.DefaultLogger;
+import mytinylogger.DefaultLogger;
 import loggerwrapper.Logger;
 
 /**

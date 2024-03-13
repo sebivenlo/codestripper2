@@ -22,7 +22,7 @@ public interface Logger {
 
     void warn(Supplier<String> msg);
 
-    Logger setLevel(LoggerLevel level);
+    Logger level(LoggerLevel level);
 
-    LoggerLevel getLevel();
+    LoggerLevel level();
 }

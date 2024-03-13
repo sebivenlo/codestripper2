@@ -4,8 +4,12 @@
 package codestripper;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import mytinylogger.DefaultLogger;
+import loggerwrapper.Logger;
+import loggerwrapper.LoggerLevel;
 
 /**
  * Starter for CLI version.
@@ -21,12 +25,19 @@ public class CodeStripperMain {
      * @throws IOException should not occur.
      */
     public static void main(String[] args) throws IOException {
+        Path outDir = Path.of( System.getProperty( "user.dir" ) ).resolve(
+                "target" ).resolve( "stripper-out" );
+        Files.createDirectories( outDir );
+        Logger logger = new DefaultLogger().level( LoggerLevel.DEBUG );
+        PathLocations locations = new PathLocations( logger, outDir );
         CodeStripper codeStripper
                 = new CodeStripper.Builder()
+                        .pathLocations( locations )
+                        .logger( logger )
                         .extraResources( List.of( "../README.md", "../images" ) )
                         .build();
         codeStripper.strip();
-//        logger.info( "Hello World!" );
+        logger.info( () -> "Hello World!" );
     }
 
     /**

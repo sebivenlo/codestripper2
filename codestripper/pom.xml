@@ -11,16 +11,58 @@
     <artifactId>codestripper</artifactId>
     <version>0.2.2</version>
     <packaging>jar</packaging>
-    <dependencies>
-        <dependency>
-            <groupId>io.github.sebivenlo</groupId>
-            <artifactId>Loggerwrapper</artifactId>
-            <version>0.1</version>
-            <type>jar</type>
-        </dependency>
-    </dependencies>
     <properties>
         <java.release>17</java.release>
         <exec.mainClass>io.github.sebivenlo.codestripper.Codestripper</exec.mainClass>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>io.github.sebivenlo</groupId>
+            <artifactId>loggerwrapper</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jlink-plugin</artifactId>
+                <version>3.2.0</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>0.10.1</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                            <execution>
+                                <id>test-native</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>codestripper.CodeStripperMain</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

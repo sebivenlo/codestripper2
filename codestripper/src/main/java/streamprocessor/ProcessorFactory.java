@@ -2,7 +2,6 @@ package streamprocessor;
 
 import loggerwrapper.LoggerLevel;
 import static loggerwrapper.LoggerLevel.FINE;
-import loggerwrapper.LoggerWrapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

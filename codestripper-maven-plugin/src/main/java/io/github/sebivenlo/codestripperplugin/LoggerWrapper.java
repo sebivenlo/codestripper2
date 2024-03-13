@@ -2,10 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package loggerwrapper;
+package io.github.sebivenlo.codestripperplugin;
 
 import static loggerwrapper.LoggerLevel.*;
 import java.util.function.Supplier;
+import loggerwrapper.Logger;
+import loggerwrapper.LoggerLevel;
 import org.apache.maven.plugin.logging.Log;
 
 /**
@@ -59,13 +61,13 @@ public class LoggerWrapper implements Logger {
     }
 
     @Override
-    public Logger setLevel(LoggerLevel level) {
+    public Logger level(LoggerLevel level) {
         this.level = level;
         return this;
     }
 
     @Override
-    public LoggerLevel getLevel() {
+    public LoggerLevel level() {
         return level;
     }
 

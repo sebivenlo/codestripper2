@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import static java.util.stream.Collectors.joining;
-import loggerwrapper.DefaultLogger;
+import mytinylogger.DefaultLogger;
 import loggerwrapper.Logger;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.logging.Log;

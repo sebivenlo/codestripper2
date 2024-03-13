@@ -2,10 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package loggerwrapper;
+package mytinylogger;
 
 import java.io.PrintStream;
 import java.util.function.Supplier;
+import loggerwrapper.Logger;
+import loggerwrapper.LoggerLevel;
 import static loggerwrapper.LoggerLevel.*;
 
 /**
@@ -26,11 +28,11 @@ public class DefaultLogger implements Logger {
         this( System.out );
     }
 
-    static String errorP = "[\033[31mERROR\033[m] ";
-    static String infoP = "[\033[34mERROR\033[m] ";
-    static String warnP = "[\033[33mERROR\033[m] ";
-    static String debugP = "[\033[41;30mERROR\033[m] ";
-    static String fineP = "[\033[42;30mERROR\033[m] ";
+    static String errorP = "[\033[31;1mERROR\033[m] ";
+    static String infoP = "[\033[36;1mINFO\033[m] ";
+    static String warnP = "[\033[33;1mWARN\033[m] ";
+    static String debugP = "[\033[35;1mDEBUG\033[m] ";
+    static String fineP = "[\033[32;1mFINE\033[m] ";
 
     @Override
     public void debug(Supplier<String> msg) {
@@ -68,13 +70,13 @@ public class DefaultLogger implements Logger {
     }
 
     @Override
-    public Logger setLevel(LoggerLevel level) {
+    public Logger level(LoggerLevel level) {
         this.level = level;
         return this;
     }
 
     @Override
-    public LoggerLevel getLevel() {
+    public LoggerLevel level() {
         return level;
     }
 

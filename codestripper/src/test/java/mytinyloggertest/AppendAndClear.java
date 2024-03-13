@@ -1,4 +1,4 @@
-package loggerwrapper;
+package mytinyloggertest;
 
 @FunctionalInterface
 public interface AppendAndClear {

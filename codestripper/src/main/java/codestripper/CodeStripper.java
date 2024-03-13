@@ -9,7 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import loggerwrapper.DefaultLogger;
+import mytinylogger.DefaultLogger;
 
 import streamprocessor.ProcessorFactory;
 

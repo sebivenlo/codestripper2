@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
-import loggerwrapper.DefaultLogger;
+import mytinylogger.DefaultLogger;
 import loggerwrapper.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
