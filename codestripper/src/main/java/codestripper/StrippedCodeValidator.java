@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package io.github.sebivenlo.codestripperplugin;
+package codestripper;
 
 import codestripper.PathLocations;
 import java.io.BufferedReader;
@@ -41,7 +41,7 @@ public class StrippedCodeValidator {
         this.log = log;
     }
 
-    void validate() throws InterruptedException, IOException {
+    public void validate() throws InterruptedException, IOException {
         Path compilerOutDir = makeOutDir();
         Path srcDir = locations.strippedProject().resolve( "src" );
         if ( srcDir.startsWith( locations.work() ) ) {

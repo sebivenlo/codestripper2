@@ -1,7 +1,5 @@
-package io.github.sebivenlo.codestripperplugin;
+package codestripper;
 
-import codestripper.CodeStripper;
-import codestripper.PathLocations;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,9 +8,7 @@ import java.util.List;
 import static java.util.stream.Collectors.joining;
 import mytinylogger.DefaultLogger;
 import loggerwrapper.Logger;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import static loggerwrapper.LoggerLevel.INFO;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import org.assertj.core.api.ThrowableAssert;
@@ -26,7 +22,7 @@ import org.junit.jupiter.api.*;
 public class StrippedCodeValidatorTest {
 
     static Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    static Log log = new SystemStreamLog();
+    static Logger log = new DefaultLogger().level( INFO );
     Path tempDir;
     final PathLocations locations;
     final StrippedCodeValidator validator;
@@ -83,7 +79,7 @@ public class StrippedCodeValidatorTest {
 //    @Disabled( "think TDD" )
     @Test
     @DisplayName( "compiler args " )
-    public void testCompilerArgs() throws DependencyResolutionRequiredException, IOException {
+    public void testCompilerArgs() throws IOException {
         String[] args = validator.makeCompilerArguments( locations
                 .strippedProject().resolve( "src" ), validator.makeOutDir() );
         // cleanup

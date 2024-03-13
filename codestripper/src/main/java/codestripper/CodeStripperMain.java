@@ -24,7 +24,7 @@ public class CodeStripperMain {
      * @param args not used
      * @throws IOException should not occur.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Path outDir = Path.of( System.getProperty( "user.dir" ) ).resolve(
                 "target" ).resolve( "stripper-out" );
         Files.createDirectories( outDir );
@@ -37,6 +37,8 @@ public class CodeStripperMain {
                         .extraResources( List.of( "../README.md", "../images" ) )
                         .build();
         codeStripper.strip();
+        var checker = new StrippedCodeValidator( logger, locations );
+        checker.validate();
         logger.info( () -> "Hello World!" );
     }
 

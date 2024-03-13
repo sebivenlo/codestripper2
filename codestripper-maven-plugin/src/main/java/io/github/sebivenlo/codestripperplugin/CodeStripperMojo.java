@@ -1,5 +1,6 @@
 package io.github.sebivenlo.codestripperplugin;
 
+import codestripper.StrippedCodeValidator;
 import codestripper.CodeStripper;
 import loggerwrapper.LoggerLevel;
 import codestripper.PathLocations;
