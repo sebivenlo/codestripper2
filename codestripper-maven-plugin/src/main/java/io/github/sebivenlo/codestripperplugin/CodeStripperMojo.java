@@ -2,7 +2,9 @@ package io.github.sebivenlo.codestripperplugin;
 
 import codestripper.CodeStripper;
 import codestripper.LoggerLevel;
+import codestripper.PathLocations;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,14 +37,20 @@ public class CodeStripperMojo extends AbstractMojo {
         Log log = getLog();
         try {
             log.info( "start code stripping." );
-            var stripper = new CodeStripper( getLog(), dryRun,
-                    Path.of( outDir ) )
-                    .extraResources( extraResources )
-                    .logLevel( verbosity );
+            var out = Files.createDirectories( Path.of( System.getProperty(
+                    "user.dir" ), "target", "stripper-out" ) );
+
+            PathLocations locations = new PathLocations( getLog(), out );
+            var stripper = new CodeStripper.Builder()
+                    .logger( log )
+                    .pathLocations( locations )
+                    .dryRun( dryRun )
+                    .extraResources( List.of() )
+                    .build();
             Path resultingProject
                     = stripper.strip( Path.of( workDir ) );
             getLog().info( "stripped code, result in " + resultingProject );
-            var checker = new StrippedCodeValidator( resultingProject, log );
+            var checker = new StrippedCodeValidator( log, locations );
             checker.validate();
         } catch ( IOException ex ) {
             getLog().error( ex.getMessage(), ex );
@@ -55,16 +63,12 @@ public class CodeStripperMojo extends AbstractMojo {
 //    @Parameter( property = "codestripper.includeGlob", defaultValue = "*.java" )
 //    protected String includeGlob;
 
-    // This value is actually inferred from the file extension.
-//    @Parameter( property = "codestripper.commentToken", defaultValue = "//" )
-//    protected String commentToken;
-//
     @Parameter( property = "codestripper.tag", defaultValue = "cs" )
     protected String tag;
 //
     @Parameter( property = "codestripper.outDir",
-            defaultValue = CodeStripper.DEFAULT_STRIPPER_OUTDIR )
-    protected String outDir = CodeStripper.DEFAULT_STRIPPER_OUTDIR;
+            defaultValue = "target/stripper-out" )
+    protected String outDir;
 //
     @Parameter( property = "codestripper.verbosity", defaultValue = "INFO" )
     protected LoggerLevel verbosity;
@@ -72,10 +76,11 @@ public class CodeStripperMojo extends AbstractMojo {
     @Parameter( property = "codestripper.dryRun", defaultValue = "false" )
     protected boolean dryRun;
 //
-    @Parameter( property = "codestripper.working-directory", defaultValue = "" )
-    protected String workDir = "";
+    @Parameter( property = "codestripper.working-directory",
+            defaultValue = "${project.build.directory}" )
+    protected String workDir = System.getProperty( "user.dir" );
 
-    @Parameter( property = "extraResources", defaultValue = "" )
+    @Parameter( property = "extraResources", defaultValue = "false" )
     protected List<String> extraResources = List.of();
 
     /**

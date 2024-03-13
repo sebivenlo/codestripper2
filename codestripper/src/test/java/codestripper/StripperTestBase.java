@@ -44,18 +44,24 @@ public class StripperTestBase {
         cleanupStatic( tempDir );
     }
 
-    static void cleanupStatic(Path outDir) throws IOException {
-        if ( !outDir.toFile().exists() ) {
+    static void cleanupStatic(Path dirToCleanAndRemove) throws IOException {
+        if ( !dirToCleanAndRemove.toFile().exists() ) {
             return;
         }
-        List<Path> collect = Files.walk( outDir, Integer.MAX_VALUE )
+        Path tempDir = Path.of( System.getProperty( "java.io.tmpdir" ) );
+        // refuse to clean anything but temp.
+        if ( !dirToCleanAndRemove.startsWith( tempDir ) ) {
+            return;
+        }
+        List<Path> collect = Files
+                .walk( dirToCleanAndRemove, Integer.MAX_VALUE )
                 .sorted( ( f1, f2 ) -> f2.compareTo( f1 ) )
                 .collect( toList() );
         collect.stream()
                 //                .peek( System.out::println )
                 .forEach( f -> f.toFile().delete() );
 
-        assertThat( outDir.toFile() ).doesNotExist();
+        assertThat( dirToCleanAndRemove.toFile() ).doesNotExist();
     }
 
 }

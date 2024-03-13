@@ -147,13 +147,15 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 // but remove current line
                 transformation = remove;
                 logDebug( () -> "stop remove at " + ( lineNumber + 1 ) );
-                openStart = null;
+                if ( openStart.peek().instruction().equals( instruction ) ) {
+                    openStart.pop();
+                }
             }
             var result = new Processor( line, payLoad, transformation, instruction,
                     ++lineNumber, text, indent, startEnd );
 
             if ( "start".equals( startEnd ) ) {
-                openStart = result;
+                openStart.push( result );
             }
             logFine(
                     () -> "execute " + result.instruction() + " at line " + result
@@ -280,19 +282,22 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             return "#";
         }
         String extension = filename.substring( lastIndex + 1 );
-        switch ( extension ) {
-            case "java": return "//";
-            case "sql": return "--";
-            case "bat":
-            case "cmd": return "@REM";
-            case "py":
-            case "sh":
-            default:
-                return "#";
-        }
+
+        return switch ( extension ) {
+            case "java" ->
+                "//";
+            case "sql" ->
+                "--";
+            case "bat", "cmd" ->
+                "@REM";
+            case "py", "sh" ->
+                "#";
+            default ->
+                "#";
+        };
     }
 
-    private Processor openStart;
+    private Stack<Processor> openStart = new Stack();
 
     /**
      * Are the warning during stripping.
@@ -300,7 +305,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      * @return true if warnings were generated.
      */
     public boolean hasDanglingTag() {
-        return openStart != null;
+        return !openStart.isEmpty();
     }
 
     /**
@@ -308,12 +313,19 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      *
      * @return the dangling tag info.
      */
-    public String danglingTag() {
-        if ( openStart == null ) {
+    public String danglingTags() {
+        if ( openStart.isEmpty() ) {
             return "";
         }
-        return "\n\t" + openStart.lineNumber() + " :'" + openStart.line() + "´";
-
+        StringBuilder sb = new StringBuilder();
+        while ( !openStart.isEmpty() ) {
+            Processor top = openStart.pop();
+            sb.append( "\n\t" ).append( top.lineNumber() )
+                    .append( " :'" )
+                    .append( top.line() )
+                    .append( "´" );
+        }
+        return sb.toString();
     }
 
     private LoggerLevel logLevel = FINE;

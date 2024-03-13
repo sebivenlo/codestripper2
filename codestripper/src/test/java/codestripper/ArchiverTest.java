@@ -28,47 +28,6 @@ public class ArchiverTest extends StripperTestBase {
         return new Archiver( log, locations );
     }
 
-//    @Order( 0 )
-//    //    @Disabled( "think TDD" )
-//    @Test @DisplayName( "test dot dot file in archive" )
-//    public void testPathInArchive(TestInfo info) throws Exception {
-//        Path readme = locations.projectFile( Path.of( "..", "README.md" ) );
-//        try ( Archiver archiver = newArchiver(); ) {
-//            Path pathInArchive = archiver
-//                    .relPathInArchive( "assignment", readme );
-//            assertThat( pathInArchive.toString().startsWith( "/" ) ).isFalse();
-//            assertThat( pathInArchive.toString() )
-//                    .isEqualTo(
-//                            Path.of( "assignment" )
-//                                    .resolve( "README.md" )
-//                                    .toString() );
-//        }
-//        super.cleanup();
-//
-////        fail( "method PathInArchive reached end. You know what to do." );
-//    }
-
-    @Order( 1 )
-    //@Disabled("think TDD")
-//    @Test @DisplayName( "test java path in archive" )
-    public void testPathInArchive2(TestInfo info) throws Exception {
-//        Path javaFile = Path
-//                .of( "src/main/java/greeter/BrokenOnPurpose.java" );
-//        assertThat( javaFile ).exists();
-//        try ( Archiver archiver = newArchiver(); ) {
-//            Path actual = archiver.relPathInArchive( "solution", javaFile );
-//
-//            assertThat( actual.toString().startsWith( "/" ) ).isFalse();
-//            var expected = Path.of( "solution" )
-//                    .resolve( archiver.projectName() )
-//                    .resolve( javaFile );
-//            assertThat( actual )
-//                    .isEqualTo( expected );
-//        }
-//        super.cleanup();
-//        fail( "method PathInArchive reached end. You know what to do." );
-    }
-
 //    @Disabled( "think TDD" )
     @Order( 2 )
     @Test
@@ -85,8 +44,6 @@ public class ArchiverTest extends StripperTestBase {
             )
                     .exists();
         }
-        super.cleanup();
-
 //        fail( "method AddFile reached end. You know what to do." );
     }
 
@@ -110,7 +67,6 @@ public class ArchiverTest extends StripperTestBase {
             assertThat( expected ).exists();
         }
 
-        super.cleanup();
 //        fail( "method AddFile reached end. You know what to do." );
     }
 
@@ -132,7 +88,6 @@ public class ArchiverTest extends StripperTestBase {
             assertThat( expected ).exists();
         }
 
-        super.cleanup();
 //        fail( "method AddExtras reached end. You know what to do." );
     }
 
@@ -163,36 +118,8 @@ public class ArchiverTest extends StripperTestBase {
             }
         } );
 
-        super.cleanup();
 //        fail( "method AddExtras reached end. You know what to do." );
     }
-
-//    @Order( 4 )
-//    //    @Disabled( "think TDD" )
-//    @Test @DisplayName( "test the if names are respected" )
-//    public void testTestArchivePaths() throws IOException {
-//        System.out.println( "codestripper result in " + locations.out()
-//                .toString() );
-//
-//        PathLocations locs = new PathLocations( locations.logger(), locations
-//                .work(), locations.out(),
-//                "zip1", "projectName" );
-//        final var archiver = new Archiver( log, locs );
-//
-//        archiver.addAssignmentFiles( locations.work() );
-//
-//        assertThat( locs.expandedArchive() )
-//                .exists();
-//        assertThat( locs.expandedArchive()
-//                .resolve( "zip1" ) )
-//                .exists();
-//        assertThat( locs.expandedArchive()
-//                .resolve( "zip1" )
-//                .resolve( "projectName" ) )
-//                .exists();
-//
-////        fail( "method TestStripper reached end. You know what to do." );
-//    }
 
     @BeforeEach
     public void setup(TestInfo info) {
@@ -204,11 +131,6 @@ public class ArchiverTest extends StripperTestBase {
     public void pullDown(TestInfo info) {
         System.out.println(
                 "finish test ======= " + info.getDisplayName() + " ========" );
-    }
-
-    @Override
-    public void cleanup() throws IOException {
-//        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
 
 }

@@ -216,4 +216,9 @@ public record PathLocations(Log logger, Path work, Path out,
         return !absPath.getFileName().toString().endsWith( "~" );
     }
 
+    public Path strippedProject() {
+        return expandedArchive().resolve( assignmentName )
+                .resolve( projectName );
+    }
+
 }

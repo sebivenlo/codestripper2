@@ -1,6 +1,7 @@
 package io.github.sebivenlo.codestripperplugin;
 
 import codestripper.CodeStripper;
+import codestripper.PathLocations;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,25 +14,44 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import org.assertj.core.api.ThrowableAssert;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.*;
 
 /**
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class StrippedCodeValidatorTest extends StrippedCodeValidator {
+public class StrippedCodeValidatorTest {
 
     static Path pwd = Path.of( System.getProperty( "user.dir" ) );
     static Log log = new SystemStreamLog();
+    Path tempDir;
+    final PathLocations locations;
+    final StrippedCodeValidator validator;
+    final CodeStripper stripper;
 
     public StrippedCodeValidatorTest() {
-        super( Path.of( "target", "stripper-out", "assignment", pwd
-                .getFileName().toString() ), log );
+
         try {
-            outDir = Files.createTempDirectory( "codestripper-" + getClass()
-                    .getSimpleName() + "-tests-" );
+            Path sampleproject = Path.of( "..",
+                    "sampleproject", "example" ).toAbsolutePath();
+            assumeThat( sampleproject ).exists();
+            tempDir = Files.createTempDirectory( "codestripper-" + this
+                    .getClass().getSimpleName() + "-" );
+            locations = new PathLocations( log, sampleproject, tempDir );
+            stripper = new CodeStripper.Builder()
+                    .logger( log )
+                    .pathLocations( locations )
+                    .dryRun( false )
+                    .extraResources( List.of() )
+                    .build().extraResources(
+                            List.of( "../README.md", "../images" )
+                    );
+            stripper.strip( locations.work() );
+            validator = new StrippedCodeValidator( log, locations );
         } catch ( IOException ex ) {
             log.error( ex.getMessage() );
+            throw new IllegalArgumentException( ex );
         }
     }
 
@@ -39,20 +59,20 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
     @Test
     @DisplayName( "Get source files" )
     public void testGetSourceFiles() {
-        Path sourceDir = pwd.resolve( Path.of( "src" ) );
-        String[] sourceFiles = this.getSourceFiles( sourceDir );
+        Path sourceDir = locations.strippedProject().resolve( "src" );
+        String[] sourceFiles = validator.getSourceFiles( sourceDir );
 
-        // massage the inpo paths
+        // massage the input paths
         var actual = Arrays.asList( sourceFiles )
-                .stream().map( l -> pwd.relativize( Path.of( l ) ) )
+                .stream().map( l -> locations.strippedProject().relativize( Path
+                .of( l ) ) )
                 .toList();
         var expected = List.of(
                 Path.of(
-                        "src/main/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidator.java" ),
+                        "src/main/java/greeter/BrokenOnPurpose.java" ),
                 Path.of(
-                        "src/test/java/io/github/sebivenlo/codestripperplugin/StrippedCodeValidatorTest.java" )
+                        "src/test/java/greeter/GreeterTest.java" )
         );
-//        System.out.println( "sourceFiles = " + Arrays.toString( sourceFiles ) );
         assertThat( actual ).containsAll( expected );
 //        fail( "method SourceFiles reached end. You know what to do." );
     }
@@ -61,29 +81,39 @@ public class StrippedCodeValidatorTest extends StrippedCodeValidator {
     @Test
     @DisplayName( "compiler args " )
     public void testCompilerArgs() throws DependencyResolutionRequiredException, IOException {
-        Path sourceDir = Path.of( "src" );
-        String[] args = this.makeCompilerArguments( sourceDir, makeOutDir() );
+        String[] args = validator.makeCompilerArguments( locations
+                .strippedProject().resolve( "src" ), validator.makeOutDir() );
         // cleanup
-        this.outDir.toFile().delete();
+//        this.outDir.toFile().delete();
         System.out.println( Arrays.stream( args ).collect( joining( " " ) ) );
         assertThat( args ).isNotEmpty();
 //        fail( "method CompilerArgs reached end. You know what to do." );
+    }
+
+    //@Disabled("think TDD")
+    @Test @DisplayName( "some story line" )
+    public void testGetClassPath() {
+        assumeThat( locations.strippedProject() ).exists();
+        ThrowingCallable code = () -> {
+            String sneakyClassPath = validator.getSneakyClassPath();
+            System.out.println( "sneakyClassPath = " + sneakyClassPath );
+        };
+
+        assertThatCode( code ).doesNotThrowAnyException();
+        //fail( "method GetClassPath reached end. You know what to do." );
     }
 
 //    @Disabled( "think TDD" )
     @Test
     @DisplayName( "run the compiler" )
     public void testCompilerRun() throws IOException {
-
-        CodeStripper stripper = new CodeStripper( new SystemStreamLog(), outDir );
-        stripper = stripper.extraResources( List
-                .of( "../README.md", "../images" ) );
-        var strippedProject = stripper.strip( pwd );
+        Path strippedProject = locations.strippedProject();
         System.out.println( "strippedProject = " + strippedProject );
         assumeThat( strippedProject.resolve( "src" ) ).exists();
         System.out.println( "strippedProject = " + strippedProject.toString() );
+
         ThrowableAssert.ThrowingCallable code = () -> {
-            this.validate();
+            validator.validate();
         };
 
         assertThatCode( code ).doesNotThrowAnyException();

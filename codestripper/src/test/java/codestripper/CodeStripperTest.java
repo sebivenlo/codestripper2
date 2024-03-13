@@ -125,9 +125,4 @@ public class CodeStripperTest extends StripperTestBase {
 //        fail( "method AddAssignmentFiles reached end. You know what to do." );
     }
 
-    @Override
-    public void cleanup() throws IOException {
-//        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
-    }
-
 }

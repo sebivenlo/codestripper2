@@ -4,8 +4,10 @@ import static codestripper.ChippenDale.DEFAULT_STRIPPER_OUTDIR;
 import static codestripper.LoggerLevel.DEBUG;
 import static codestripper.LoggerLevel.FINE;
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -79,8 +81,9 @@ public final class CodeStripper {
      * @throws IOException should not occur.
      */
     void processTextFiles(Path root, Archiver archiver) throws IOException {
-
+//        PathMatcher pm = FileSystem.getPathMatcher();
         Files.walk( root, Integer.MAX_VALUE )
+                //
                 .filter( f -> locations.acceptablePath( f ) )
                 .filter( ChippenDale::isText )
                 .forEach( file -> process( file, archiver ) );
@@ -102,7 +105,8 @@ public final class CodeStripper {
 
             if ( !dryRun && !stripped.isEmpty() ) {
                 // add to assigmnet after processing
-                logDebug( () -> "added stripped file" + javaFile.toString() );
+                logDebug( () -> "added stripped file" + locations.workRelative(
+                        javaFile ).toString() );
                 archiver.addAssignmentLines( javaFile, stripped );
             }
         } catch ( IOException ex ) {
@@ -111,8 +115,8 @@ public final class CodeStripper {
 
         if ( factory.hasDanglingTag() ) {
             logger.warn(
-                    "file " + javaFile.toString() + " has dangling tag, started at " + factory
-                    .danglingTag() );
+                    "file " + javaFile.toString() + " has dangling tags:  " + factory
+                    .danglingTags() );
         }
         logDebug( () -> "completed stripping " + javaFile.toString() );
     }
@@ -189,7 +193,7 @@ public final class CodeStripper {
             return this;
         }
 
-        CodeStripper build() {
+        public CodeStripper build() {
             CodeStripper result = null;
             try {
                 result = new CodeStripper( logger, dryRun, locations )

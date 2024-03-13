@@ -4,6 +4,7 @@
  */
 package io.github.sebivenlo.codestripperplugin;
 
+import codestripper.PathLocations;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static java.util.stream.Collectors.joining;
 import java.util.stream.Stream;
 import org.apache.maven.plugin.logging.Log;
 
@@ -30,18 +32,17 @@ public class StrippedCodeValidator {
     final Pattern problematicFile = Pattern.compile(
             "(?<file>.*):\\d+: error:.*" );
 
-    final Path strippedProject;
-    final Log log;
+    PathLocations locations;
+    Log log;
 
-    public StrippedCodeValidator(Path strippedProject, Log log) {
-        this.strippedProject = strippedProject;
+    public StrippedCodeValidator(Log log, PathLocations locations) {
+        this.locations = locations;
         this.log = log;
     }
 
     void validate() throws InterruptedException, IOException {
-        var projectName = strippedProject.getFileName().toString();
         Path compilerOutDir = makeOutDir();
-        Path srcDir = strippedProject.resolve( "src" );
+        Path srcDir = locations.strippedProject().resolve( "src" );
         System.out.println( "srcDir = " + srcDir );
         String[] args = makeCompilerArguments( srcDir, compilerOutDir );
         ProcessBuilder pb = new ProcessBuilder( args );
@@ -85,11 +86,8 @@ public class StrippedCodeValidator {
         log.info( "exited validate-stripped-code with exit code " + exitCode );
     }
 
-    Path outDir;
-
-    Path makeOutDir() throws IOException {
-        Path result = Files.createTempDirectory( "cs-" + getClass()
-                .getSimpleName() + "-" );
+    static Path makeOutDir() throws IOException {
+        Path result = Files.createTempDirectory( "cs-StrippedCodeValidator-" );
         result.toFile().deleteOnExit();
         return result;
     }
@@ -142,25 +140,41 @@ public class StrippedCodeValidator {
     // cache
     private String sneakyClassPath;
 
+    String getCachedClassPath(Path f) throws IOException {
+        return Files.lines( f ).collect( joining( pathSep ) );
+    }
+
     String getSneakyClassPath() {
 
         if ( null == sneakyClassPath ) {
             String result = "";
             try {
+                Path classPathCache = locations.expandedArchive().resolve(
+                        "classpath-cache.txt" );
+                if ( Files.exists( classPathCache ) ) {
+                    return getCachedClassPath( classPathCache );
+                }
+
+                // if not, get and fill cache.
+                String pom = locations.work().resolve( "pom.xml" )
+                        .toAbsolutePath().toString();
                 ProcessBuilder pb = new ProcessBuilder( "mvn",
+                        "-f",
+                        pom,
                         "dependency:build-classpath" );
                 Process process = pb.start();
                 BufferedReader reader
                         = new BufferedReader(
                                 new InputStreamReader( process.getInputStream() ) );
 
-                String line;
+                String line = "";
                 while ( ( line = reader.readLine() ) != null ) {
                     if ( !line.startsWith( "[INFO]" ) ) {
                         result += line;
                     }
                 }
                 int exitCode = process.waitFor();
+                Files.write( classPathCache, List.of( result ) );
             } catch ( IOException | InterruptedException ex ) {
                 log.error( ex );
             }
