@@ -25,7 +25,7 @@ public class CodeStripperMain {
                 = new CodeStripper.Builder()
                         .extraResources( List.of( "../README.md", "../images" ) )
                         .build();
-        codeStripper.strip( Path.of( "" ) );
+        codeStripper.strip();
 //        logger.info( "Hello World!" );
     }
 

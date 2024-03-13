@@ -15,7 +15,6 @@
         <java.release>17</java.release>
         <exec.mainClass>io.github.sebivenlo.codestripper.Codestripper</exec.mainClass>
     </properties>
-    
     <dependencies>
         <dependency> 
             <groupId>org.apache.maven</groupId>

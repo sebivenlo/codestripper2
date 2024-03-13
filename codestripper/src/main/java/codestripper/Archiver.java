@@ -24,7 +24,7 @@ import org.apache.maven.plugin.logging.Log;
 final class Archiver implements AutoCloseable {
 
     private final PathLocations locations;
-    private final Log logger;
+    private final LoggerWrapper logger;
 
     /**
      * Create a new archiver.
@@ -33,7 +33,7 @@ final class Archiver implements AutoCloseable {
      * @param locations directory and name info to use
      * @throws IOException should not occur.
      */
-    public Archiver(Log log, PathLocations locations)
+    public Archiver(LoggerWrapper log, PathLocations locations)
             throws IOException {
         this.locations = locations;
         this.logger = log;
@@ -111,7 +111,7 @@ final class Archiver implements AutoCloseable {
             Files.copy( locations.work().resolve( source ), archiveFile,
                     StandardCopyOption.REPLACE_EXISTING );
         } catch ( IOException ex ) {
-            logger.error( "io exception on " + ex.getMessage() );
+            logger.error( () -> "io exception on " + ex.getMessage() );
         }
     }
 
@@ -123,23 +123,23 @@ final class Archiver implements AutoCloseable {
      * @param extraResources
      */
     void addExtras(List<String> extraResources) {
-        logger.info( "Add extras" );
+        logger.info( () -> "Add extras" );
         if ( extraResources.isEmpty() ) {
-            logger.info( "no resources found" );
+            logger.info( () -> "no resources found" );
             return;
         }
         for ( String extraResource : extraResources ) {
-            logger.info( "considering extra resource " + extraResource );
+            logger.info( () -> "considering extra resource " + extraResource );
             try {
 
                 var inZip = locations.work().resolve( extraResource ).normalize();
                 if ( Files.notExists( inZip ) ) {
-                    logger.warn( "file resource does not exist " + inZip
+                    logger.warn( () -> "file resource does not exist " + inZip
                             .toString() );
                     continue;
                 }
                 if ( Files.isRegularFile( inZip ) ) {
-                    logger.info( "adding file " + inZip.toString() );
+                    logger.info( () -> "adding file " + inZip.toString() );
                     addFile( inZip );
                 } else if ( Files.isDirectory( inZip ) ) {
                     Files.walk( inZip, Integer.MAX_VALUE )
@@ -147,10 +147,10 @@ final class Archiver implements AutoCloseable {
                             .map( f -> locations.work().relativize( f ) )
                             .forEach( p -> addFile( p ) );
                 } else {
-                    logger.warn( "Not a file or dir" );
+                    logger.warn( () -> "Not a file or dir: " + extraResource );
                 }
             } catch ( IOException ex ) {
-                logger.error( ex.getMessage() );
+                logger.error( () -> ex.getMessage() );
             }
 
         }
@@ -175,7 +175,7 @@ final class Archiver implements AutoCloseable {
                 result = Files.createDirectories( absPath );
             }
         } catch ( IOException ex ) {
-            logger.error( ex.getMessage() );
+            logger.error( () -> ex.getMessage() );
         }
 
         return result;
@@ -207,7 +207,7 @@ final class Archiver implements AutoCloseable {
                 .filter( f -> locations.acceptablePath( f ) )
                 .filter( Predicate.not( ChippenDale::isText ) )
                 .map( p -> pwd.relativize( p.toAbsolutePath() ) )
-                .peek( f -> logger.info( "bin file added" + f.toString() ) )
+                .peek( f -> logger.info( () -> "bin file added" + f.toString() ) )
                 .forEach( file -> addFile( file ) );
     }
 

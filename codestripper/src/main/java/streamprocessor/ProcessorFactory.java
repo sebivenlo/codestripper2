@@ -1,8 +1,8 @@
 package streamprocessor;
 
 import codestripper.LoggerLevel;
-import static codestripper.LoggerLevel.DEBUG;
 import static codestripper.LoggerLevel.FINE;
+import codestripper.LoggerWrapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,12 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import static java.util.Map.entry;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static java.util.stream.Stream.of;
-import org.apache.maven.plugin.logging.Log;
 
 /**
  * Creator of Processor boxes based on the content os strings and previous
@@ -23,7 +21,8 @@ import org.apache.maven.plugin.logging.Log;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class ProcessorFactory implements Function<String, Stream<String>> {
+public class ProcessorFactory implements Function<String, Stream<String>>,
+        AutoCloseable {
 
     /**
      * what we consider java files.
@@ -34,18 +33,20 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      */
     private final String myPreciousRegex;
     private final Pattern pattern;
+    private final Path filePath;
 
     /**
      * Create a factory for the type of file specified by this path.
      *
      * @param filePath to use
+     * @param logger logger to use
      */
-    public ProcessorFactory(Path filePath, Log log) {
-        this( filePath, "cs", log );
+    public ProcessorFactory(Path filePath, LoggerWrapper logger) {
+        this( filePath, "cs", logger );
     }
-    private final Log logger;
+    private final LoggerWrapper logger;
 
-    public ProcessorFactory(Log logger) {
+    public ProcessorFactory(LoggerWrapper logger) {
         this( JAVA_PATH, "cs", logger );
     }
 
@@ -54,9 +55,12 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
      *
      * @param filePath to use
      * @param tag to use
+     * @param logger to use
      */
-    public ProcessorFactory(Path filePath, String tag, Log log) {
+    public ProcessorFactory(Path filePath, String tag, LoggerWrapper logger) {
+        this.filePath = filePath;
         commentToken = commentTokenFor( filePath );
+        this.logger = logger;
         myPreciousRegex
                 = "(?<indent>\\s*)" //optional indentation
                 + "(?<text>\\S.*)?" // anything other starting with non space
@@ -69,7 +73,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                 ;
         pattern = Pattern.compile( myPreciousRegex );
         this.transforms = new HashMap<>( defaultTransforms );
-        this.logger = log;
+        logger.debug( () -> "start stripping " + filePath.toString() );
     }
 
     /**
@@ -111,6 +115,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
         if ( activeTransformation == ignore ) {
             return deathTrap;
         }
+        lineNumber++;
         Matcher m = pattern.matcher( line );
         if ( m.matches() ) {
             String instruction = m.group( "instruction" ).trim();
@@ -129,32 +134,23 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             if ( "start".equals( startEnd ) ) {
                 // pickup the transformation
                 activeTransformation = transformation;
-                logDebug( () -> "start " + instruction + " at line "
-                        + lineNumber + ": " + line );
-                // but remove current line
-                logDebug( () -> "start remove at " + ( lineNumber + 1 ) );
                 transformation = remove;
             }
             if ( "end".equals( startEnd ) ) {
                 activeTransformation = nop;
-                logDebug( () -> "end " + instruction + " at line "
-                        + lineNumber + ": " + line );
-                // but remove current line
                 transformation = remove;
-                logDebug( () -> "stop remove at " + ( lineNumber + 1 ) );
                 if ( openStart.peek().instruction().equals( instruction ) ) {
                     openStart.pop();
                 }
             }
             var result = new Processor( line, payLoad, transformation, instruction,
-                    ++lineNumber, text, indent, startEnd );
+                    lineNumber, text, indent, startEnd );
 
             if ( "start".equals( startEnd ) ) {
                 openStart.push( result );
             }
-            logFine(
-                    () -> "execute " + result.instruction() + " at line " + result
-                    .lineNumber() + ": " + result + line );
+            logger.fine( () -> "executing instruction \033[36m" + startEnd + " "
+                    + result.instruction() + "\033[m at line " + lineNumber + ": \033[36m[" + line + "]\033[m" );
             return result;
         }
         // lines without instructions are subject to activeTansformation
@@ -163,7 +159,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
 
     // shorthand for non tagged lines factories
     private Processor newProcessor(String line) {
-        return new Processor( line, "", activeTransformation, "", ++lineNumber,
+        return new Processor( line, "", activeTransformation, "", lineNumber,
                 line, "",
                 "" );
     }
@@ -190,7 +186,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
                     l -> proc.indent() + l );
         } catch ( IOException ex ) {
 
-            logger.error( ex.getMessage() );
+            logger.error( () -> ex.getMessage() );
             return Stream.empty();
         }
     }
@@ -205,17 +201,7 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
             = p -> of( p.indent() + "//" + p.text() );
     final Function<Processor, Stream<String>> nop
             = p -> of( p.indent() + p.text() );
-    final Function<Processor, Stream<String>> remove
-            = p -> {
-                if ( !p.payLoad().isBlank() ) {
-                    logFine( () -> "replaced line '" + p.lineNumber()
-                            + ":'" + p.line() + "'" );
-                    return Stream.of( p.indent() + p.payLoad() );
-        }
-        logFine( () -> "dropped line '" + p.lineNumber()
-                + ":'" + p.line() + "'" );
-        return Stream.empty();
-            };
+    final Function<Processor, Stream<String>> remove = this::remove;
 
     final Function<Processor, Stream<String>> include
             = this::include;
@@ -264,6 +250,16 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
         return transforms.getOrDefault( line, nop );
     }
 
+    final Stream<String> remove(Processor p) {
+        if ( !p.payLoad().isBlank() ) {
+            logger.fine( () -> "replaced line " + p.lineNumber()
+                    + ":\033[14;33m[" + p.line() + "]\033[m" );
+            return Stream.of( p.indent() + p.payLoad() );
+        }
+        logger.fine( () -> "dropped line '" + p.lineNumber()
+                + ":[\033[14;31m[" + p.line() + "]\033[m" );
+        return Stream.empty();
+    }
     /**
      * Keep use of Processor Factory simple for default case
      */
@@ -336,16 +332,14 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
         return this;
     }
 
-    void logFine(Supplier<String> msg) {
-        if ( this.logLevel.compareTo( FINE ) >= 0 ) {
-            logger.info( msg.get() );
-        }
-    }
-
-    void logDebug(Supplier<String> msg) {
-        if ( this.logLevel.compareTo( DEBUG ) >= 0 ) {
-            logger.info( msg.get() );
-        }
+    /**
+     * Used to send close file message.
+     *
+     * @throws Exception
+     */
+    @Override
+    public void close() throws Exception {
+        logger.debug( () -> "finished stripping file " + filePath );
     }
 
 }

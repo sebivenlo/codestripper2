@@ -47,8 +47,7 @@ public class CodeStripperMojo extends AbstractMojo {
                     .dryRun( dryRun )
                     .extraResources( List.of() )
                     .build();
-            Path resultingProject
-                    = stripper.strip( Path.of( workDir ) );
+            Path resultingProject = stripper.strip();
             getLog().info( "stripped code, result in " + resultingProject );
             var checker = new StrippedCodeValidator( log, locations );
             checker.validate();

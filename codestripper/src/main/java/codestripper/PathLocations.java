@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import static java.nio.file.Path.of;
 import static java.lang.System.getProperty;
 import java.util.Objects;
-import org.apache.maven.plugin.logging.Log;
 
 /**
  * Set of locations.
@@ -17,7 +16,7 @@ import org.apache.maven.plugin.logging.Log;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public record PathLocations(Log logger, Path work, Path out,
+public record PathLocations(LoggerWrapper logger, Path work, Path out,
         String assignmentName,
         String projectName) {
 
@@ -69,7 +68,7 @@ public record PathLocations(Log logger, Path work, Path out,
      * @param work readable dir
      * @param out writable dir
      */
-    public PathLocations(Log logger, Path work, Path out) {
+    public PathLocations(LoggerWrapper logger, Path work, Path out) {
         this( logger, work, out, "assignment",
                 work.toAbsolutePath().getFileName().toString() );
     }
@@ -80,7 +79,7 @@ public record PathLocations(Log logger, Path work, Path out,
      * @param logger to use
      * @param out writable dir.
      */
-    public PathLocations(Log logger, Path out) {
+    public PathLocations(LoggerWrapper logger, Path out) {
         this( logger, Path.of( getProperty( "user.dir" ) ), out, "assignment",
                 of( getProperty( "user.dir" ) ).getFileName()
                         .toString() );
@@ -167,7 +166,7 @@ public record PathLocations(Log logger, Path work, Path out,
         try {
             return Files.createDirectories( p );
         } catch ( IOException ex ) {
-            logger.error( ex.getMessage() );
+            logger.error( () -> ex.getMessage() );
             throw new UncheckedIOException( ex );
         }
     }
@@ -184,7 +183,7 @@ public record PathLocations(Log logger, Path work, Path out,
 
     /**
      * Determine if a source path is acceptable as location for resources. Used
-     * to test     * directories and files.
+     * to test * directories and files.
      *
      * @param p path to test
      * @return true if acceptable false otherwise.
@@ -221,4 +220,11 @@ public record PathLocations(Log logger, Path work, Path out,
                 .resolve( projectName );
     }
 
+    public String toString() {
+        return "PathLocations["
+                + "\n\twork = " + work
+                + "\n\tout = " + out
+                + "\n\tassignmentName = " + assignmentName
+                + "\n\tprojectName = " + projectName + "\n]";
+    }
 }

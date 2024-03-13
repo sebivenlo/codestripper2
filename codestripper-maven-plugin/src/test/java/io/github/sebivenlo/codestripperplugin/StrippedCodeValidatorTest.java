@@ -47,7 +47,7 @@ public class StrippedCodeValidatorTest {
                     .build().extraResources(
                             List.of( "../README.md", "../images" )
                     );
-            stripper.strip( locations.work() );
+            stripper.strip();
             validator = new StrippedCodeValidator( log, locations );
         } catch ( IOException ex ) {
             log.error( ex.getMessage() );

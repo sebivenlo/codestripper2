@@ -19,7 +19,8 @@ public class StripperTestBase {
 
     Path tempDir;
 //    Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    final Log log = new SystemStreamLog();
+    final LoggerWrapper log = new LoggerWrapper( new SystemStreamLog(),
+            LoggerLevel.INFO );
     //    String projectName = pwd.getFileName().toString();
     //    Path expandedArchive;
 
@@ -34,7 +35,7 @@ public class StripperTestBase {
                     .getClass().getSimpleName() + "-" );
             locations = new PathLocations( log, sampleproject, tempDir );
         } catch ( IOException ex ) {
-            log.error( ex.getMessage() );
+            log.error( () -> ex.getMessage() );
             throw new IllegalArgumentException( ex );
         }
     }
