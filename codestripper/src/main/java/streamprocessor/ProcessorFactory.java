@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static java.util.stream.Stream.of;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 
 /**
  * Creator of Processor boxes based on the content os strings and previous
@@ -37,14 +36,6 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     private final Pattern pattern;
 
     /**
-     * Assume java files and use default log.
-     */
-    public ProcessorFactory() {
-        this( JAVA_PATH, new SystemStreamLog() );
-
-    }
-
-    /**
      * Create a factory for the type of file specified by this path.
      *
      * @param filePath to use
@@ -52,7 +43,11 @@ public class ProcessorFactory implements Function<String, Stream<String>> {
     public ProcessorFactory(Path filePath, Log log) {
         this( filePath, "cs", log );
     }
-    private Log logger;
+    private final Log logger;
+
+    public ProcessorFactory(Log logger) {
+        this( JAVA_PATH, "cs", logger );
+    }
 
     /**
      * Create a factory for the given file and specify the tag

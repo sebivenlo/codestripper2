@@ -13,7 +13,7 @@ import org.junit.jupiter.api.*;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class OpTest {
+public class OpTest extends ProcessorTestBase {
 
     //@Disabled("think TDD")
     @Test
@@ -31,7 +31,7 @@ public class OpTest {
                               import java.util.Map;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -57,7 +57,7 @@ public class OpTest {
                               import java.util.Map;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -81,7 +81,7 @@ public class OpTest {
                               import java.util.Map;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -105,7 +105,7 @@ public class OpTest {
                               import java.util.Map;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -133,7 +133,7 @@ public class OpTest {
                               import java.util.Set;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -157,7 +157,7 @@ public class OpTest {
                               import java.util.Map;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -185,7 +185,7 @@ public class OpTest {
                               import java.util.Set;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -213,7 +213,7 @@ public class OpTest {
                               import java.util.Set;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -237,7 +237,7 @@ public class OpTest {
                               import java.util.Map;
                               """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -270,7 +270,7 @@ public class OpTest {
                 import java.util.Set;
                 """
                         .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -296,7 +296,7 @@ public class OpTest {
             }
             """
                 .lines().toList();
-        var factory = new ProcessorFactory();
+        ProcessorFactory factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
@@ -305,6 +305,7 @@ public class OpTest {
 
 //        fail( "method UncommentSingle reached end. You know what to do." );
     }
+
     //@Disabled("think TDD")
     @Test @DisplayName( "ignore the remainder" )
     public void testDeathTrap() {
@@ -317,7 +318,7 @@ public class OpTest {
             """
                         .lines() ).toList();
         var expected = List.of();
-        var factory = new ProcessorFactory();
+        var factory = newProcessorFactory();
         assertThat( input.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result

@@ -16,13 +16,13 @@ import org.junit.jupiter.api.Test;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class TransformerTest {
+public class TransformerTest extends ProcessorTestBase {
 
     //@Disabled("think TDD")
     @Test @DisplayName( "Test that remove works" )
     public void testRemove() {
         String in = "some text;//cs" + ":remove";
-        ProcessorFactory fac = new ProcessorFactory();
+        ProcessorFactory fac = newProcessorFactory();
         Matcher m = fac.matcherFor( in );
         assertThat( m ).matches();
         String ins = m.group( "instruction" );
@@ -68,7 +68,7 @@ public class TransformerTest {
     //@Disabled("think TDD")
     @Test @DisplayName( "Complete example" )
     public void testComleteExample() {
-        var fac = new ProcessorFactory();
+        var fac = newProcessorFactory();
         var result = input.stream()
                 .map( fac::apply )
                 .flatMap( x -> x )
@@ -89,7 +89,7 @@ public class TransformerTest {
                     ",true, 6,remove,end,false"
                 } );
 
-        var fac = new ProcessorFactory();
+        var fac = newProcessorFactory();
         var result = input.stream()
                 .map( fac::apply )
                 .flatMap( x -> x )

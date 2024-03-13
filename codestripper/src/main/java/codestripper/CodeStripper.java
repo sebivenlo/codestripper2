@@ -4,10 +4,8 @@ import static codestripper.ChippenDale.DEFAULT_STRIPPER_OUTDIR;
 import static codestripper.LoggerLevel.DEBUG;
 import static codestripper.LoggerLevel.FINE;
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -171,7 +169,7 @@ public final class CodeStripper {
         private List<String> extraResources = List.of();
         private Path outDir = DEFAULT_STRIPPER_OUTDIR;
         private PathLocations locations;
-        private Log logger = new SystemStreamLog();
+        private Log logger = null;
 
         public Builder dryRun(boolean dryRun) {
             this.dryRun = dryRun;
@@ -195,10 +193,14 @@ public final class CodeStripper {
 
         public CodeStripper build() {
             CodeStripper result = null;
+            if ( logger == null ) {
+                System.err.println(
+                        "warning loggernot configured, using default SystemstreamLog" );
+                logger = new SystemStreamLog();
+            }
             try {
                 result = new CodeStripper( logger, dryRun, locations )
-                        .extraResources(
-                                extraResources );
+                        .extraResources( extraResources );
             } catch ( IOException ex ) {
                 this.logger.error( ex.getMessage() );
                 throw new RuntimeException( ex );

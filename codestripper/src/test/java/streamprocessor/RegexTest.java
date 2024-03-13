@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.CsvSource;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class RegexTest {
+public class RegexTest extends ProcessorTestBase {
 
     //@Disabled("think TDD")
     @DisplayName( "Test the regex" )
@@ -28,7 +28,7 @@ public class RegexTest {
             String expectInstruction, String startEndExpected,
             boolean hasPayload) {
 
-        ProcessorFactory fact = new ProcessorFactory();
+        ProcessorFactory fact = new ProcessorFactory( logger );
         Pattern pattern = fact.getPattern();
 //        System.out.println( "input = " + input );
         Matcher m = pattern.matcher( input );

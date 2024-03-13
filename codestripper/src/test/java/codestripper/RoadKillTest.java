@@ -17,7 +17,7 @@ import streamprocessor.ProcessorFactory;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class RoadKillTest {
+public class RoadKillTest extends StripperTestBase {
 
     public RoadKillTest() {
     }
@@ -25,7 +25,7 @@ public class RoadKillTest {
     //@Disabled("think TDD")
     @Test @DisplayName( "ensure stripper strips" )
     public void testEnsureThatStripperFactoryStrips() throws IOException {
-        var factory = new ProcessorFactory();
+        var factory = new ProcessorFactory( this.log );
         List<String> lines = Files.lines( Path.of( "src",
                 "test",
                 "java",
