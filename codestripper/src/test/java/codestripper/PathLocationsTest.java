@@ -7,8 +7,6 @@ package codestripper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.jupiter.api.Test;
 //import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;

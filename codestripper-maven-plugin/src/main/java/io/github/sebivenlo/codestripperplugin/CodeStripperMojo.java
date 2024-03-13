@@ -1,7 +1,7 @@
 package io.github.sebivenlo.codestripperplugin;
 
 import codestripper.CodeStripper;
-import codestripper.LoggerLevel;
+import loggerwrapper.LoggerLevel;
 import codestripper.PathLocations;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import loggerwrapper.LoggerWrapper;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -39,10 +40,10 @@ public class CodeStripperMojo extends AbstractMojo {
             log.info( "start code stripping." );
             var out = Files.createDirectories( Path.of( System.getProperty(
                     "user.dir" ), "target", "stripper-out" ) );
-
-            PathLocations locations = new PathLocations( getLog(), out );
+            LoggerWrapper w = new LoggerWrapper( getLog(), LoggerLevel.INFO );
+            PathLocations locations = new PathLocations( w, out );
             var stripper = new CodeStripper.Builder()
-                    .logger( log )
+                    .logger( w )
                     .pathLocations( locations )
                     .dryRun( dryRun )
                     .extraResources( List.of() )

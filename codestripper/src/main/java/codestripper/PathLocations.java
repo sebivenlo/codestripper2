@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import static java.nio.file.Path.of;
 import static java.lang.System.getProperty;
 import java.util.Objects;
+import loggerwrapper.Logger;
 
 /**
  * Set of locations.
@@ -16,7 +17,7 @@ import java.util.Objects;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public record PathLocations(LoggerWrapper logger, Path work, Path out,
+public record PathLocations(Logger logger, Path work, Path out,
         String assignmentName,
         String projectName) {
 
@@ -68,7 +69,7 @@ public record PathLocations(LoggerWrapper logger, Path work, Path out,
      * @param work readable dir
      * @param out writable dir
      */
-    public PathLocations(LoggerWrapper logger, Path work, Path out) {
+    public PathLocations(Logger logger, Path work, Path out) {
         this( logger, work, out, "assignment",
                 work.toAbsolutePath().getFileName().toString() );
     }
@@ -79,7 +80,7 @@ public record PathLocations(LoggerWrapper logger, Path work, Path out,
      * @param logger to use
      * @param out writable dir.
      */
-    public PathLocations(LoggerWrapper logger, Path out) {
+    public PathLocations(Logger logger, Path out) {
         this( logger, Path.of( getProperty( "user.dir" ) ), out, "assignment",
                 of( getProperty( "user.dir" ) ).getFileName()
                         .toString() );

@@ -2,10 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package codestripper;
+package loggerwrapper;
 
-import static codestripper.LoggerLevel.DEBUG;
-import static codestripper.LoggerLevel.FINE;
+import static loggerwrapper.LoggerLevel.*;
 import java.util.function.Supplier;
 import org.apache.maven.plugin.logging.Log;
 
@@ -18,38 +17,56 @@ import org.apache.maven.plugin.logging.Log;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class LoggerWrapper {
+public class LoggerWrapper implements Logger {
 
     final Log logger;
-    final LoggerLevel level;
+    private LoggerLevel level;
 
     public LoggerWrapper(Log log, LoggerLevel level) {
         this.logger = log;
         this.level = level;
     }
 
+    @Override
     public void fine(Supplier<String> msg) {
-        if ( this.level.compareTo( FINE ) >= 0 ) {
-            logger.info( msg.get() );
-        }
-    }
-    public void info(Supplier<String> msg) {
-        if ( this.level.compareTo( FINE ) >= 0 ) {
+        if ( level.greaterEqual( FINE ) ) {
             logger.info( msg.get() );
         }
     }
 
+    @Override
+    public void info(Supplier<String> msg) {
+        if ( level.greaterEqual( INFO ) ) {
+            logger.info( msg.get() );
+        }
+    }
+
+    @Override
     public void warn(Supplier<String> msg) {
         logger.warn( msg.get() );
     }
 
+    @Override
     public void error(Supplier<String> msg) {
         logger.error( msg.get() );
     }
 
+    @Override
     public void debug(Supplier<String> msg) {
-        if ( this.level.compareTo( DEBUG ) >= 0 ) {
+        if ( level.greaterEqual( DEBUG ) ) {
             logger.info( msg.get() );
         }
     }
+
+    @Override
+    public Logger setLevel(LoggerLevel level) {
+        this.level = level;
+        return this;
+    }
+
+    @Override
+    public LoggerLevel getLevel() {
+        return level;
+    }
+
 }

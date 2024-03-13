@@ -4,9 +4,8 @@
  */
 package streamprocessor;
 
-import codestripper.LoggerLevel;
-import codestripper.LoggerWrapper;
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import loggerwrapper.DefaultLogger;
+import loggerwrapper.Logger;
 
 /**
  * Helper to define logger.
@@ -15,8 +14,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
  */
 public class ProcessorTestBase {
 
-    final LoggerWrapper logger = new LoggerWrapper( new SystemStreamLog(),
-            LoggerLevel.INFO );
+    final Logger logger = new DefaultLogger();
 
     ProcessorFactory newProcessorFactory() {
         return new ProcessorFactory( logger );

@@ -1,8 +1,8 @@
 package streamprocessor;
 
-import codestripper.LoggerLevel;
-import static codestripper.LoggerLevel.FINE;
-import codestripper.LoggerWrapper;
+import loggerwrapper.LoggerLevel;
+import static loggerwrapper.LoggerLevel.FINE;
+import loggerwrapper.LoggerWrapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static java.util.stream.Stream.of;
+import loggerwrapper.Logger;
 
 /**
  * Creator of Processor boxes based on the content os strings and previous
@@ -41,12 +42,12 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
      * @param filePath to use
      * @param logger logger to use
      */
-    public ProcessorFactory(Path filePath, LoggerWrapper logger) {
+    public ProcessorFactory(Path filePath, Logger logger) {
         this( filePath, "cs", logger );
     }
-    private final LoggerWrapper logger;
+    private final Logger logger;
 
-    public ProcessorFactory(LoggerWrapper logger) {
+    public ProcessorFactory(Logger logger) {
         this( JAVA_PATH, "cs", logger );
     }
 
@@ -57,7 +58,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
      * @param tag to use
      * @param logger to use
      */
-    public ProcessorFactory(Path filePath, String tag, LoggerWrapper logger) {
+    public ProcessorFactory(Path filePath, String tag, Logger logger) {
         this.filePath = filePath;
         commentToken = commentTokenFor( filePath );
         this.logger = logger;

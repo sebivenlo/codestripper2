@@ -43,6 +43,12 @@
             <scope>provided</scope>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>io.github.sebivenlo</groupId>
+            <artifactId>Loggerwrapper</artifactId>
+            <version>0.1</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <pluginManagement>

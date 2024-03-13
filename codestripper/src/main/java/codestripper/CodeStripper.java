@@ -1,5 +1,7 @@
 package codestripper;
 
+import loggerwrapper.Logger;
+import loggerwrapper.LoggerLevel;
 import static codestripper.ChippenDale.DEFAULT_STRIPPER_OUTDIR;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,8 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import loggerwrapper.DefaultLogger;
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -23,7 +24,7 @@ public final class CodeStripper {
      * Default out dir.
      */
     private final boolean dryRun;
-    private final LoggerWrapper logger;
+    private final Logger logger;
     LoggerLevel logLevel = LoggerLevel.INFO;
 
     /**
@@ -131,7 +132,7 @@ public final class CodeStripper {
      * @param outDir for action results.
      * @throws java.io.IOException should not occur.
      */
-    private CodeStripper(LoggerWrapper logger, boolean dryRun,
+    private CodeStripper(Logger logger, boolean dryRun,
             PathLocations locs) throws IOException {
         this.logger = logger;
         this.locations = locs;
@@ -162,7 +163,7 @@ public final class CodeStripper {
         private List<String> extraResources = List.of();
         private Path outDir = DEFAULT_STRIPPER_OUTDIR;
         private PathLocations locations;
-        private LoggerWrapper loggerWrapper = null;
+        private Logger loggerWrapper = null;
 
         public Builder dryRun(boolean dryRun) {
             this.dryRun = dryRun;
@@ -179,12 +180,12 @@ public final class CodeStripper {
             return this;
         }
 
-        public Builder logger(Log logger) {
-            this.loggerWrapper = new LoggerWrapper( logger, LoggerLevel.INFO );
-            return this;
-        }
+//        public Builder logger(Log logger) {
+//            this.loggerWrapper = new LoggerWrapper( logger, LoggerLevel.INFO );
+//            return this;
+//        }
 
-        public Builder logger(LoggerWrapper logger) {
+        public Builder logger(Logger logger) {
             this.loggerWrapper = logger;
             return this;
         }
@@ -194,8 +195,7 @@ public final class CodeStripper {
             if ( loggerWrapper == null ) {
                 System.err.println(
                         "warning logger not configured, using default SystemstreamLog" );
-                loggerWrapper = new LoggerWrapper( new SystemStreamLog(),
-                        LoggerLevel.INFO );
+                loggerWrapper = new DefaultLogger();
             }
             try {
                 result = new CodeStripper( loggerWrapper, dryRun, locations )

@@ -1,4 +1,4 @@
-package codestripper;
+package loggerwrapper;
 
 /**
  * Levels of verbosity.
@@ -9,7 +9,7 @@ public enum LoggerLevel {
     /**
      * Silent as in Quiet.
      */
-    MUTE,
+    MUTE, WARN, ERROR,
     /**
      * Default level
      */
@@ -23,11 +23,8 @@ public enum LoggerLevel {
      */
     FINE;
 
-    public boolean lessThan(LoggerLevel other) {
-        return this.compareTo( other ) < 0;
+    public boolean greaterEqual(LoggerLevel other) {
+        return this.compareTo( other ) >= 0;
     }
 
-    public boolean lessThanOrEqual(LoggerLevel other) {
-        return this.compareTo( other ) <= 0;
-    }
 }

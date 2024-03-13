@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import loggerwrapper.DefaultLogger;
+import loggerwrapper.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import org.junit.jupiter.api.AfterEach;
@@ -19,8 +19,7 @@ public class StripperTestBase {
 
     Path tempDir;
 //    Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    final LoggerWrapper log = new LoggerWrapper( new SystemStreamLog(),
-            LoggerLevel.INFO );
+    final Logger log = new DefaultLogger();
     //    String projectName = pwd.getFileName().toString();
     //    Path expandedArchive;
 

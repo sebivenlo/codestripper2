@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import static java.util.stream.Collectors.joining;
+import loggerwrapper.LoggerLevel;
+import loggerwrapper.LoggerWrapper;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -38,9 +40,10 @@ public class StrippedCodeValidatorTest {
             assumeThat( sampleproject ).exists();
             tempDir = Files.createTempDirectory( "codestripper-" + this
                     .getClass().getSimpleName() + "-" );
-            locations = new PathLocations( log, sampleproject, tempDir );
+            LoggerWrapper w = new LoggerWrapper( log, LoggerLevel.DEBUG );
+            locations = new PathLocations( w, sampleproject, tempDir );
             stripper = new CodeStripper.Builder()
-                    .logger( log )
+                    .logger( w )
                     .pathLocations( locations )
                     .dryRun( false )
                     .extraResources( List.of() )

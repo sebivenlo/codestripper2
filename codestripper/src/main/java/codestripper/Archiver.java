@@ -1,12 +1,12 @@
 package codestripper;
 
+import loggerwrapper.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.Predicate;
-import org.apache.maven.plugin.logging.Log;
 
 /**
  * Archives for codestripper.
@@ -24,7 +24,7 @@ import org.apache.maven.plugin.logging.Log;
 final class Archiver implements AutoCloseable {
 
     private final PathLocations locations;
-    private final LoggerWrapper logger;
+    private final Logger logger;
 
     /**
      * Create a new archiver.
@@ -33,7 +33,7 @@ final class Archiver implements AutoCloseable {
      * @param locations directory and name info to use
      * @throws IOException should not occur.
      */
-    public Archiver(LoggerWrapper log, PathLocations locations)
+    public Archiver(Logger log, PathLocations locations)
             throws IOException {
         this.locations = locations;
         this.logger = log;
