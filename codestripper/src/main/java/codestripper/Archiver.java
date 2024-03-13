@@ -86,15 +86,13 @@ final class Archiver implements AutoCloseable {
     void addFile(Path file) {
         // find relative path from work dir to file and use that in archive
         Path x = locations.workRelative( file );
-//        //solution contains parent/project
-        Path inZip = Path.of( "solution", locations.projectName() ).resolve( x )
-                .normalize();
+        //solution contains parent/project
+        Path inZip = locations.inZip( "solution", x );
         solution.add( inZip, file );
 
-        inZip = Path.of( "assignment", locations.projectName() ).resolve( x )
-                .normalize();
-        assignment.add( inZip, file );
-        addAssignmentFile( inZip, file );
+        Path inZip2 = locations.inZip( "assignment", x );
+        assignment.add( inZip2, file );
+        addAssignmentFile( inZip2, file );
     }
 
     /**
@@ -103,12 +101,12 @@ final class Archiver implements AutoCloseable {
      * @param path in the archive
      * @param source file
      */
-    void addAssignmentFile(Path inArchive, Path source) {
+    void addAssignmentFile(Path destFile, Path source) {
         try {
-            Path archiveFile = locations.expandedArchive().resolve( inArchive );
+            Path archiveFile = locations.inArchive( destFile );
             Files.createDirectories( archiveFile
                     .getParent() );
-            Files.copy( locations.work().resolve( source ), archiveFile,
+            Files.copy( locations.inWorkFile( source ), archiveFile,
                     StandardCopyOption.REPLACE_EXISTING );
         } catch ( IOException ex ) {
             logger.error( () -> "io exception on " + ex.getMessage() );
@@ -123,31 +121,36 @@ final class Archiver implements AutoCloseable {
      * @param extraResources
      */
     void addExtras(List<String> extraResources) {
-        logger.info( () -> "Add extras" );
         if ( extraResources.isEmpty() ) {
-            logger.info( () -> "no resources found" );
+            logger.info( () -> "no extraResources specified" );
             return;
         }
+        logger.debug( () -> "Add extras" );
         for ( String extraResource : extraResources ) {
-            logger.info( () -> "considering extra resource " + extraResource );
+            logger.debug( () -> "considering extra resource " + extraResource );
             try {
 
-                var inZip = locations.work().resolve( extraResource ).normalize();
-                if ( Files.notExists( inZip ) ) {
-                    logger.warn( () -> "file resource does not exist " + inZip
-                            .toString() );
+                var toZip = locations.inWorkFile( extraResource ).normalize();
+                if ( Files.notExists( toZip ) ) {
+                    logger.warn(
+                            () -> "file resource does not exist \033[33m " + toZip
+                                    .toString() + "\033[m" );
                     continue;
                 }
-                if ( Files.isRegularFile( inZip ) ) {
-                    logger.info( () -> "adding file " + inZip.toString() );
-                    addFile( inZip );
-                } else if ( Files.isDirectory( inZip ) ) {
-                    Files.walk( inZip, Integer.MAX_VALUE )
+                if ( Files.isRegularFile( toZip ) ) {
+                    logger.info(
+                            () -> "adding file \033[32m" + extraResource + "\033[m" );
+                    addFile( toZip );
+                } else if ( Files.isDirectory( toZip ) ) {
+                    Files.walk( toZip, Integer.MAX_VALUE )
                             .filter( f -> locations.acceptablePath( f ) )
                             .map( f -> locations.work().relativize( f ) )
+                            .peek( f -> logger.info(
+                            () -> "adding file \033[32m" + f + "\033[m" ) )
                             .forEach( p -> addFile( p ) );
                 } else {
-                    logger.warn( () -> "Not a file or dir: " + extraResource );
+                    logger.warn(
+                            () -> "Not a file or dir: \033[33m" + extraResource + "\033[m" );
                 }
             } catch ( IOException ex ) {
                 logger.error( () -> ex.getMessage() );
@@ -167,30 +170,6 @@ final class Archiver implements AutoCloseable {
         }
     }
 
-    final Path outDir(Path outDirPath) {
-        Path result = null;
-        try {
-            Path absPath = outDirPath.toAbsolutePath();
-            if ( !absPath.toFile().exists() ) {
-                result = Files.createDirectories( absPath );
-            }
-        } catch ( IOException ex ) {
-            logger.error( () -> ex.getMessage() );
-        }
-
-        return result;
-    }
-
-    /**
-     * Get the directory where all project files land.
-     *
-     * @return the path to the project in the expandedArchive.
-     */
-    protected Path projectDir() throws IOException {
-        return locations.expandedArchive().resolve( "assignment" )
-                .resolve( projectName() );
-    }
-
     /**
      * Process the non-text files in the root directory. Typically this is the
      * directory that contains the maven pom file.
@@ -207,7 +186,8 @@ final class Archiver implements AutoCloseable {
                 .filter( f -> locations.acceptablePath( f ) )
                 .filter( Predicate.not( ChippenDale::isText ) )
                 .map( p -> pwd.relativize( p.toAbsolutePath() ) )
-                .peek( f -> logger.info( () -> "bin file added" + f.toString() ) )
+                .peek( f -> logger.debug( () -> "bin file added \033[35m" + f
+                .toString() + "\033[m" ) )
                 .forEach( file -> addFile( file ) );
     }
 

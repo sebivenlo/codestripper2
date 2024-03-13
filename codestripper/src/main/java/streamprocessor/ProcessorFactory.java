@@ -74,7 +74,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
                 ;
         pattern = Pattern.compile( myPreciousRegex );
         this.transforms = new HashMap<>( defaultTransforms );
-        logger.debug( () -> "start stripping " + filePath.toString() );
+        logger.debug(
+                () -> "start stripping \033[36m" + filePath.toString() + "\033[m" );
     }
 
     /**
@@ -340,7 +341,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
      */
     @Override
     public void close() throws Exception {
-        logger.debug( () -> "finished stripping file " + filePath );
+        logger.debug(
+                () -> "finished stripping file \033[36m" + filePath + "\033[m" );
     }
 
 }

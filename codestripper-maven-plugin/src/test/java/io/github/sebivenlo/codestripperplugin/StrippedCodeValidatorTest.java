@@ -8,8 +8,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import static java.util.stream.Collectors.joining;
-import loggerwrapper.LoggerLevel;
-import loggerwrapper.LoggerWrapper;
+import loggerwrapper.DefaultLogger;
+import loggerwrapper.Logger;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -34,16 +34,16 @@ public class StrippedCodeValidatorTest {
 
     public StrippedCodeValidatorTest() {
 
+        Logger log = new DefaultLogger();
         try {
             Path sampleproject = Path.of( "..",
                     "sampleproject", "example" ).toAbsolutePath();
             assumeThat( sampleproject ).exists();
             tempDir = Files.createTempDirectory( "codestripper-" + this
                     .getClass().getSimpleName() + "-" );
-            LoggerWrapper w = new LoggerWrapper( log, LoggerLevel.DEBUG );
-            locations = new PathLocations( w, sampleproject, tempDir );
+            locations = new PathLocations( log, sampleproject, tempDir );
             stripper = new CodeStripper.Builder()
-                    .logger( w )
+                    .logger( log )
                     .pathLocations( locations )
                     .dryRun( false )
                     .extraResources( List.of() )
@@ -53,7 +53,7 @@ public class StrippedCodeValidatorTest {
             stripper.strip();
             validator = new StrippedCodeValidator( log, locations );
         } catch ( IOException ex ) {
-            log.error( ex.getMessage() );
+            log.error( () -> ex.getMessage() );
             throw new IllegalArgumentException( ex );
         }
     }

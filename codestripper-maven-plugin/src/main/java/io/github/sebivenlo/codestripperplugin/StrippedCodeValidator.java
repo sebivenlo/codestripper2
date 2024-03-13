@@ -19,7 +19,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.joining;
 import java.util.stream.Stream;
-import org.apache.maven.plugin.logging.Log;
+import loggerwrapper.Logger;
+//import org.apache.maven.plugin.logging.Log;
 
 /**
  * Validates that the stripped code is compilable. It does this by running 'mvn
@@ -33,9 +34,9 @@ public class StrippedCodeValidator {
             "(?<file>.*):\\d+: error:.*" );
 
     PathLocations locations;
-    Log log;
+    Logger log;
 
-    public StrippedCodeValidator(Log log, PathLocations locations) {
+    public StrippedCodeValidator(Logger log, PathLocations locations) {
         this.locations = locations;
         this.log = log;
     }
@@ -43,10 +44,15 @@ public class StrippedCodeValidator {
     void validate() throws InterruptedException, IOException {
         Path compilerOutDir = makeOutDir();
         Path srcDir = locations.strippedProject().resolve( "src" );
-        System.out.println( "srcDir = " + srcDir );
+        if ( srcDir.startsWith( locations.work() ) ) {
+            log.info( () -> "srcDir = " + locations.workRelative( srcDir ) );
+        } else {
+            log.info( () -> "srcDir = " + srcDir );
+        }
         String[] args = makeCompilerArguments( srcDir, compilerOutDir );
         ProcessBuilder pb = new ProcessBuilder( args );
-        log.info( "validating " + validatedClassCount + " stripped classes" );
+        log.info(
+                () -> "validating " + validatedClassCount + " stripped classes" );
         Process process = pb.start();
         BufferedReader reader
                 = new BufferedReader( new InputStreamReader(
@@ -65,25 +71,26 @@ public class StrippedCodeValidator {
 
         int exitCode = process.waitFor();
         if ( compilerOutput.isEmpty() ) {
-            log.info( "all stripped files passed compiler test" );
+            log.info( () -> "all stripped files passed compiler test" );
         } else {
-            log.info(
-                    "\033[31;1mCompiling the stipped files causes some compiler errors\033[m" );
+            log.info( ()
+                    -> "\033[31;1mCompiling the stipped files causes some compiler errors\033[m" );
             Arrays.stream( sourceFiles )
                     .forEach( l -> {
                         if ( problematicFiles.contains( l ) ) {
-                            log.error( "\033[1;31m" + l + "\033[m" );
+                            log.error( () -> "\033[1;31m" + l + "\033[m" );
                         } else {
-                            log.info( "\033[1m" + l + "\033[m" );
+                            log.info( () -> "\033[1m" + l + "\033[m" );
                         }
                     } );
 
             for ( String s : compilerOutput ) {
-                log.error( s );
+                log.error( () -> s );
             }
         }
 
-        log.info( "exited validate-stripped-code with exit code " + exitCode );
+        log.info(
+                () -> "exited validate-stripped-code with exit code " + exitCode );
     }
 
     static Path makeOutDir() throws IOException {
@@ -127,7 +134,9 @@ public class StrippedCodeValidator {
                 result = stream
                         .filter( path -> !Files.isDirectory( path ) )
                         .filter( this::isJavaFile )
-                        .peek( f -> System.out.println( "source " + f ) )
+                        .peek( f -> log.info(
+                        () -> "validating \033[34m" + locations
+                                .workRelative( f ).toString() + "\033[m" ) )
                         .map( Path::toString )
                         .toArray( String[]::new );
             } catch ( IOException ignored ) {
@@ -176,7 +185,7 @@ public class StrippedCodeValidator {
                 int exitCode = process.waitFor();
                 Files.write( classPathCache, List.of( result ) );
             } catch ( IOException | InterruptedException ex ) {
-                log.error( ex );
+                log.error( () -> ex.getMessage() );
             }
             sneakyClassPath = result;
         }

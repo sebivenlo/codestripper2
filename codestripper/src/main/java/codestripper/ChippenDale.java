@@ -1,7 +1,5 @@
 package codestripper;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -12,12 +10,11 @@ import java.util.Set;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  *
- * @param C subclass
  */
 class ChippenDale {
 
     /**
-     * known text formats
+     * known text formats.
      */
     public static final Set<String> textExtensions = Set.of( "java", "sql",
             "txt", "sh", "yaml", "yml", "properties" );
@@ -30,7 +27,6 @@ class ChippenDale {
     /**
      * The location of the 'unzipped' archive.
      */
-
     public static boolean isText(Path file) {
         String fileNameString = file.getFileName().toString();
         String[] split = fileNameString.split( "\\.", 2 );
@@ -42,6 +38,9 @@ class ChippenDale {
         return textExtensions.contains( extension );
     }
 
+    /**
+     * Default stripper out dir.
+     */
     public static final Path DEFAULT_STRIPPER_OUTDIR = Path.of( "target",
             "stripper-out" );
 

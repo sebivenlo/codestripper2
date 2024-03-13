@@ -23,6 +23,10 @@
                 <version>0.2.2</version>
                 <configuration>
                     <verbosity>INFO</verbosity>
+                    <extraResources>
+                        <extraResource>../README.md</extraResource>
+                        <extraResource>../images</extraResource>
+                    </extraResources>
                 </configuration>
                 <executions>
                     <execution>

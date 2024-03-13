@@ -2,7 +2,6 @@ package codestripper;
 
 import loggerwrapper.Logger;
 import loggerwrapper.LoggerLevel;
-import static codestripper.ChippenDale.DEFAULT_STRIPPER_OUTDIR;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +10,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import loggerwrapper.DefaultLogger;
+
 import streamprocessor.ProcessorFactory;
 
 /**
@@ -38,13 +38,11 @@ public final class CodeStripper {
         Path root = locations.work();
         Instant start = Instant.now();
         Objects.requireNonNull( logger );
-        Path projectDir = null;
         try ( Archiver archiver = new Archiver( logger, locations ); ) {
-            projectDir = archiver.projectDir();
             processTextFiles( root, archiver );
-            logger.info( () -> "adding non stripables" );
+            logger.debug( () -> "adding non-stripables" );
             archiver.addAssignmentFiles( root );
-            logger.info( () -> "adding extras" );
+            logger.debug( () -> "adding extras" );
             archiver.addExtras( extraResources );
         } catch ( Exception ex ) {
             logger.error( () -> ex.getMessage() );
@@ -66,7 +64,7 @@ public final class CodeStripper {
             }
         }
 
-        return projectDir;
+        return locations.strippedProject();
     }
 
     int fileCount = 0;
@@ -89,7 +87,6 @@ public final class CodeStripper {
 
     private void process(Path javaFile, Archiver archiver) {
         fileCount++;
-        logger.debug( () -> "start stripping file " + javaFile.toString() );
         try ( var factory = new ProcessorFactory( javaFile, logger ).logLevel(
                 LoggerLevel.FINE ); ) {
             var lines = Files.lines( javaFile ).toList();
@@ -102,9 +99,8 @@ public final class CodeStripper {
 
             if ( !dryRun && !stripped.isEmpty() ) {
                 // add to assigmnet after processing
-                logger.debug( () -> "added stripped file" + locations
-                        .workRelative(
-                                javaFile ).toString() );
+                logger.debug( () -> "added stripped file \033[36m" + locations
+                        .workRelative( javaFile ).toString() + "\033[m" );
                 archiver.addAssignmentLines( javaFile, stripped );
             }
             if ( factory.hasDanglingTag() ) {
@@ -161,9 +157,8 @@ public final class CodeStripper {
         // sensible defaults.
         private boolean dryRun = false;
         private List<String> extraResources = List.of();
-        private Path outDir = DEFAULT_STRIPPER_OUTDIR;
         private PathLocations locations;
-        private Logger loggerWrapper = null;
+        private Logger logger = null;
 
         public Builder dryRun(boolean dryRun) {
             this.dryRun = dryRun;
@@ -180,28 +175,23 @@ public final class CodeStripper {
             return this;
         }
 
-//        public Builder logger(Log logger) {
-//            this.loggerWrapper = new LoggerWrapper( logger, LoggerLevel.INFO );
-//            return this;
-//        }
-
         public Builder logger(Logger logger) {
-            this.loggerWrapper = logger;
+            this.logger = logger;
             return this;
         }
 
         public CodeStripper build() {
             CodeStripper result = null;
-            if ( loggerWrapper == null ) {
+            if ( logger == null ) {
                 System.err.println(
                         "warning logger not configured, using default SystemstreamLog" );
-                loggerWrapper = new DefaultLogger();
+                logger = new DefaultLogger();
             }
             try {
-                result = new CodeStripper( loggerWrapper, dryRun, locations )
+                result = new CodeStripper( logger, dryRun, locations )
                         .extraResources( extraResources );
             } catch ( IOException ex ) {
-                loggerWrapper.error( () -> ex.getMessage() );
+                logger.error( () -> ex.getMessage() );
                 throw new RuntimeException( ex );
             }
             return result;

@@ -58,7 +58,6 @@ public class StripperTestBase {
                 .sorted( ( f1, f2 ) -> f2.compareTo( f1 ) )
                 .collect( toList() );
         collect.stream()
-                //                .peek( System.out::println )
                 .forEach( f -> f.toFile().delete() );
 
         assertThat( dirToCleanAndRemove.toFile() ).doesNotExist();

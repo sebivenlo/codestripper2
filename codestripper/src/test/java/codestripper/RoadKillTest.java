@@ -37,7 +37,6 @@ public class RoadKillTest extends StripperTestBase {
         List<String> stripped = lines.stream()
                 .map( factory::apply ) // wrap in recipe
                 .flatMap( x -> x ) // flatten the result
-                //                .peek(l-> out.println("out "+ l))
                 .toList();
         int sumOut = stripped.stream().mapToInt( String::length ).sum();
         System.out.println( "sumOut = " + sumOut );

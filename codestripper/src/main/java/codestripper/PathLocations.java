@@ -159,6 +159,16 @@ public record PathLocations(Logger logger, Path work, Path out,
         return work.resolve( filePath );
     }
 
+    /**
+     * Ensure that filePath.getParent() in work exists.
+     *
+     * @param filePath the path of a file
+     * @return the path of the file with the parent existing
+     */
+    public Path inWorkFile(Path filePath) {
+        return work.resolve( filePath );
+    }
+
     public Path expandedArchive() {
         Path p = out().resolve( "expandedArchive" ).toAbsolutePath();
         if ( Files.exists( p ) ) {
@@ -219,6 +229,14 @@ public record PathLocations(Logger logger, Path work, Path out,
     public Path strippedProject() {
         return expandedArchive().resolve( assignmentName )
                 .resolve( projectName );
+    }
+
+    public Path inZip(String zipname, Path f) {
+        return Path.of( zipname, projectName() ).resolve( f ).normalize();
+    }
+
+    public Path inArchive(Path f) {
+        return expandedArchive().resolve( f );
     }
 
     public String toString() {
