@@ -41,9 +41,9 @@ public class TagMigratorTest extends StripperTestBase {
     @Test @DisplayName( "test migrate Line" )
     public void testMigrateString() {
         TagMigrator m = new TagMigrator( log, locations );
-        String actual = source.stream()
+        var actual = source.stream()
                 .map( m::migrateLine )
-                .collect( joining( lineSep ) );
+                .toList();
         assertThat( actual ).isEqualTo( expected );
         fail( "method MigrateString reached end. You know what to do." );
     }
