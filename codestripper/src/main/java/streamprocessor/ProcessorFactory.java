@@ -50,6 +50,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
         this( JAVA_PATH, "cs", logger );
     }
     Path expandedProject;
+
     /**
      * Create a factory for the given file and specify the tag
      *
@@ -200,8 +201,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
             .payLoad() );
     final Function<Processor, Stream<String>> uncomment
             = p -> of( p.indent() + p.text().replaceFirst( "//", "" ) );
-    final Function<Processor, Stream<String>> comment
-            = p -> of( p.indent() + "//" + p.text() );
+    final Function<Processor, Stream<String>> comment = this::comment;
+//            = p -> of( p.indent() + "//" + p.text() );
     final Function<Processor, Stream<String>> nop
             = p -> of( p.indent() + p.text() );
     final Function<Processor, Stream<String>> remove = this::remove;
@@ -254,14 +255,22 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
         return transforms.getOrDefault( line, nop );
     }
 
+    final Stream<String> comment(Processor p) {
+        String result = p.indent() + "//" + p.text();
+        logger.fine( () -> "comment  line " + p.lineNumber()
+                + ": [\033[37;2m" + result + "\033[m]" );
+
+        return Stream.of( result );
+    }
+
     final Stream<String> remove(Processor p) {
         if ( !p.payLoad().isBlank() ) {
             logger.fine( () -> "replaced line " + p.lineNumber()
-                    + ":\033[14;33m[" + p.line() + "]\033[m" );
+                    + ": [\033[33m" + p.line() + "\033[m]" );
             return Stream.of( p.indent() + p.payLoad() );
         }
-        logger.fine( () -> "dropped line '" + p.lineNumber()
-                + ":[\033[14;31m[" + p.line() + "]\033[m" );
+        logger.fine( () -> "removed line '" + p.lineNumber()
+                + ": [\033[2;37;9m" + p.line() + "\033[m]" );
         return Stream.empty();
     }
     /**
@@ -344,7 +353,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     @Override
     public void close() throws Exception {
         logger.debug(
-                () -> "finished stripping file \033[36m" + filePath + "\033[m" );
+                () -> "finished stripping \033[36m" + filePath + "\033[m" );
     }
 
 }

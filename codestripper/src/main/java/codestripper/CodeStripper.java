@@ -97,20 +97,21 @@ public final class CodeStripper {
                     .flatMap( x -> x ) // flatten the result
                     .toList();
 
-            if ( !dryRun && !stripped.isEmpty() ) {
-                // add to assigmnet after processing
-                logger.debug( () -> "added stripped file \033[36m" + locations
-                        .workRelative( javaFile ).toString() + "\033[m" );
-                archiver.addAssignmentLines( javaFile, stripped );
-            }
             if ( factory.hasDanglingTag() ) {
                 logger.warn( ()
-                        -> "file " + javaFile.toString() + " has dangling tags:  " );
+                        -> "file \033[33m" + locations.work().relativize(
+                                javaFile ).toString() + "\033[m has dangling tags:  " );
                 String danglingTags = factory.danglingTags();
                 for ( String s : danglingTags.split( "\n" ) ) {
                     logger.warn( () -> s );
                 }
 
+            }
+            if ( !dryRun && !stripped.isEmpty() ) {
+                // add to assignment after processing
+                logger.debug( () -> "added stripped file \033[36m" + locations
+                        .workRelative( javaFile ).toString() + "\033[m" );
+                archiver.addAssignmentLines( javaFile, stripped );
             }
         } catch ( IOException ex ) {
             logger.error( () -> ex.getMessage() );

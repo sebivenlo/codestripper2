@@ -4,7 +4,6 @@
  */
 package codestripper;
 
-import codestripper.PathLocations;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,7 +14,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.joining;
@@ -34,9 +32,9 @@ public class StrippedCodeValidator {
     final Pattern problematicFile = Pattern.compile(
             "(?<file>.*):\\d+: error:.*" );
 
-    PathLocations locations;
-    Logger log;
-    Path expandedProject;
+    final PathLocations locations;
+    final Logger log;
+    final Path expandedProject;
 
     /**
      * Configure the validator with logger and locations.
@@ -57,6 +55,8 @@ public class StrippedCodeValidator {
      * @throws CodeStripperValidationException when the compiler is not silent.
      */
     public void validate() throws CodeStripperValidationException {
+        String strippedPrefix = locations.strippedProject().toAbsolutePath()
+                .toString() + pathSep;
         try {
             Path compilerOutDir = makeOutDir();
             Path srcDir = locations.strippedProject().resolve( "src" );
@@ -76,11 +76,11 @@ public class StrippedCodeValidator {
                     );
             String line;
             List<String> compilerOutput = new ArrayList<>();
-            final Set<String> problematicFiles = new HashSet<>();
+            final Set<Path> problematicFiles = new HashSet<>();
             while ( ( line = reader.readLine() ) != null ) {
                 Matcher matcher = problematicFile.matcher( line );
                 if ( matcher.matches() ) {
-                    problematicFiles.add( matcher.group( "file" ) );
+                    problematicFiles.add( relFile( matcher.group( "file" ) ) );
                 }
                 compilerOutput.add( line );
             }
@@ -92,22 +92,24 @@ public class StrippedCodeValidator {
                 log.info( ()
                         -> "\033[31;1mCompiling the stipped files causes some compiler errors\033[m" );
                 Arrays.stream( sourceFiles )
+                        .map( this::relFile )
                         .forEach( l -> {
                             if ( problematicFiles.contains( l ) ) {
-                                log.error( () -> "\033[1;31m" + expandedProject
-                                        .relativize( Path.of( l ) ) + "\033[m" );
+                                log.error( () -> "\033[1;31m" + l + "\033[m" );
                             } else {
-                                log.info( () -> "\033[2;32m" + expandedProject
-                                        .relativize( Path.of( l ) ) + "\033[m" );
+                                log.info( () -> "\033[32m" + l + "\033[m" );
                             }
                         } );
+                compilerOutput.replaceAll(
+                        l -> l.startsWith( strippedPrefix ) ? l.substring(
+                        strippedPrefix.length() ) : l );
 
-                for ( String s : compilerOutput ) {
-                    log.error( () -> s );
-                }
-                throw new CodeStripperValidationException( compilerOutput
-                        .stream()
-                        .collect( joining( "\n" ) ),
+//                for ( String s : compilerOutput ) {
+//                    log.error( () -> s );
+//                }
+
+                throw new CodeStripperValidationException(
+                        compilerOutput.stream().collect( joining( "\n" ) ),
                         "The validator found compilation errors" );
             }
 
@@ -116,6 +118,11 @@ public class StrippedCodeValidator {
         } catch ( IOException | InterruptedException ex ) {
             log.error( () -> ex.getMessage() );
         }
+    }
+
+    private Path relFile(String l) {
+        return expandedProject.relativize( Path.of( l ).toAbsolutePath() );
+
     }
 
     static Path makeOutDir() throws IOException {
@@ -159,9 +166,6 @@ public class StrippedCodeValidator {
                 result = stream
                         .filter( path -> !Files.isDirectory( path ) )
                         .filter( this::isJavaFile )
-                        //                        .peek( f -> log.info(
-                        //                        () -> "validating \033[32m"
-                        //                        + strippedProject.relativize( f ).toString() + "\033[m" ) )
                         .map( Path::toString )
                         .toArray( String[]::new );
             } catch ( IOException ignored ) {
@@ -201,7 +205,7 @@ public class StrippedCodeValidator {
                         = new BufferedReader(
                                 new InputStreamReader( process.getInputStream() ) );
 
-                String line = "";
+                String line;
                 while ( ( line = reader.readLine() ) != null ) {
                     if ( !line.startsWith( "[INFO]" ) ) {
                         result += line;

@@ -21,7 +21,7 @@ public class RoadKillTest extends StripperTestBase {
 
     public RoadKillTest() {
     }
-
+    //cs:comment:start
     //@Disabled("think TDD")
     @Test @DisplayName( "ensure stripper strips" )
     public void testEnsureThatStripperFactoryStrips() throws IOException {
@@ -44,4 +44,5 @@ public class RoadKillTest extends StripperTestBase {
 
 //        fail( "method EnsureThatStripperFactoryStrips reached end. You know what to do." );
     }
+    //cs:comment:end
 }

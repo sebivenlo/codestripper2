@@ -30,7 +30,7 @@ public class CodeStripperMain {
         Path outDir = Path.of( System.getProperty( "user.dir" ) ).resolve(
                 "target" ).resolve( "stripper-out" );
         Files.createDirectories( outDir );
-        Logger logger = new DefaultLogger().level( LoggerLevel.DEBUG );
+        Logger logger = new DefaultLogger().level( LoggerLevel.FINE );
         PathLocations locations = new PathLocations( logger, outDir );
         CodeStripper codeStripper
                 = new CodeStripper.Builder()
@@ -38,6 +38,12 @@ public class CodeStripperMain {
                         .logger( logger )
                         .extraResources( List.of( "../README.md", "../images" ) )
                         .build();
+
+        for ( String s : locations.toString().split( "\n" ) ) {
+            logger.info( () -> "config " + s );
+        }
+        logger.info( () -> "config stripped project [\033[32m" + locations
+                .strippedProject() + "\033[m]" );
         codeStripper.strip();
         var checker = new StrippedCodeValidator( logger, locations );
         try {
