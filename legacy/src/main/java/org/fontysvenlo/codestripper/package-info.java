@@ -73,12 +73,14 @@
  *
  * <b><span style="color:#A020F0">private</span></b> File makeOutputFile(String
  * arg) {
- * <i><span style="color:#B22222"><span style="text-decoration:line-through">//Start
- * Solution::replacewith::</span>//TODO
+ * <i><span style="color:#B22222"><span style="text-decoration:line-through">
+ * //Start Solution::replacewith::</span>//TODO
  * </span></i>
- * <span style="text-decoration:line-through"> File f =
- * <b><span style="color:#A020F0">new</span></b> File(arg); String parent =
- * f.getParent(); System.out.println(f.getName()); String fullOutPath =
+ * <span style="text-decoration:line-through">
+ * File f =
+ * <b><span style="color:#A020F0">new</span></b>
+ * File(arg); String parent = f.getParent(); System.out.println(f.getName());
+ * String fullOutPath =
  * <b><span style="color:#BC8F8F">&quot;out/&quot;</span></b> + arg;
  * <b><span style="color:#A020F0">if</span></b> (parent !=
  * <b><span style="color:#A020F0">null</span></b>) { System.out.println(parent);
@@ -88,9 +90,8 @@
  * <b><span style="color:#A020F0">new</span></b>
  * File(fullOutPath);
  * <b><span style="color:#A020F0">return</span></b> result;</span>
- * <I><span style="color:#B22222">
- * <span style="text-decoration:line-through">//End *
- * Solution::replacewith::</span>return null;
+ * <I><span style="color:#B22222"><span style="text-decoration:line-through">
+ * //End Solution::replacewith::</span>return null;
  * </span></I> }
  *
  * </pre>

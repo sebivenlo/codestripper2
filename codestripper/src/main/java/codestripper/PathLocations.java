@@ -211,7 +211,7 @@ public record PathLocations(Logger logger, Path work, Path out,
      * @param p path to test
      * @return true if acceptable false otherwise.
      */
-    boolean acceptablePath(Path p) {
+    public boolean acceptablePath(Path p) {
         if ( p.toString().startsWith( ".git" ) ) {
             return false;
         }

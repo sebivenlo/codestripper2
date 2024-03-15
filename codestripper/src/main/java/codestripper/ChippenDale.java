@@ -11,7 +11,7 @@ import java.util.Set;
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  *
  */
-class ChippenDale {
+public class ChippenDale {
 
     /**
      * known text formats.
