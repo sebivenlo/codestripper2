@@ -8,7 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import java.util.logging.Level;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +38,7 @@ public class TagMigrator {
             "(?<indent>\\s*)" // optinal identation
             + "//(?<startEnd>(Start|End))" // required Start or End
             + " Solution" // required space+word
-            + "(::replaceWith::(?<payLoad>.*))?" // optional payload
+            + "(::replace[Ww]ith::(?<payLoad>.*))?" // optional payload
     );
 
     /**
@@ -48,6 +49,7 @@ public class TagMigrator {
         PathMatcher pm = def.getPathMatcher( "glob:**/*.java" );
         Files.walk( root, Integer.MAX_VALUE )
                 .filter( p -> pm.matches( p ) )
+                .peek( p -> System.out.println( "[INFO] migrating file " + p ) )
                 .forEach( file -> {
                     try {
                         process( file );
@@ -61,14 +63,16 @@ public class TagMigrator {
     private static String lineSep = System.getProperty( "line.separator" );
 
     private void process(Path file) throws IOException {
-
+        List<String> migratedLines = List.of();
         // read all lines from file, pass them through a test and replace if needed
-        var migratedlines
-                =        Files.lines( file )
-                        .map( s -> s ).toList();
-        String backup = file.getFileName().toString() + "-bak";
-        Files.move( file, file.getParent().resolve( backup ), REPLACE_EXISTING );
-        Files.write( file, migratedlines );
+        String backupName = file.getFileName().toString() + "-bak";
+        Path backup = file.getParent().resolve( backupName );
+        Files.copy( file, backup, REPLACE_EXISTING );
+        try ( var lines = Files.lines( file ); ) {
+            migratedLines = lines.
+                    map( this::migrateLine ).toList();
+        }
+        Files.write( file, migratedLines, TRUNCATE_EXISTING );
     }
 
     /**
@@ -91,7 +95,7 @@ public class TagMigrator {
             String payLoad = m.group( "payLoad" );
             result += ":" + payLoad;
         }
-
+        System.out.println( "result = " + result );
         return result;
     }
 
