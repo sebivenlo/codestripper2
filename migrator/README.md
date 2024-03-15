@@ -24,6 +24,23 @@ run it in the directory of your java files that you want to migrate.
 
 `migrate-tool`
 
+If you want it faster, you could use graalvm to speed things up.
+
+Make sure your JAVA_HOME points to a graalvm installation
+the build
+```sh
+mvn -DskipTests -P native package
+```
+
+After a minute or so your shoudl be able to find an executable in the target
+dir called migrator.
+
+Copy that to your bin and invoke with 
+```sh
+migrator
+```
+
+in the project dir.
 
 
 
