@@ -16,6 +16,12 @@ import loggerwrapper.Logger;
  * paths to be used.
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
+ *
+ * @param logger to use
+ * @param work dir
+ * @param out dir
+ * @param assignmentName configurable in properties
+ * @param projectName configurable in properties
  */
 public record PathLocations(Logger logger, Path work, Path out,
         String assignmentName,
@@ -245,5 +251,14 @@ public record PathLocations(Logger logger, Path work, Path out,
                 + "\n\tout = " + out
                 + "\n\tassignmentName = " + assignmentName
                 + "\n\tprojectName = " + projectName + "\n]";
+    }
+
+    public Path expandedArchiveRelative(Path f) {
+        return expandedArchive().relativize( f );
+    }
+
+    public Path expandedProject() {
+        return expandedArchive().resolve( assignmentName )
+                .resolve( projectName );
     }
 }

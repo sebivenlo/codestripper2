@@ -49,7 +49,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     public ProcessorFactory(Logger logger) {
         this( JAVA_PATH, "cs", logger );
     }
-
+    Path expandedProject;
     /**
      * Create a factory for the given file and specify the tag
      *
@@ -58,6 +58,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
      * @param logger to use
      */
     public ProcessorFactory(Path filePath, String tag, Logger logger) {
+//                expandedProject = this.locations.expandedProject();
+
         this.filePath = filePath;
         commentToken = commentTokenFor( filePath );
         this.logger = logger;
@@ -94,12 +96,12 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     }
 
     /**
-     * For testing
+     * For testing.
      *
      * @return the known set of instructions.
      *
      */
-    String[] getInstructions() {
+    public String[] getInstructions() {
         return transforms.keySet().stream().sorted().toArray( String[]::new );
     }
 
@@ -227,7 +229,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
 
     Function<Processor, Stream<String>> activeTransformation = nop;
     final Processor deathTrap = new Processor( "", "", ignore,
-            "ignore", 0, "//cs:ignore", "", "start" );
+            "ignore", 0, "//" // keep line break to prevent this from break
+            + "cs:ignore", "", "start" );
 
     // lookup
     final Map<String, Function<Processor, Stream<String>>> defaultTransforms = Map

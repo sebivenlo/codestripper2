@@ -154,32 +154,67 @@ public final class CodeStripper {
      */
     public static class Builder {
 
+        /**
+         * Java config doc wants a comment.
+         */
+        public Builder() {
+        }
+
         // sensible defaults.
         private boolean dryRun = false;
         private List<String> extraResources = List.of();
         private PathLocations locations;
         private Logger logger = null;
 
+        /**
+         * Do not write files.
+         *
+         * @param dryRun sic
+         * @return this
+         */
         public Builder dryRun(boolean dryRun) {
             this.dryRun = dryRun;
             return this;
         }
 
+        /**
+         * Add extra resources not with in project path.
+         *
+         * @param extraResources to add
+         * @return this
+         */
         public Builder extraResources(List<String> extraResources) {
             this.extraResources = extraResources;
             return this;
         }
 
+        /**
+         * Add the locations configuration
+         *
+         * @param locations to use
+         * @return this
+         */
         public Builder pathLocations(PathLocations locations) {
             this.locations = locations;
             return this;
         }
 
+        /**
+         * Add a logger to the configuration.
+         *
+         * @param logger sic
+         * @return this
+         */
         public Builder logger(Logger logger) {
             this.logger = logger;
             return this;
         }
 
+        /**
+         * Produce a configured CodeStripper.
+         *
+         * @return the stripper
+         */
         public CodeStripper build() {
             CodeStripper result = null;
             if ( logger == null ) {

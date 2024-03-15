@@ -36,10 +36,13 @@ public class StrippedCodeValidator {
 
     PathLocations locations;
     Logger log;
+    Path expandedProject;
 
     public StrippedCodeValidator(Logger log, PathLocations locations) {
         this.locations = locations;
         this.log = log;
+        expandedProject = this.locations.expandedProject();
+
     }
 
     public void validate() throws CodeStripperValidationException {
@@ -80,9 +83,11 @@ public class StrippedCodeValidator {
                 Arrays.stream( sourceFiles )
                         .forEach( l -> {
                             if ( problematicFiles.contains( l ) ) {
-                                log.error( () -> "\033[1;31m" + l + "\033[m" );
+                                log.error( () -> "\033[1;31m" + expandedProject
+                                        .relativize( Path.of( l ) ) + "\033[m" );
                             } else {
-                                log.info( () -> "\033[1m" + l + "\033[m" );
+                                log.info( () -> "\033[2;32m" + expandedProject
+                                        .relativize( Path.of( l ) ) + "\033[m" );
                             }
                         } );
 
@@ -143,9 +148,9 @@ public class StrippedCodeValidator {
                 result = stream
                         .filter( path -> !Files.isDirectory( path ) )
                         .filter( this::isJavaFile )
-                        .peek( f -> log.info(
-                        () -> "validating \033[34m" + locations
-                                .workRelative( f ).toString() + "\033[m" ) )
+                        //                        .peek( f -> log.info(
+                        //                        () -> "validating \033[32m"
+                        //                        + expandedProject.relativize( f ).toString() + "\033[m" ) )
                         .map( Path::toString )
                         .toArray( String[]::new );
             } catch ( IOException ignored ) {
