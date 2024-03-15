@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
 import mytinylogger.DefaultLogger;
 import loggerwrapper.Logger;
 import loggerwrapper.LoggerLevel;
@@ -38,7 +39,11 @@ public class CodeStripperMain {
                         .build();
         codeStripper.strip();
         var checker = new StrippedCodeValidator( logger, locations );
-        checker.validate();
+        try {
+            checker.validate();
+        } catch ( CodeStripperValidationException ex ) {
+            logger.error( () -> ex.getLongMessage() );
+        }
         logger.info( () -> "Hello World!" );
     }
 

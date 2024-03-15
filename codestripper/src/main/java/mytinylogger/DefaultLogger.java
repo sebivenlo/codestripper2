@@ -29,10 +29,10 @@ public class DefaultLogger implements Logger {
     }
 
     static String errorP = "[\033[31;1mERROR\033[m] ";
-    static String infoP = "[\033[36;1mINFO\033[m] ";
-    static String warnP = "[\033[33;1mWARN\033[m] ";
+    static String infoP = "[\033[34;1mINFO\033[m] ";
+    static String warnP = "[\033[1;33mWARNING\033[37;1m]\033[m ";
     static String debugP = "[\033[35;1mDEBUG\033[m] ";
-    static String fineP = "[\033[32;1mFINE\033[m] ";
+    static String fineP = "[\033[32;1mFINER\033[m] ";
 
     @Override
     public void debug(Supplier<String> msg) {

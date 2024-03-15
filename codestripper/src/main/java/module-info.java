@@ -7,5 +7,5 @@ module codestripper {
     requires loggerwrapper;
     requires java.logging;
     exports codestripper;
-    exports mytinylogger;
+//    exports mytinylogger;
 }

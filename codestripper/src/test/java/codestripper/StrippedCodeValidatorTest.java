@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 import org.assertj.core.api.ThrowableAssert;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.*;
-
+import codestripper.CodeStripperValidationException;
 /**
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
@@ -115,7 +115,8 @@ public class StrippedCodeValidatorTest {
             validator.validate();
         };
 
-        assertThatCode( code ).doesNotThrowAnyException();
+        assertThatThrownBy( code ).isExactlyInstanceOf(
+                CodeStripperValidationException.class );
 //        fail( "method CompilerRun reached end. You know what to do." );
     }
 }

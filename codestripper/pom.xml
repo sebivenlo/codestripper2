@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <properties>
         <java.release>17</java.release>
-        <exec.mainClass>io.github.sebivenlo.codestripper.Codestripper</exec.mainClass>
+        <exec.mainClass>codestripper.CodeStripperMain</exec.mainClass>
     </properties>
     <dependencies>
         <dependency>

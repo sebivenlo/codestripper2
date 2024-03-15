@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.joining;
@@ -41,56 +42,64 @@ public class StrippedCodeValidator {
         this.log = log;
     }
 
-    public void validate() throws InterruptedException, IOException {
-        Path compilerOutDir = makeOutDir();
-        Path srcDir = locations.strippedProject().resolve( "src" );
-        if ( srcDir.startsWith( locations.work() ) ) {
-            log.info( () -> "srcDir = " + locations.workRelative( srcDir ) );
-        } else {
-            log.info( () -> "srcDir = " + srcDir );
-        }
-        String[] args = makeCompilerArguments( srcDir, compilerOutDir );
-        ProcessBuilder pb = new ProcessBuilder( args );
-        log.info(
-                () -> "validating " + validatedClassCount + " stripped classes" );
-        Process process = pb.start();
-        BufferedReader reader
-                = new BufferedReader( new InputStreamReader(
-                        process.getErrorStream() )
-                );
-        String line;
-        List<String> compilerOutput = new ArrayList<>();
-        final Set<String> problematicFiles = new HashSet<>();
-        while ( ( line = reader.readLine() ) != null ) {
-            Matcher matcher = problematicFile.matcher( line );
-            if ( matcher.matches() ) {
-                problematicFiles.add( matcher.group( "file" ) );
+    public void validate() throws CodeStripperValidationException {
+        try {
+            Path compilerOutDir = makeOutDir();
+            Path srcDir = locations.strippedProject().resolve( "src" );
+            if ( srcDir.startsWith( locations.work() ) ) {
+                log.info( () -> "srcDir = " + locations.workRelative( srcDir ) );
+            } else {
+                log.info( () -> "srcDir = " + srcDir );
             }
-            compilerOutput.add( line );
-        }
-
-        int exitCode = process.waitFor();
-        if ( compilerOutput.isEmpty() ) {
-            log.info( () -> "all stripped files passed compiler test" );
-        } else {
-            log.info( ()
-                    -> "\033[31;1mCompiling the stipped files causes some compiler errors\033[m" );
-            Arrays.stream( sourceFiles )
-                    .forEach( l -> {
-                        if ( problematicFiles.contains( l ) ) {
-                            log.error( () -> "\033[1;31m" + l + "\033[m" );
-                        } else {
-                            log.info( () -> "\033[1m" + l + "\033[m" );
-                        }
-                    } );
-
-            for ( String s : compilerOutput ) {
-                log.error( () -> s );
+            String[] args = makeCompilerArguments( srcDir, compilerOutDir );
+            ProcessBuilder pb = new ProcessBuilder( args );
+            log.info(
+                    () -> "validating " + validatedClassCount + " stripped classes" );
+            Process process = pb.start();
+            BufferedReader reader
+                    = new BufferedReader( new InputStreamReader(
+                            process.getErrorStream() )
+                    );
+            String line;
+            List<String> compilerOutput = new ArrayList<>();
+            final Set<String> problematicFiles = new HashSet<>();
+            while ( ( line = reader.readLine() ) != null ) {
+                Matcher matcher = problematicFile.matcher( line );
+                if ( matcher.matches() ) {
+                    problematicFiles.add( matcher.group( "file" ) );
+                }
+                compilerOutput.add( line );
             }
-        }
 
-        log.info(
-                () -> "exited validate-stripped-code with exit code " + exitCode );
+            int exitCode = process.waitFor();
+            if ( compilerOutput.isEmpty() ) {
+                log.info( () -> "all stripped files passed compiler test" );
+            } else {
+                log.info( ()
+                        -> "\033[31;1mCompiling the stipped files causes some compiler errors\033[m" );
+                Arrays.stream( sourceFiles )
+                        .forEach( l -> {
+                            if ( problematicFiles.contains( l ) ) {
+                                log.error( () -> "\033[1;31m" + l + "\033[m" );
+                            } else {
+                                log.info( () -> "\033[1m" + l + "\033[m" );
+                            }
+                        } );
+
+                for ( String s : compilerOutput ) {
+                    log.error( () -> s );
+                }
+                throw new CodeStripperValidationException( compilerOutput
+                        .stream()
+                        .collect( joining( "\n" ) ),
+                        "The validator found compilation errors" );
+            }
+
+            log.info(
+                    () -> "exited validate-stripped-code with exit code " + exitCode );
+        } catch ( IOException | InterruptedException ex ) {
+            log.error( () -> ex.getMessage() );
+        }
     }
 
     static Path makeOutDir() throws IOException {

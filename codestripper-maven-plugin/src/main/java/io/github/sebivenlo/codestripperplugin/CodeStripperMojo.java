@@ -2,12 +2,15 @@ package io.github.sebivenlo.codestripperplugin;
 
 import codestripper.StrippedCodeValidator;
 import codestripper.CodeStripper;
+import codestripper.CodeStripperValidationException;
 import loggerwrapper.LoggerLevel;
 import codestripper.PathLocations;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -51,8 +54,9 @@ public class CodeStripperMojo extends AbstractMojo {
             checker.validate();
         } catch ( IOException ex ) {
             log.error( () -> ex.getMessage() );
-        } catch ( InterruptedException ex ) {
-            log.error( () -> ex.getMessage() );
+        } catch ( CodeStripperValidationException ex ) {
+            Logger.getLogger( CodeStripperMojo.class.getName() )
+                    .log( Level.SEVERE, null, ex );
         }
     }
 

@@ -5,7 +5,7 @@
 package mytinylogger;
 
 import loggerwrapper.Logger;
-import static loggerwrapper.LoggerLevel.FINE;
+import static loggerwrapper.LoggerLevel.*;
 
 /**
  *
