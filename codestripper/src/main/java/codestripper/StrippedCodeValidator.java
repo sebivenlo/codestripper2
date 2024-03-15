@@ -38,13 +38,24 @@ public class StrippedCodeValidator {
     Logger log;
     Path expandedProject;
 
+    /**
+     * Configure the validator with logger and locations.
+     *
+     * @param log to use
+     * @param locations where is the work?
+     */
     public StrippedCodeValidator(Logger log, PathLocations locations) {
         this.locations = locations;
         this.log = log;
-        expandedProject = this.locations.expandedProject();
+        expandedProject = this.locations.strippedProject();
 
     }
 
+    /**
+     * Do the work.
+     *
+     * @throws CodeStripperValidationException when the compiler is not silent.
+     */
     public void validate() throws CodeStripperValidationException {
         try {
             Path compilerOutDir = makeOutDir();
@@ -150,7 +161,7 @@ public class StrippedCodeValidator {
                         .filter( this::isJavaFile )
                         //                        .peek( f -> log.info(
                         //                        () -> "validating \033[32m"
-                        //                        + expandedProject.relativize( f ).toString() + "\033[m" ) )
+                        //                        + strippedProject.relativize( f ).toString() + "\033[m" ) )
                         .map( Path::toString )
                         .toArray( String[]::new );
             } catch ( IOException ignored ) {

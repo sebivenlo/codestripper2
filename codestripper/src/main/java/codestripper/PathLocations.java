@@ -175,6 +175,12 @@ public record PathLocations(Logger logger, Path work, Path out,
         return work.resolve( filePath );
     }
 
+    /**
+     * The path to the expanded archive. If the path does not yet exists, create
+     * it.
+     *
+     * @return the path which exists
+     */
     public Path expandedArchive() {
         Path p = out().resolve( "expandedArchive" ).toAbsolutePath();
         if ( Files.exists( p ) ) {
@@ -232,19 +238,43 @@ public record PathLocations(Logger logger, Path work, Path out,
         return !absPath.getFileName().toString().endsWith( "~" );
     }
 
+    /**
+     * Path of the expanded project in the expanded archive. To shorten paths.
+     *
+     * @return the dir.
+     */
     public Path strippedProject() {
         return expandedArchive().resolve( assignmentName )
                 .resolve( projectName );
     }
 
+    /**
+     * The path f with zip name prefixed.
+     *
+     * @param zipname to use
+     * @param f file
+     * @return the path
+     */
     public Path inZip(String zipname, Path f) {
         return Path.of( zipname, projectName() ).resolve( f ).normalize();
     }
 
+    /**
+     * The absolute path in the (expanded) archive.
+     *
+     * @param f file
+     * @return the path
+     */
     public Path inArchive(Path f) {
         return expandedArchive().resolve( f );
     }
 
+    /**
+     * Folded toString. A one liner does not cut it.
+     *
+     * @return the string
+     */
+    @Override
     public String toString() {
         return "PathLocations["
                 + "\n\twork = " + work
@@ -253,12 +283,14 @@ public record PathLocations(Logger logger, Path work, Path out,
                 + "\n\tprojectName = " + projectName + "\n]";
     }
 
+    /**
+     * Used to make path strings shorter
+     *
+     * @param f file
+     * @return the shortened path.
+     */
     public Path expandedArchiveRelative(Path f) {
         return expandedArchive().relativize( f );
     }
 
-    public Path expandedProject() {
-        return expandedArchive().resolve( assignmentName )
-                .resolve( projectName );
-    }
 }

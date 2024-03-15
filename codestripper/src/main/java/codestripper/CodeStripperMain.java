@@ -24,6 +24,7 @@ public class CodeStripperMain {
      *
      * @param args not used
      * @throws IOException should not occur.
+     * @throws java.lang.InterruptedException for the impatient.
      */
     public static void main(String[] args) throws IOException, InterruptedException {
         Path outDir = Path.of( System.getProperty( "user.dir" ) ).resolve(

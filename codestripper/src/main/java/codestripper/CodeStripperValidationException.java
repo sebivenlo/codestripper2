@@ -7,7 +7,10 @@ package codestripper;
  */
 public class CodeStripperValidationException extends Exception {
 
-    String longMessage;
+    /**
+     * for longer multi line texts
+     */
+    private String longMessage;
 
     /**
      * Create exception with a long message
@@ -23,23 +26,22 @@ public class CodeStripperValidationException extends Exception {
     }
 
     /**
-     *
-     * @param message message only
-     */
-    public CodeStripperValidationException(String message) {
-        super( message );
-        this.longMessage = message;
-    }
-
-    /**
-     * With tow texts.
+     * With tww texts.
      *
      * @param longMessage sic
      * @param message sic
      */
     public CodeStripperValidationException(String longMessage, String message) {
-        super( message );
-        this.longMessage = longMessage;
+        this( longMessage, message, null );
+    }
+
+    /**
+     * Exception with message only.
+     *
+     * @param message message only
+     */
+    public CodeStripperValidationException(String message) {
+        this( "", message );
     }
 
     /**
