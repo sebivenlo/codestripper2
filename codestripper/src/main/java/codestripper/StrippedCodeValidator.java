@@ -4,6 +4,7 @@
  */
 package codestripper;
 
+import io.github.sebivenlo.dependencyfinder.DependencyFinder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,7 +19,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.joining;
 import java.util.stream.Stream;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import loggerwrapper.Logger;
+import static loggerwrapper.LoggerLevel.ERROR;
 //import org.apache.maven.plugin.logging.Log;
 
 /**
@@ -55,37 +63,27 @@ public class StrippedCodeValidator {
      * @throws CodeStripperValidationException when the compiler is not silent.
      */
     public void validate() throws CodeStripperValidationException {
-        String strippedPrefix = locations.strippedProject().toAbsolutePath()
+        String strippedPrefix = locations.strippedProject()
+                .toAbsolutePath()
                 .toString() + pathSep;
         try {
             Path compilerOutDir = makeOutDir();
-            Path srcDir = locations.strippedProject().resolve( "src" );
+            Path srcDir = locations.strippedProject()
+                    .resolve( "src" );
             if ( srcDir.startsWith( locations.work() ) ) {
                 log.info( () -> "srcDir = " + locations.workRelative( srcDir ) );
             } else {
                 log.info( () -> "srcDir = " + srcDir );
             }
             String[] args = makeCompilerArguments( srcDir, compilerOutDir );
-            ProcessBuilder pb = new ProcessBuilder( args );
-            log.info(
-                    () -> "validating " + validatedClassCount + " stripped classes" );
-            Process process = pb.start();
-            BufferedReader reader
-                    = new BufferedReader( new InputStreamReader(
-                            process.getErrorStream() )
-                    );
-            String line;
+            String[] compilerOptions = compilerOptions( compilerOutDir );
+            String[] sourceFiles = getSourceFiles( srcDir );
             List<String> compilerOutput = new ArrayList<>();
             final Set<Path> problematicFiles = new HashSet<>();
-            while ( ( line = reader.readLine() ) != null ) {
-                Matcher matcher = problematicFile.matcher( line );
-                if ( matcher.matches() ) {
-                    problematicFiles.add( relFile( matcher.group( "file" ) ) );
-                }
-                compilerOutput.add( line );
-            }
-
-            int exitCode = process.waitFor();
+            log.info(
+                    () -> "validating " + validatedClassCount + " stripped classes" );
+            int exitCode = runCompiler( compilerOptions, sourceFiles,
+                    problematicFiles, compilerOutput );
             if ( compilerOutput.isEmpty() ) {
                 log.info( () -> "all stripped files passed compiler test" );
             } else {
@@ -103,13 +101,9 @@ public class StrippedCodeValidator {
                 compilerOutput.replaceAll(
                         l -> l.startsWith( strippedPrefix ) ? l.substring(
                         strippedPrefix.length() ) : l );
-
-//                for ( String s : compilerOutput ) {
-//                    log.error( () -> s );
-//                }
-
                 throw new CodeStripperValidationException(
-                        compilerOutput.stream().collect( joining( "\n" ) ),
+                        compilerOutput.stream()
+                                .collect( joining( "\n" ) ),
                         "The validator found compilation errors" );
             }
 
@@ -120,14 +114,72 @@ public class StrippedCodeValidator {
         }
     }
 
+    int runCompiler(String[] options, String[] sourceFiled,
+            final Set<Path> problematicFiles,
+            List<String> compilerOutput) throws InterruptedException, IOException {
+        String[] args = concat( new String[]{ "java" }, concat( options,
+                sourceFiles ) );
+        ProcessBuilder pb = new ProcessBuilder( args );
+        Process process = pb.start();
+        BufferedReader reader
+                = new BufferedReader( new InputStreamReader(
+                        process.getErrorStream() )
+                );
+        String line;
+        while ( ( line = reader.readLine() ) != null ) {
+            Matcher matcher = problematicFile.matcher( line );
+            if ( matcher.matches() ) {
+                problematicFiles.add( relFile( matcher.group( "file" ) ) );
+            }
+            compilerOutput.add( line );
+        }
+        int exitCode = process.waitFor();
+        return exitCode;
+    }
+
+    int runCompilerAlt(String[] options, String[] souceFiles,
+            final Set<Path> problematicFiles,
+            List<String> compilerOutput) {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(
+                null, null, null );
+        DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
+
+        JavaCompiler.CompilationTask task = compiler.getTask(
+                null, //errowriter null =stderr
+                null, // filemanager null is standard
+                collector, // diagnostics
+                List.of( options ),
+                null,
+                fileManager.getJavaFileObjectsFromStrings( List
+                        .of( sourceFiles ) )
+        );
+        Boolean success = task.call();
+        for ( Diagnostic<? extends JavaFileObject> diagnostic : collector
+                .getDiagnostics() ) {
+            log.info( () -> "diagnostic = " + diagnostic );
+            Diagnostic.Kind kind = diagnostic.getKind();
+            String file = diagnostic.getSource()
+                    .toString();
+            if ( kind == Diagnostic.Kind.ERROR ) {
+                compilerOutput.add( diagnostic.toString() );
+                problematicFiles.add( Path.of( file ) );
+            }
+        }
+
+        return success ? 0 : 1;
+    }
+
     private Path relFile(String l) {
-        return expandedProject.relativize( Path.of( l ).toAbsolutePath() );
+        return expandedProject.relativize( Path.of( l )
+                .toAbsolutePath() );
 
     }
 
     static Path makeOutDir() throws IOException {
         Path result = Files.createTempDirectory( "cs-StrippedCodeValidator-" );
-        result.toFile().deleteOnExit();
+        result.toFile()
+                .deleteOnExit();
         return result;
     }
 
@@ -136,24 +188,33 @@ public class StrippedCodeValidator {
     String[] makeCompilerArguments(Path sourceDir, Path outDir) {
         String[] sources = getSourceFiles( sourceDir );
         validatedClassCount = sources.length;
-        String compileClassPath = getSneakyClassPath();
+        String[] opts = compilerOptions( outDir );
+        return concat( opts, sources );
+    }
 
-        String[] opts = {
-            "javac",
-            "-p", compileClassPath,
-            "-sourcepath", "src/main/java" + pathSep + "src/test/java",
-            "-cp", compileClassPath,
-            "-d", outDir.toString() };
+    static String[] concat(String[] opts, String[] sources) {
         String[] allOpts = Arrays.copyOf( opts, opts.length + sources.length );
         System.arraycopy( sources, 0, allOpts, opts.length, sources.length );
         return allOpts;
     }
 
+    String[] compilerOptions(Path outDir) {
+        String compileClassPath = getSneakyClassPath();
+        String[] opts = {
+            "-p", compileClassPath,
+            "-sourcepath", "src/main/java" + pathSep + "src/test/java",
+            "-cp", compileClassPath,
+            "-d", outDir.toString() };
+        return opts;
+    }
+
     private int validatedClassCount = 0;
 
     boolean isJavaFile(Path p) {
-        return p.getFileName().toString().endsWith(
-                ".java" );
+        return p.getFileName()
+                .toString()
+                .endsWith(
+                        ".java" );
     }
 
     private String[] sourceFiles = null;
@@ -179,23 +240,29 @@ public class StrippedCodeValidator {
     private String sneakyClassPath;
 
     String getCachedClassPath(Path f) throws IOException {
-        return Files.lines( f ).collect( joining( pathSep ) );
+        return Files.lines( f )
+                .collect( joining( pathSep ) );
     }
 
     String getSneakyClassPath() {
+        sneakyClassPath = DependencyFinder.testCompileclassPath();
+//        return sneakyClassPath;
 
         if ( null == sneakyClassPath ) {
             String result = "";
             try {
-                Path classPathCache = locations.expandedArchive().resolve(
-                        "classpath-cache.txt" );
+                Path classPathCache = locations.expandedArchive()
+                        .resolve(
+                                "classpath-cache.txt" );
                 if ( Files.exists( classPathCache ) ) {
                     return getCachedClassPath( classPathCache );
                 }
 
                 // if not, get and fill cache.
-                String pom = locations.work().resolve( "pom.xml" )
-                        .toAbsolutePath().toString();
+                String pom = locations.work()
+                        .resolve( "pom.xml" )
+                        .toAbsolutePath()
+                        .toString();
                 ProcessBuilder pb = new ProcessBuilder( "mvn",
                         "-f",
                         pom,
