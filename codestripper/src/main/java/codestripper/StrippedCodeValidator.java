@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package codestripper;
 
 import io.github.sebivenlo.dependencyfinder.DependencyFinder;
@@ -75,14 +71,14 @@ public class StrippedCodeValidator {
             } else {
                 log.info( () -> "srcDir = " + srcDir );
             }
-            String[] args = makeCompilerArguments( srcDir, compilerOutDir );
-            String[] compilerOptions = compilerOptions( compilerOutDir );
+//            String[] args = makeCompilerArguments( srcDir, compilerOutDir );
+            String[] compilerOptions = compilerOptions( srcDir, compilerOutDir );
             String[] sourceFiles = getSourceFiles( srcDir );
             List<String> compilerOutput = new ArrayList<>();
             final Set<Path> problematicFiles = new HashSet<>();
             log.info(
                     () -> "validating " + validatedClassCount + " stripped classes" );
-            int exitCode = runCompiler( compilerOptions, sourceFiles,
+            int exitCode = runCompilerAlt( compilerOptions, sourceFiles,
                     problematicFiles, compilerOutput );
             if ( compilerOutput.isEmpty() ) {
                 log.info( () -> "all stripped files passed compiler test" );
@@ -109,32 +105,9 @@ public class StrippedCodeValidator {
 
             log.info(
                     () -> "exited validate-stripped-code with exit code " + exitCode );
-        } catch ( IOException | InterruptedException ex ) {
+        } catch ( IOException ex ) {
             log.error( () -> ex.getMessage() );
         }
-    }
-
-    int runCompiler(String[] options, String[] sourceFiled,
-            final Set<Path> problematicFiles,
-            List<String> compilerOutput) throws InterruptedException, IOException {
-        String[] args = concat( new String[]{ "java" }, concat( options,
-                sourceFiles ) );
-        ProcessBuilder pb = new ProcessBuilder( args );
-        Process process = pb.start();
-        BufferedReader reader
-                = new BufferedReader( new InputStreamReader(
-                        process.getErrorStream() )
-                );
-        String line;
-        while ( ( line = reader.readLine() ) != null ) {
-            Matcher matcher = problematicFile.matcher( line );
-            if ( matcher.matches() ) {
-                problematicFiles.add( relFile( matcher.group( "file" ) ) );
-            }
-            compilerOutput.add( line );
-        }
-        int exitCode = process.waitFor();
-        return exitCode;
     }
 
     int runCompilerAlt(String[] options, String[] souceFiles,
@@ -161,10 +134,8 @@ public class StrippedCodeValidator {
             Diagnostic.Kind kind = diagnostic.getKind();
             String file = diagnostic.getSource()
                     .toString();
-            if ( kind == Diagnostic.Kind.ERROR ) {
-                compilerOutput.add( diagnostic.toString() );
-                problematicFiles.add( Path.of( file ) );
-            }
+            compilerOutput.add( diagnostic.toString() );
+            problematicFiles.add( Path.of( file ) );
         }
 
         return success ? 0 : 1;
@@ -188,7 +159,7 @@ public class StrippedCodeValidator {
     String[] makeCompilerArguments(Path sourceDir, Path outDir) {
         String[] sources = getSourceFiles( sourceDir );
         validatedClassCount = sources.length;
-        String[] opts = compilerOptions( outDir );
+        String[] opts = compilerOptions( sourceDir, outDir );
         return concat( opts, sources );
     }
 
@@ -198,14 +169,21 @@ public class StrippedCodeValidator {
         return allOpts;
     }
 
-    String[] compilerOptions(Path outDir) {
-        String compileClassPath = getSneakyClassPath();
+    String[] compilerOptions(Path projectDir, Path outDir) {
+        String compileClassPath = getClassPath();
+        String sourcePath = sourcePath( projectDir );
         String[] opts = {
             "-p", compileClassPath,
-            "-sourcepath", "src/main/java" + pathSep + "src/test/java",
+            "-sourcepath", sourcePath,
             "-cp", compileClassPath,
             "-d", outDir.toString() };
         return opts;
+    }
+
+    String sourcePath(Path projectDir) {
+        String sourcePath = projectDir.resolve( "src/main/java" ) + pathSep
+                            + projectDir.resolve( "src/test/java" );
+        return sourcePath;
     }
 
     private int validatedClassCount = 0;
@@ -237,55 +215,12 @@ public class StrippedCodeValidator {
     }
 
     // cache
-    private String sneakyClassPath;
+    private String classPath = null;
 
-    String getCachedClassPath(Path f) throws IOException {
-        return Files.lines( f )
-                .collect( joining( pathSep ) );
-    }
-
-    String getSneakyClassPath() {
-        sneakyClassPath = DependencyFinder.testCompileclassPath();
-//        return sneakyClassPath;
-
-        if ( null == sneakyClassPath ) {
-            String result = "";
-            try {
-                Path classPathCache = locations.expandedArchive()
-                        .resolve(
-                                "classpath-cache.txt" );
-                if ( Files.exists( classPathCache ) ) {
-                    return getCachedClassPath( classPathCache );
-                }
-
-                // if not, get and fill cache.
-                String pom = locations.work()
-                        .resolve( "pom.xml" )
-                        .toAbsolutePath()
-                        .toString();
-                ProcessBuilder pb = new ProcessBuilder( "mvn",
-                        "-f",
-                        pom,
-                        "dependency:build-classpath" );
-                Process process = pb.start();
-                BufferedReader reader
-                        = new BufferedReader(
-                                new InputStreamReader( process.getInputStream() ) );
-
-                String line;
-                while ( ( line = reader.readLine() ) != null ) {
-                    if ( !line.startsWith( "[INFO]" ) ) {
-                        result += line;
-                    }
-                }
-                int exitCode = process.waitFor();
-                Files.write( classPathCache, List.of( result ) );
-            } catch ( IOException | InterruptedException ex ) {
-                log.error( () -> ex.getMessage() );
-            }
-            sneakyClassPath = result;
+    String getClassPath() {
+        if ( null == classPath ) {
+            classPath = DependencyFinder.testCompileclassPath();
         }
-        return sneakyClassPath;
+        return classPath;
     }
-
 }

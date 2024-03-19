@@ -8,7 +8,7 @@
     </parent>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper-maven-plugin</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
     <packaging>maven-plugin</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>io.github.sebivenlo</groupId>
             <artifactId>codestripper</artifactId>
-            <version>0.2.2</version>
+            <version>0.2.3</version>
         </dependency>
         <dependency>
             <groupId>io.github.sebivenlo</groupId>
@@ -46,12 +46,6 @@
             <artifactId>maven-core</artifactId>
             <version>3.9.6</version>
             <scope>provided</scope>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>io.github.sebivenlo</groupId>
-            <artifactId>Loggerwrapper</artifactId>
-            <version>0.1</version>
             <type>jar</type>
         </dependency>
     </dependencies>

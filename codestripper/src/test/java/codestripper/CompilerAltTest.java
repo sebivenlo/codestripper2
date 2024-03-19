@@ -5,15 +5,14 @@
 package codestripper;
 
 import static codestripper.StrippedCodeValidator.pathSep;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.*;
-//import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 
 /**
  *
@@ -27,28 +26,25 @@ public class CompilerAltTest extends StripperTestBase {
         StrippedCodeValidator val = new StrippedCodeValidator( log, locations );
         var sourceFiles = val.getSourceFiles( locations.work()
                 .resolve( "src" ) );
-        var compileClassPath = val.getSneakyClassPath();
+        var compileClassPath = val.getClassPath();
         var options = new String[]{ "-p", compileClassPath,
-                                "-sourcepath", "src/main/java" + pathSep + "src/test/java",
+                                "-sourcepath", locations.work()
+                                .resolve( "src/main/java" ) + pathSep + locations
+                                .work()
+                                .resolve( "src/test/java" ),
                                 "-cp", compileClassPath,
                                 "-d", locations.out()
                                 .toString() };
-        for ( String option : options ) {
-            System.out.println( "option = " + option );
-        }
 
         final Set<Path> problematicFiles = new HashSet<>();
         final List<String> compilerOutput = new ArrayList<>();
-        val.runCompilerAlt( options, sourceFiles, problematicFiles,
-                compilerOutput );
-        System.out.println( "compilerOutput = " + compilerOutput );
-        fail( "method CompilerRun reached end. You know what to do." );
+        ThrowingCallable code = () -> {
+            val.runCompilerAlt( options, sourceFiles, problematicFiles,
+                    compilerOutput );
+        };
+        assertThatCode( code )
+                .doesNotThrowAnyException();
 
-    }
-
-    @Override
-    public void cleanup() throws IOException {
-//        super.cleanup(); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
     }
 
 }

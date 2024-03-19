@@ -60,23 +60,43 @@ public class CodeStripperMojo extends AbstractMojo {
         }
     }
 
+    /**
+     * Stripper tag to use. Defaults to 'cs'.
+     *
+     */
     @Parameter( property = "codestripper.tag", defaultValue = "cs" )
     protected String tag;
 
+    /**
+     * Output directory. Defaults to 'target/stripper-out'.
+     */
     @Parameter( property = "codestripper.outDir",
             defaultValue = "target/stripper-out" )
     protected String outDirS;
 
+    /**
+     * Verbosity. Defaults to INFO. More verbose is DEBUG or TRACE.
+     */
     @Parameter( property = "codestripper.verbosity", defaultValue = "INFO" )
     protected LoggerLevel verbosity;
 
+    /**
+     * Do not write results.
+     */
     @Parameter( property = "codestripper.dryRun", defaultValue = "false" )
     protected boolean dryRun;
 
+    /**
+     * working directory. Defaults to "${project.build.directory}".
+     */
     @Parameter( property = "codestripper.working-directory",
             defaultValue = "${project.build.directory}" )
     protected String workDir = System.getProperty( "user.dir" );
 
+    /**
+     * Extra resources not with the current dir or its children to include in
+     * the zips.
+     */
     @Parameter( property = "extraResources" )
     protected List<String> extraResources = List.of();
 

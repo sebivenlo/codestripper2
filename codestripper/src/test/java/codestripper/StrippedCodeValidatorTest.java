@@ -74,25 +74,12 @@ public class StrippedCodeValidatorTest {
 //        fail( "method SourceFiles reached end. You know what to do." );
     }
 
-//    @Disabled( "think TDD" )
-    @Test
-    @DisplayName( "compiler args " )
-    public void testCompilerArgs() throws IOException {
-        String[] args = validator.makeCompilerArguments( locations
-                .strippedProject().resolve( "src" ), validator.makeOutDir() );
-        // cleanup
-//        this.outDir.toFile().delete();
-        System.out.println( Arrays.stream( args ).collect( joining( " " ) ) );
-        assertThat( args ).isNotEmpty();
-//        fail( "method CompilerArgs reached end. You know what to do." );
-    }
-
     //@Disabled("think TDD")
     @Test @DisplayName( "some story line" )
     public void testGetClassPath() {
         assumeThat( locations.strippedProject() ).exists();
         ThrowingCallable code = () -> {
-            String sneakyClassPath = validator.getSneakyClassPath();
+            String sneakyClassPath = validator.getClassPath();
             System.out.println( "sneakyClassPath = " + sneakyClassPath );
         };
 
@@ -105,9 +92,8 @@ public class StrippedCodeValidatorTest {
     @DisplayName( "run the compiler" )
     public void testCompilerRun() throws IOException {
         Path strippedProject = locations.strippedProject();
-        System.out.println( "strippedProject = " + strippedProject );
-        assumeThat( strippedProject.resolve( "src" ) ).exists();
-        System.out.println( "strippedProject = " + strippedProject.toString() );
+        assumeThat( strippedProject.resolve( "src" ) )
+                .exists();
 
         ThrowableAssert.ThrowingCallable code = () -> {
             validator.validate();

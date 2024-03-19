@@ -13,6 +13,7 @@ import java.util.Set;
  */
 public class ChippenDale {
 
+    private ChippenDale(){}
     /**
      * known text formats.
      */
@@ -26,6 +27,8 @@ public class ChippenDale {
 
     /**
      * The location of the 'unzipped' archive.
+     * @param file to test
+     * @return true if file classifies as text.
      */
     public static boolean isText(Path file) {
         String fileNameString = file.getFileName().toString();
