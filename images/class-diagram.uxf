@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>320</x>
+      <y>140</y>
+      <w>160</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>*Archiver*
+--
+
+
+
+
+--
+~ addFile()
+~ addStrippedLines()
+bg=#aaffaa
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>60</x>
+      <y>140</y>
+      <w>100</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>*Zipper*
+bg=#aaffaa
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>150</x>
+      <y>130</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=[solution]-&gt;
+m2=1
+</panel_attributes>
+    <additional_attributes>170.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>150</x>
+      <y>160</y>
+      <w>220</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=[assignment]-&gt;
+m2=1
+
+</panel_attributes>
+    <additional_attributes>170.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>580</x>
+      <y>130</y>
+      <w>180</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>*CodeStripper*
+--
+--
++ strip()
++ validate()
+bg=#aaffaa
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>140</y>
+      <w>130</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;110.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>310</x>
+      <y>290</y>
+      <w>170</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>{configuration}
+*PathLocations*
+bg=#aaffaa
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>580</x>
+      <y>310</y>
+      <w>200</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>*StrippedCodeValidator*
+bg=#aaffaa
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>860</x>
+      <y>310</y>
+      <w>150</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>*JavaCompiler*
+layer=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>770</x>
+      <y>300</y>
+      <w>110</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+uses</panel_attributes>
+    <additional_attributes>90.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>470</x>
+      <y>170</y>
+      <w>130</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;140.0;50.0;140.0;60.0;10.0;110.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>540</x>
+      <y>190</y>
+      <w>60</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>40.0;130.0;10.0;130.0;10.0;10.0;40.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>90</x>
+      <y>240</y>
+      <w>190</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>Archiver receives 
+project data and 
+stores that in
+*expandedArchive*
+*solution.zip*
+*assignment.zip*
+bg=#aaffaa
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>840</x>
+      <y>240</y>
+      <w>230</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>module java.compiler
+bg=#cccccc</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>40</x>
+      <y>50</y>
+      <w>770</w>
+      <h>390</h>
+    </coordinates>
+    <panel_attributes>module codestripper
+bg=#aaffaa
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>850</x>
+      <y>50</y>
+      <w>220</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>codestripper-maven-plugin
+bg=#aaccff</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>880</x>
+      <y>150</y>
+      <w>150</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>*CodeStripperMojo*
+layer=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>880</x>
+      <y>90</y>
+      <w>150</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>*LoggerWrapper*
+layer=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>750</x>
+      <y>150</y>
+      <w>150</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;20.0;130.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1020</x>
+      <y>100</y>
+      <w>50</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>10.0;10.0;30.0;10.0;30.0;80.0;10.0;80.0</additional_attributes>
+  </element>
+</diagram>
