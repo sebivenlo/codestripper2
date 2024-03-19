@@ -9,7 +9,7 @@
     </parent>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper</artifactId>
-    <version>0.2.3</version>
+    <version>0.3</version>
     <packaging>jar</packaging>
     <properties>
         <java.release>17</java.release>

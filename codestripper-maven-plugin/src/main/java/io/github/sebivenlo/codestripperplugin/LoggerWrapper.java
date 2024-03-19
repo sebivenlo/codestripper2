@@ -27,8 +27,8 @@ public class LoggerWrapper implements Logger {
     /**
      * Create an instance with given log to be wrapped and level.
      *
-     * @param log
-     * @param level
+     * @param log to wrap
+     * @param level to use
      */
     public LoggerWrapper(Log log, LoggerLevel level) {
         this.logger = log;

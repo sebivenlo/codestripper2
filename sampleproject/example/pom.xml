@@ -20,9 +20,9 @@
             <plugin>
                 <groupId>io.github.sebivenlo</groupId>
                 <artifactId>codestripper-maven-plugin</artifactId>
-                <version>0.2.3</version>
+                <version>0.3</version>
                 <configuration>
-                    <verbosity>INFO</verbosity>
+                    <verbosity>TRACE</verbosity>
                     <extraResources>
                         <extraResource>../README.md</extraResource>
                         <extraResource>../images</extraResource>
