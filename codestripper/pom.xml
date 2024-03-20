@@ -4,27 +4,28 @@
   <parent>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper_parent</artifactId>
-    <version>${revision}</version>
-    <relativePath>../codestripper_parent</relativePath>
+    <version>0.3</version>
+    <relativePath/>
   </parent>
   <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper</artifactId>
-    <version>${revision}</version>
+    <version>0.3</version>
     <packaging>jar</packaging>
     <properties>
         <java.release>17</java.release>
+        <revision>0.3</revision>
         <exec.mainClass>codestripper.CodeStripperMain</exec.mainClass>
     </properties>
     <dependencies>
         <dependency>
             <groupId>io.github.sebivenlo</groupId>
             <artifactId>loggerwrapper</artifactId>
-            <version>${revision}</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>io.github.sebivenlo</groupId>
             <artifactId>dependencyfinder</artifactId>
-            <version>${revision}</version>
+            <version>0.3</version>
         </dependency>
     </dependencies>
     <build>

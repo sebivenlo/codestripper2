@@ -7,9 +7,10 @@ package codestripper;
 import static codestripper.StrippedCodeValidator.pathSep;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import javax.tools.Diagnostic;
 import org.junit.jupiter.api.*;
 import static org.assertj.core.api.Assertions.*;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -27,16 +28,15 @@ public class CompilerAltTest extends StripperTestBase {
         var sourceFiles = val.getSourceFiles( locations.work()
                 .resolve( "src" ) );
         var compileClassPath = val.getClassPath();
-        var options = new String[]{ "-p", compileClassPath,
-                                "-sourcepath", locations.work()
+        var options = List.of( "-p", compileClassPath,                                "-sourcepath", locations.work()
                                 .resolve( "src/main/java" ) + pathSep + locations
                                 .work()
                                 .resolve( "src/test/java" ),
                                 "-cp", compileClassPath,
                                 "-d", locations.out()
-                                .toString() };
+                        .toString() );
 
-        final Set<Path> problematicFiles = new HashSet<>();
+        final Map<Path, Diagnostic> problematicFiles = new HashMap<>();
         final List<String> compilerOutput = new ArrayList<>();
         ThrowingCallable code = () -> {
             val.runCompilerAlt( options, sourceFiles, problematicFiles,

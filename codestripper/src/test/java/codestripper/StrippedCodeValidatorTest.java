@@ -15,6 +15,7 @@ import org.assertj.core.api.ThrowableAssert;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.*;
 import codestripper.CodeStripperValidationException;
+
 /**
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
@@ -33,10 +34,13 @@ public class StrippedCodeValidatorTest {
         Logger log = new DefaultLogger();
         try {
             Path sampleproject = Path.of( "..",
-                    "sampleproject", "example" ).toAbsolutePath();
-            assumeThat( sampleproject ).exists();
+                    "sampleproject", "example" )
+                    .toAbsolutePath();
+            assumeThat( sampleproject )
+                    .exists();
             tempDir = Files.createTempDirectory( "codestripper-" + this
-                    .getClass().getSimpleName() + "-" );
+                    .getClass()
+                    .getSimpleName() + "-" );
             locations = new PathLocations( log, sampleproject, tempDir );
             stripper = new CodeStripper.Builder()
                     .logger( log )
@@ -56,13 +60,16 @@ public class StrippedCodeValidatorTest {
     @Test
     @DisplayName( "Get source files" )
     public void testGetSourceFiles() {
-        Path sourceDir = locations.strippedProject().resolve( "src" );
-        String[] sourceFiles = validator.getSourceFiles( sourceDir );
+        Path sourceDir = locations.strippedProject()
+                .resolve( "src" );
+        List<String> sourceFiles = validator.getSourceFiles( sourceDir );
 
         // massage the input paths
-        var actual = Arrays.asList( sourceFiles )
-                .stream().map( l -> locations.strippedProject().relativize( Path
-                .of( l ) ) )
+        var actual = sourceFiles
+                .stream()
+                .map( l -> locations.strippedProject()
+                .relativize( Path
+                        .of( l ) ) )
                 .toList();
         var expected = List.of(
                 Path.of(
@@ -70,20 +77,23 @@ public class StrippedCodeValidatorTest {
                 Path.of(
                         "src/test/java/greeter/GreeterTest.java" )
         );
-        assertThat( actual ).containsAll( expected );
+        assertThat( actual )
+                .containsAll( expected );
 //        fail( "method SourceFiles reached end. You know what to do." );
     }
 
     //@Disabled("think TDD")
     @Test @DisplayName( "some story line" )
     public void testGetClassPath() {
-        assumeThat( locations.strippedProject() ).exists();
+        assumeThat( locations.strippedProject() )
+                .exists();
         ThrowingCallable code = () -> {
             String sneakyClassPath = validator.getClassPath();
             System.out.println( "sneakyClassPath = " + sneakyClassPath );
         };
 
-        assertThatCode( code ).doesNotThrowAnyException();
+        assertThatCode( code )
+                .doesNotThrowAnyException();
         //fail( "method GetClassPath reached end. You know what to do." );
     }
 
@@ -99,8 +109,9 @@ public class StrippedCodeValidatorTest {
             validator.validate();
         };
 
-        assertThatThrownBy( code ).isExactlyInstanceOf(
-                CodeStripperValidationException.class );
+        assertThatThrownBy( code )
+                .isExactlyInstanceOf(
+                        CodeStripperValidationException.class );
 //        fail( "method CompilerRun reached end. You know what to do." );
     }
 }

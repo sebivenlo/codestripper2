@@ -37,6 +37,7 @@ public class CodeStripperMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         LoggerWrapper log = new LoggerWrapper( getLog(), verbosity );
+        log.level( verbosity );
         try {
             log.info( () -> "start code stripping." );
             var outDir = Files.createDirectories( Path.of( System.getProperty(
@@ -45,12 +46,15 @@ public class CodeStripperMojo extends AbstractMojo {
             var stripper = new CodeStripper.Builder()
                     .logger( log )
                     .pathLocations( locations )
+
                     .dryRun( dryRun )
                     .extraResources( extraResources )
                     .build();
+
             Path resultingProject = stripper.strip();
             getLog().info( "stripped code, result in " + resultingProject );
             var checker = new StrippedCodeValidator( log, locations );
+
             checker.validate();
         } catch ( IOException ex ) {
             log.error( () -> ex.getMessage() );
@@ -75,9 +79,9 @@ public class CodeStripperMojo extends AbstractMojo {
     protected String outDirS;
 
     /**
-     * Verbosity. Defaults to INFO. More verbose is DEBUG or TRACE.
+     * Verbosity. Defaults to INFO. More verbose is DEBUG or FINE.
      */
-    @Parameter( property = "codestripper.verbosity", defaultValue = "INFO" )
+    @Parameter( property = "codestripper.verbosity", defaultValue = "FINE" )
     protected LoggerLevel verbosity;
 
     /**

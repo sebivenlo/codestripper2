@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.sebivenlo</groupId>
         <artifactId>informaticspom</artifactId>
-        <version>1.3</version>
+        <version>1.4</version>
         <relativePath/>
     </parent> 
     <properties>
@@ -14,13 +14,12 @@
     </properties>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper_parent</artifactId>
-    <version>${revision}</version>
+    <version>0.3</version>
     <packaging>pom</packaging>
     <modules>
         <module>../dependencyfinder</module>
         <module>../loggerwrapper</module>
         <module>../codestripper</module>
         <module>../codestripper-maven-plugin</module>
-        <module>../migrator</module>
     </modules>
 </project>

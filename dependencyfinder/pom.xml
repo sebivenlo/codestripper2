@@ -3,18 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.sebivenlo</groupId>
-        <artifactId>codestripper_parent</artifactId>
-        <version>${revision}</version>
-        <relativePath>../codestripper_parent</relativePath>
+        <artifactId>informaticspom</artifactId>
+        <version>1.4</version>
+        <relativePath/>
     </parent>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>dependencyfinder</artifactId>
     <name>Dependency Finder</name>
-    <version>${revision}</version>
+    <version>0.3</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.release>17</java.release>
+        <compiler.java.release>17</compiler.java.release>
         <exec.main>io.github.sebivenlo.dependencyfinder.DependencyFinder</exec.main>
     </properties>
 </project>

@@ -4,12 +4,12 @@
   <parent>
     <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper_parent</artifactId>
-    <version>${revision}</version>
+    <version>0.3</version>
     <relativePath>../codestripper_parent</relativePath>
   </parent>
   <groupId>io.github.sebivenlo</groupId>
   <artifactId>loggerwrapper</artifactId>
-  <version>${revision}</version>
+  <version>0.3</version>
   <packaging>jar</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
