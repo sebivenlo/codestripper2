@@ -22,7 +22,7 @@
                 <artifactId>codestripper-maven-plugin</artifactId>
                 <version>0.3</version>
                 <configuration>
-                    <verbosity>TRACE</verbosity>
+                    <verbosity>DEBUG</verbosity>
                     <extraResources>
                         <extraResource>../README.md</extraResource>
                         <extraResource>../images</extraResource>
