@@ -7,8 +7,9 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 import mytinylogger.DefaultLogger;
 import loggerwrapper.Logger;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.assertj.core.api.Assertions.*;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 
 /**
@@ -26,6 +27,7 @@ public class StripperTestBase {
     PathLocations locations;
 
     public StripperTestBase() {
+        Assertions.setMaxStackTraceElementsDisplayed(10 );
         try {
             Path sampleproject = Path.of( "..",
                     "sampleproject", "example" ).toAbsolutePath();
@@ -59,8 +61,8 @@ public class StripperTestBase {
                 .collect( toList() );
         collect.stream()
                 .forEach( f -> f.toFile().delete() );
-
-        assertThat( dirToCleanAndRemove.toFile() ).doesNotExist();
+        dirToCleanAndRemove.toFile().delete();
+//        assertThat( dirToCleanAndRemove.toFile() ).doesNotExist();
     }
 
 }

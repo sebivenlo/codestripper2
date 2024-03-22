@@ -22,18 +22,19 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 public class CompilerAltTest extends StripperTestBase {
 
     //@Disabled("think TDD")
-    @Test @DisplayName( "some story line" )
+    @Test
+    @DisplayName("some story line")
     public void testCompilerRun() {
         StrippedCodeValidator val = new StrippedCodeValidator( log, locations );
-        var sourceFiles = val.getSourceFiles( locations.work()
+        List<String> sourceFiles = val.getSourceFiles( locations.work()
                 .resolve( "src" ) );
         var compileClassPath = val.getClassPath();
-        var options = List.of( "-p", compileClassPath,                                "-sourcepath", locations.work()
-                                .resolve( "src/main/java" ) + pathSep + locations
-                                .work()
-                                .resolve( "src/test/java" ),
-                                "-cp", compileClassPath,
-                                "-d", locations.out()
+        var options = List.of( "-p", compileClassPath, "-sourcepath", locations.work()
+                .resolve( "src/main/java" ) + pathSep + locations
+                .work()
+                .resolve( "src/test/java" ),
+                "-cp", compileClassPath,
+                "-d", locations.out()
                         .toString() );
 
         final Map<Path, Diagnostic> problematicFiles = new HashMap<>();

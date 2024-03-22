@@ -15,7 +15,7 @@ public record Dependency(String groupId, String artifactId, String version,
         String scope, String type, String packaging) implements
         Comparable<Dependency> {
 
-    static final String userHome = System.getProperty( "user.home", "/" );
+    static final String userHome = System.getProperty( "user.home", "./" );
     static final String fileSep = System.getProperty( "file.separator", "/" );
 
     public Dependency(Map<String, String> found, Resolver resolver) {
@@ -37,9 +37,9 @@ public record Dependency(String groupId, String artifactId, String version,
                + fileSep
                + "repository"
                + fileSep
-               + groupId.replaceAll( "\\.", fileSep )
+               + groupId.replace(".", fileSep )
                + fileSep
-               + artifactId.replaceAll( "\\.", fileSep )
+               + artifactId.replace( ".", fileSep )
                + fileSep
                + version()
                + fileSep;
