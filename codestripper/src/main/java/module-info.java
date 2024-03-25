@@ -8,7 +8,7 @@
 module codestripper {
     requires loggerwrapper;
     requires java.logging;
-    requires java.compiler;
-    requires dependencyfinder;
+    requires info.picocli;
     exports codestripper;
+
 }

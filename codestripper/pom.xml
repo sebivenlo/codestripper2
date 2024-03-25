@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.github.sebivenlo</groupId>
+        <artifactId>codestripper_parent</artifactId>
+        <version>0.3</version>
+        <relativePath>../codestripper_parent</relativePath>
+    </parent>
     <groupId>io.github.sebivenlo</groupId>
-    <artifactId>codestripper_parent</artifactId>
-    <version>0.3</version>
-    <relativePath>../codestripper_parent</relativePath>
-  </parent>
-  <groupId>io.github.sebivenlo</groupId>
     <artifactId>codestripper</artifactId>
     <version>0.3</version>
     <packaging>jar</packaging>
@@ -23,9 +23,9 @@
             <version>0.3</version>
         </dependency>
         <dependency>
-            <groupId>io.github.sebivenlo</groupId>
-            <artifactId>dependencyfinder</artifactId>
-            <version>0.3</version>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.5</version>
         </dependency>
     </dependencies>
     <build>

@@ -78,7 +78,7 @@ public class PathFinderTest extends StripperTestBase {
 
     //@Disabled("think TDD")
     @Test
-    @DisplayName("how can you resolv a sibling")
+    @DisplayName( "how can you resolve a sibling" )
     public void testFindPWDSibling() {
         Path pwd = Path.of( System.getProperty( "user.dir" ) );
         Path images = pwd.resolve( ".." ).resolve( "images" ).toAbsolutePath();
