@@ -61,9 +61,8 @@ public class StrippedCodeValidator {
                 .toString() + pathSep;
         try {
             Path compilerOutDir = makeOutDir();
-            Path srcDir = locations.strippedProject()
-                    .resolve( "src" );
-            if (srcDir.startsWith( locations.work() )) {
+            Path srcDir = locations.strippedProject();
+            if ( srcDir.startsWith( locations.work() ) ) {
                 log.info( () -> "srcDir = " + locations.workRelative( srcDir ) );
             } else {
                 log.info( () -> "srcDir = " + srcDir );
@@ -75,7 +74,7 @@ public class StrippedCodeValidator {
                     () -> "validating " + validatedClassCount + " stripped classes" );
             int exitCode = runCompilerAlt( compilerOptions, sourceFiles,
                     problematicFiles, compilerOutput );
-            if (problematicFiles.isEmpty()) {
+            if ( problematicFiles.isEmpty() ) {
                 log.info( () -> "all stripped files passed compiler test" );
             } else {
                 log.info( ()
@@ -94,13 +93,13 @@ public class StrippedCodeValidator {
 
             log.info(
                     () -> "exited validate-stripped-code with exit code " + exitCode );
-        } catch (IOException ex) {
+        } catch ( IOException ex ) {
             log.error( () -> ex.getMessage() );
         }
     }
 
     void logDiagnostic(Path l) {
-        if (problematicFiles.containsKey( l )) {
+        if ( problematicFiles.containsKey( l ) ) {
             log
                     .error( () -> "\033[1;31m" + l + "\033[m" );
             Diagnostic diagnostic = problematicFiles
@@ -115,11 +114,11 @@ public class StrippedCodeValidator {
             log.error(
                     () -> "at line " + diagnostic
                             .getLineNumber()
-                    + ", column " + diagnostic
+                          + ", column " + diagnostic
                             .getColumnNumber() );
             List<String> problematicSource = getProblematicSource(
                     diagnostic );
-            for (String string : problematicSource) {
+            for ( String string : problematicSource ) {
                 log.error( () -> string );
             }
         } else {
@@ -136,7 +135,7 @@ public class StrippedCodeValidator {
         return Stream.of( d.toString()
                 .split( lineSep ) )
                 .map( s -> {
-                    if (s.startsWith( pathStart )) {
+            if ( s.startsWith( pathStart ) ) {
                         return s.substring( len );
                     } else {
                         return "\033[33m" + s + "\033[m";
@@ -160,23 +159,26 @@ public class StrippedCodeValidator {
                 null, // agent classes
                 fileManager.getJavaFileObjectsFromStrings( sourceFiles ) );
         Boolean success = task.call();
-        for (Diagnostic<? extends JavaFileObject> diagnostic : collector
-                .getDiagnostics()) {
+        for ( Diagnostic<? extends JavaFileObject> diagnostic : collector
+                .getDiagnostics() ) {
             Diagnostic.Kind kind = diagnostic.getKind();
             var p = diagnostic.getSource();
-            var q = p.toUri()
-                    .getPath();
-            if (fileSep.equals( "\\" )) {
-                // assume windows, then first character is misplaced
-                q = q.substring( 1 );
+            if ( p != null ) {
+                var q = p.toUri()
+                        .getPath();
+                if ( fileSep.equals( "\\" ) ) {
+                    // assume windows, then first character is misplaced
+                    q = q.substring( 1 );
+                }
+                var file = Path.of( q )
+                        .toAbsolutePath();
+                final var fileR = locations
+                        .strippedProject()
+                        .relativize( file );
+                compilerOutput
+                        .add( diagnostic.getMessage( Locale.getDefault() ) );
+                problematicFiles.put( fileR, diagnostic );
             }
-            var file = Path.of( q )
-                    .toAbsolutePath();
-            final var fileR = locations
-                    .strippedProject()
-                    .relativize( file );
-            compilerOutput.add( diagnostic.getMessage( Locale.getDefault() ) );
-            problematicFiles.put( fileR, diagnostic );
         }
 
         return success ? 0 : 1;
@@ -206,12 +208,18 @@ public class StrippedCodeValidator {
                 "-sourcepath", sourcePath,
                 "-cp", compileClassPath,
                 "-d", outDir.toString() );
+        log.fine( () -> "compiler options =" + sourcePath );
         return opts;
     }
 
     String sourcePath(Path projectDir) {
-        String sourcePath = projectDir.resolve( "src/main/java" ) + pathSep
-                + projectDir.resolve( "src/test/java" );
+        String sourcePath = projectDir.resolve( "src" )
+                .resolve( "main" )
+                .resolve( "java" ) + pathSep
+                            + projectDir.resolve( "src" )
+                        .resolve( "test" )
+                        .resolve( "java" );
+        log.fine( () -> "sourcepath =" + sourcePath );
         return sourcePath;
     }
 
@@ -227,16 +235,16 @@ public class StrippedCodeValidator {
     private List<String> sourceFiles = null;
 
     List<String> getSourceFiles(Path startDir) {
-        if (null == sourceFiles) {
+        if ( null == sourceFiles ) {
             List<String> result = List.of();
-            try (Stream<Path> stream = Files.walk( startDir,
-                    Integer.MAX_VALUE )) {
+            try ( Stream<Path> stream = Files.walk( startDir,
+                    Integer.MAX_VALUE ) ) {
                 result = stream
                         .filter( path -> !Files.isDirectory( path ) )
                         .filter( this::isJavaFile )
                         .map( Path::toString )
                         .toList();
-            } catch (IOException ignored) {
+            } catch ( IOException ignored ) {
             }
             sourceFiles = result;
             validatedClassCount = result.size();
@@ -248,7 +256,7 @@ public class StrippedCodeValidator {
     private String classPath = null;
 
     String getClassPath() {
-        if (null == classPath) {
+        if ( null == classPath ) {
             classPath = DependencyFinder.testCompileclassPath();
         }
         return classPath;
