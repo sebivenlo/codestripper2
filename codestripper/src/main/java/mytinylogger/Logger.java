@@ -5,6 +5,8 @@
 package mytinylogger;
 
 import java.io.PrintStream;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Supplier;
 import static mytinylogger.LoggerLevel.*;
 
@@ -26,40 +28,48 @@ public class Logger {
         this( System.out );
     }
 
-    static String errorP = "[\033[31;1mERROR\033[m] ";
-    static String infoP = "[\033[34;1mINFO\033[m] ";
-    static String warnP = "[\033[1;33mWARNING\033[37;1m]\033[m ";
-    static String debugP = "[\033[35;1mDEBUG\033[m] ";
-    static String fineP = "[\033[32;1mFINER\033[m] ";
+    static final String errorP = "[\033[31;1mERROR\033[m] ";
+    static final String infoP = "[\033[34;1mINFO\033[m] ";
+    static final String warnP = "[\033[1;33mWARNING\033[37;1m]\033[m ";
+    static final String debugP = "[\033[35;1mDEBUG\033[m] ";
+    static final String fineP = "[\033[32;1mFINER\033[m] ";
+
+    static final Map<LoggerLevel, String> flags = new EnumMap<>( Map.of(
+            INFO, infoP,
+            WARN, warnP,
+            DEBUG, debugP,
+            FINE, fineP,
+            ERROR, errorP,
+            MUTE, "" )
+    );
+
+    public void logAtLevel(LoggerLevel level, Supplier<String> msg) {
+        if ( level == MUTE ) {
+            return;
+        }
+        if ( level.greaterEqual( level() ) ) {
+            out.println( flags.get( level ) + msg.get() );
+        }
+    }
 
     public void debug(Supplier<String> msg) {
-        if ( level.greaterEqual( DEBUG ) ) {
-            out.println( debugP + msg.get() );
-        }
+        logAtLevel( DEBUG, msg );
     }
 
     public void error(Supplier<String> msg) {
-        if ( level.greaterEqual( ERROR ) ) {
-            out.println( errorP + msg.get() );
-        }
+        logAtLevel( ERROR, msg );
     }
 
     public void fine(Supplier<String> msg) {
-        if ( level.greaterEqual( FINE ) ) {
-            out.println( fineP + msg.get() );
-        }
+        logAtLevel( FINE, msg );
     }
 
     public void info(Supplier<String> msg) {
-        if ( level.greaterEqual( INFO ) ) {
-            out.println( infoP + msg.get() );
-        }
+        logAtLevel( INFO, msg );
     }
 
     public void warn(Supplier<String> msg) {
-        if ( level.greaterEqual( WARN ) ) {
-            out.println( warnP + msg.get() );
-        }
+        logAtLevel( WARN, msg );
     }
 
     public Logger level(LoggerLevel level) {

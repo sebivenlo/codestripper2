@@ -7,24 +7,26 @@ package mytinylogger;
  */
 public enum LoggerLevel {
     /**
-     * Silent as in Quiet.
+     * show most info.
      */
-    MUTE, WARN, ERROR,
-    /**
-     * Default level
-     */
-    INFO,
+    FINE,
     /**
      * show more info.
      */
     DEBUG,
     /**
-     * show most info.
+     * Default level
      */
-    FINE;
+    INFO,
+    WARN,
+    ERROR,
+    /**
+     * Silent as in Quiet. shut up.
+     */
+    MUTE;
 
-    public boolean greaterEqual(LoggerLevel other) {
-        return this.compareTo( other ) >= 0;
+    public boolean greaterEqual(LoggerLevel current) {
+        return this.compareTo( current ) >= 0;
     }
 
 }

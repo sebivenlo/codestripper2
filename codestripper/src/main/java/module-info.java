@@ -6,8 +6,6 @@
  */
 
 module codestripper {
-    requires java.logging;
     requires info.picocli;
     exports codestripper;
-
 }
