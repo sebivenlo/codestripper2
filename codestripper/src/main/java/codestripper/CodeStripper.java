@@ -85,8 +85,7 @@ public final class CodeStripper {
 
     private void process(Path javaFile, Archiver archiver) {
         fileCount++;
-        try ( var factory = new ProcessorFactory( javaFile, logger ).logLevel(
-                LoggerLevel.FINE ); ) {
+        try ( var factory = new ProcessorFactory( javaFile, logger ); ) {
             var lines = Files.lines( javaFile ).toList();
             // unprocessed files go to solution
             archiver.addSolutionLines( javaFile, lines );
@@ -218,7 +217,7 @@ public final class CodeStripper {
             CodeStripper result = null;
             if ( logger == null ) {
                 System.err.println(
-                        "warning logger not configured, using default SystemstreamLog" );
+                        "warning logger not configured, using default System.out." );
                 logger = new Logger();
             }
             try {

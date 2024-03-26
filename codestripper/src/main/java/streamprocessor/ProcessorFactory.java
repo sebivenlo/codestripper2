@@ -22,7 +22,7 @@ import mytinylogger.Logger;
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
 public class ProcessorFactory implements Function<String, Stream<String>>,
-        AutoCloseable {
+                                         AutoCloseable {
 
     /**
      * what we consider java files.
@@ -50,6 +50,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
         this( JAVA_PATH, "cs", logger );
     }
     Path expandedProject;
+    final Path pwd = Path.of( System.getProperty( "user.dir" ) );
 
     /**
      * Create a factory for the given file and specify the tag
@@ -66,18 +67,20 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
         this.logger = logger;
         myPreciousRegex
                 = "(?<indent>\\s*)" //optional indentation
-                + "(?<text>\\S.*)?" // anything other starting with non space
-                + "(?<commentToken>" + commentToken + ")" // mandatory comment token
-                + tag // required tag, split over two lines to self-protect against stripping
-                + ":"
-                + "(?<instruction>\\w+)" // required instruction group
-                + "(:(?<startEnd>(start|end)))?" // optional start end group
-                + ":?(?<payLoad>(.*$))?" // optional  payLoad
+                  + "(?<text>\\S.*)?" // anything other starting with non space
+                  + "(?<commentToken>" + commentToken + ")" // mandatory comment token
+                  + tag // required tag, split over two lines to self-protect against stripping
+                  + ":"
+                  + "(?<instruction>\\w+)" // required instruction group
+                  + "(:(?<startEnd>(start|end)))?" // optional start end group
+                  + ":?(?<payLoad>(.*$))?" // optional  payLoad
                 ;
         pattern = Pattern.compile( myPreciousRegex );
         this.transforms = new HashMap<>( defaultTransforms );
         logger.debug(
-                () -> "start stripping \033[36m" + filePath.toString() + "\033[m" );
+                () -> "start stripping     \033[36m" + pwd
+                        .relativize( filePath )
+                        .toString() + "\033[m" );
     }
 
     /**
@@ -103,7 +106,10 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
      *
      */
     public String[] getInstructions() {
-        return transforms.keySet().stream().sorted().toArray( String[]::new );
+        return transforms.keySet()
+                .stream()
+                .sorted()
+                .toArray( String[]::new );
     }
 
     /**
@@ -122,7 +128,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
         lineNumber++;
         Matcher m = pattern.matcher( line );
         if ( m.matches() ) {
-            String instruction = m.group( "instruction" ).trim();
+            String instruction = m.group( "instruction" )
+                    .trim();
             var startEndText = m.group( "startEnd" );
             // avoid NPE on lines without startEnd
             var startEnd = null == startEndText ? "" : startEndText;
@@ -143,7 +150,9 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
             if ( "end".equals( startEnd ) ) {
                 activeTransformation = nop;
                 transformation = remove;
-                if ( openStart.peek().instruction().equals( instruction ) ) {
+                if ( openStart.peek()
+                        .instruction()
+                        .equals( instruction ) ) {
                     openStart.pop();
                 }
             }
@@ -154,7 +163,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
                 openStart.push( result );
             }
             logger.fine( () -> "executing instruction \033[36m" + startEnd + " "
-                    + result.instruction() + "\033[m at line " + lineNumber + ": \033[36m[" + line + "]\033[m" );
+                               + result.instruction() + "\033[m at line " + lineNumber + ": \033[36m[" + line + "]\033[m" );
             return result;
         }
         // lines without instructions are subject to activeTansformation
@@ -186,8 +195,10 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
 
     Stream<String> include(Processor proc) {
         try {
-            return Files.lines( Path.of( proc.payLoad().trim() ) ).map(
-                    l -> proc.indent() + l );
+            return Files.lines( Path.of( proc.payLoad()
+                    .trim() ) )
+                    .map(
+                            l -> proc.indent() + l );
         } catch ( IOException ex ) {
 
             logger.error( () -> ex.getMessage() );
@@ -200,7 +211,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     final Function<Processor, Stream<String>> add = p -> of( p.indent() + p
             .payLoad() );
     final Function<Processor, Stream<String>> uncomment
-            = p -> of( p.indent() + p.text().replaceFirst( "//", "" ) );
+            = p -> of( p.indent() + p.text()
+                    .replaceFirst( "//", "" ) );
     final Function<Processor, Stream<String>> comment = this::comment;
 //            = p -> of( p.indent() + "//" + p.text() );
     final Function<Processor, Stream<String>> nop
@@ -210,28 +222,37 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     final Function<Processor, Stream<String>> include
             = this::include;
     final Function<Processor, Stream<String>> UPPER
-            = p -> Stream.of( p.text().toUpperCase() );
+            = p -> Stream.of( p.text()
+                    .toUpperCase() );
     final Function<Processor, Stream<String>> lower
-            = p -> Stream.of( p.text().toLowerCase() );
+            = p -> Stream.of( p.text()
+                    .toLowerCase() );
     static final Function<Processor, Stream<String>> replaceFirst
             = ( Processor p ) -> {
-                String separator = p.payLoad().substring( 0, 1 );
-                String[] split = p.payLoad().substring( 1 ).split( separator );
-                String result = p.text().replaceFirst( split[ 0 ], split[ 1 ] );
+        String separator = p.payLoad()
+                .substring( 0, 1 );
+        String[] split = p.payLoad()
+                .substring( 1 )
+                .split( separator );
+        String result = p.text()
+                .replaceFirst( split[ 0 ], split[ 1 ] );
                 return of( result );
             };
     static final Function<Processor, Stream<String>> replaceAll
             = ( Processor p ) -> {
-                String separator = p.payLoad().substring( 0, 1 );
-                String[] split = p.payLoad().split( separator, 2 );
-                String result = p.text().replaceAll( split[ 0 ], split[ 1 ] );
+        String separator = p.payLoad()
+                .substring( 0, 1 );
+        String[] split = p.payLoad()
+                .split( separator, 2 );
+        String result = p.text()
+                .replaceAll( split[ 0 ], split[ 1 ] );
                 return of( result );
             };
 
     Function<Processor, Stream<String>> activeTransformation = nop;
     final Processor deathTrap = new Processor( "", "", ignore,
             "ignore", 0, "//" // keep line break to prevent this from break
-            + "cs:ignore", "", "start" );
+                         + "cs:ignore", "", "start" );
 
     // lookup
     final Map<String, Function<Processor, Stream<String>>> defaultTransforms = Map
@@ -258,19 +279,20 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     final Stream<String> comment(Processor p) {
         String result = p.indent() + "//" + p.text();
         logger.fine( () -> "comment  line " + p.lineNumber()
-                + ": [\033[37;2m" + result + "\033[m]" );
+                           + ": [\033[37;2m" + result + "\033[m]" );
 
         return Stream.of( result );
     }
 
     final Stream<String> remove(Processor p) {
-        if ( !p.payLoad().isBlank() ) {
+        if ( !p.payLoad()
+                .isBlank() ) {
             logger.fine( () -> "replaced line " + p.lineNumber()
                                + ": [\033[33m" + p.indent() + p.payLoad() + "\033[m]" );
             return Stream.of( p.indent() + p.payLoad() );
         }
         logger.fine( () -> "removed line '" + p.lineNumber()
-                + ": [\033[2;37;9m" + p.line() + "\033[m]" );
+                           + ": [\033[2;37;9m" + p.line() + "\033[m]" );
         return Stream.empty();
     }
     /**
@@ -280,7 +302,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     final String commentToken;
 
     static String commentTokenFor(Path p) {
-        var filename = p.getFileName().toString();
+        var filename = p.getFileName()
+                .toString();
         int lastIndex = filename.lastIndexOf( "." );
         if ( lastIndex < 0 ) {
             return "#";
@@ -324,7 +347,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
         StringBuilder sb = new StringBuilder();
         while ( !openStart.isEmpty() ) {
             Processor top = openStart.pop();
-            sb.append( "\n\t" ).append( top.lineNumber() )
+            sb.append( "\n\t" )
+                    .append( top.lineNumber() )
                     .append( " :'" )
                     .append( top.line() )
                     .append( "´" );
@@ -351,7 +375,8 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     @Override
     public void close() throws Exception {
         logger.debug(
-                () -> "finished stripping \033[36m" + filePath + "\033[m" );
+                () -> "finished stripping  \033[36m" + pwd
+                        .relativize( filePath ) + "\033[m" );
     }
 
 }

@@ -22,13 +22,13 @@ import picocli.CommandLine.Option;
 public class CodeStripperMain implements Callable<Integer> {
 
     @Option( names = { "-x", "--extras" },
-             description = "extra files to add not within this directory or its children",
+             description = "comma separated extra files to add not within this directory or its children.",
              arity = "1..*"
     )
-    private List<String> extras = List.of();
+    private String extras = "";
 
     @Option( names = { "-v", "--verbosity" },
-             description = "Level of detail output.",
+             description = "Level of detail output. Values from verbose to quiet: FINE, DEBUG, INFO(default), WARNING, ERROR, MUTE(absolute silence)",
              defaultValue = "INFO" )
     LoggerLevel verbosity = LoggerLevel.INFO;
 
@@ -54,7 +54,7 @@ public class CodeStripperMain implements Callable<Integer> {
                 = new CodeStripper.Builder()
                         .pathLocations( locations )
                         .logger( logger )
-                        .extraResources( extras )
+                        .extraResources( List.of( extras.split( "," ) ) )
                         .build();
 
         for ( String s : locations.toString()

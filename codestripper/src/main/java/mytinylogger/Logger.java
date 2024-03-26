@@ -16,7 +16,7 @@ import static mytinylogger.LoggerLevel.*;
  */
 public class Logger {
 
-    LoggerLevel level = LoggerLevel.MUTE;
+    private volatile LoggerLevel level = LoggerLevel.MUTE;
 
     PrintStream out;
 

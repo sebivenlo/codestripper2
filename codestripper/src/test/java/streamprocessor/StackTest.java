@@ -22,7 +22,7 @@ public class StackTest {
     @DisplayName( "full coverage with one test" )
     @Test
     public void testStack() {
-        Stack<String> stack = new Stack();
+        Stack<String> stack = new Stack<>();
 
         List<String> input = List.of( "A", "B", "C", "D", "E", "F" );
         for ( String s : input ) {

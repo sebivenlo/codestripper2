@@ -73,10 +73,11 @@ public class ZipperTest extends StripperTestBase {
         return count;
     }
 
+    @SafeVarargs
     static boolean hasAllEntries(Path pokZip, String... entryNames) throws IOException {
         ZipFile z = new ZipFile( pokZip.toFile() );
 
-        final Set set = new HashSet( List.of( entryNames ) );
+        final Set<String> set = new HashSet<>( List.of( entryNames ) );
         Enumeration<? extends ZipEntry> entries = z.entries();
 
         var list = Collections.list( entries );

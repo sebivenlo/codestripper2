@@ -104,7 +104,7 @@ public class LoggerTest implements AppendAndClear {
     @DisplayName( "check level usage" )
     @ParameterizedTest
     @CsvSource( {
-        // level, msg, expected
+        //current, log level, msg, expected
         "INFO,ERROR,Hello,Hello",
         "INFO,WARN,Hello,Hello",
         "INFO,INFO,Hello,Hello", //
@@ -133,15 +133,20 @@ public class LoggerTest implements AppendAndClear {
             case DEBUG -> logger.debug( () -> msg );
             case FINE -> logger.fine( () -> msg );
         }
-        logger.logAtLevel( level, () -> msg );
+//        logger.logAtLevel( level, () -> msg );
         if ( null == output || output.isEmpty() ) {
             assertThat( buffer.toString() )
                     .isEmpty();
         } else {
             assertThat( buffer.toString() )
-                    .contains( output );
+                    .contains( level.name(), output );
 
         }
 //        fail( "method EffectiveLevel reached end. You know what to do." );
+    }
+
+    @AfterEach
+    public void cleanup() {
+        this.clear();
     }
 }
