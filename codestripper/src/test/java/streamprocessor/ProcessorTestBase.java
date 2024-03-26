@@ -1,11 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package streamprocessor;
 
-import mytinylogger.DefaultLogger;
-import loggerwrapper.Logger;
+import mytinylogger.Logger;
 
 /**
  * Helper to define logger.
@@ -14,7 +9,7 @@ import loggerwrapper.Logger;
  */
 public class ProcessorTestBase {
 
-    final Logger logger = new DefaultLogger();
+    final Logger logger = new Logger();
 
     ProcessorFactory newProcessorFactory() {
         return new ProcessorFactory( logger );

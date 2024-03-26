@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import static java.nio.file.Path.of;
 import static java.lang.System.getProperty;
 import java.util.Objects;
-import loggerwrapper.Logger;
+import mytinylogger.Logger;
 
 /**
  * Set of locations.

@@ -1,8 +1,7 @@
 package mytinyloggertest;
 
-import loggerwrapper.Logger;
-import mytinylogger.DefaultLogger;
-import static loggerwrapper.LoggerLevel.*;
+import mytinylogger.Logger;
+import static mytinylogger.LoggerLevel.*;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.DisplayName;
@@ -11,15 +10,15 @@ import org.junit.jupiter.api.DisplayName;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class DefaultLoggerTest implements AppendAndClear {
+public class LoggerTest implements AppendAndClear {
 
-     public DefaultLoggerTest() {
+    public LoggerTest() {
     }
 
     StringBuilder buffer = new StringBuilder();
     @Test
     public void testLevel() {
-        Logger logger = new DefaultLogger();
+        Logger logger = new Logger();
         assertThat( logger.level() ).isEqualTo( MUTE );
 
     }
@@ -28,7 +27,7 @@ public class DefaultLoggerTest implements AppendAndClear {
     @Test @DisplayName( "can I change the level" )
     public void testSetLevel() {
 
-        Logger logger = new DefaultLogger().level( INFO );
+        Logger logger = new Logger().level( INFO );
         assertThat( logger.level() ).isEqualTo( INFO );
 
 //        fail( "method SetLevel reached end. You know what to do." );
@@ -50,7 +49,7 @@ public class DefaultLoggerTest implements AppendAndClear {
     @Test @DisplayName( "that that logger prints" )
     public void testLogs() {
         ConsoleOutput consoleOutput = new ConsoleOutput( this );
-        Logger logger = new DefaultLogger( consoleOutput.asPrintStream() )
+        Logger logger = new Logger( consoleOutput.asPrintStream() )
                 .level( INFO );
         logger.info( () -> "Hello" );
         assertThat( consoleOutput.toString() ).isNotEmpty();
@@ -61,7 +60,7 @@ public class DefaultLoggerTest implements AppendAndClear {
     @Test @DisplayName( "lower is silence" )
     public void testLogsMUTE() {
         ConsoleOutput consoleOutput = new ConsoleOutput( this );
-        Logger logger = new DefaultLogger( consoleOutput.asPrintStream() )
+        Logger logger = new Logger( consoleOutput.asPrintStream() )
                 .level( MUTE );
         logger.info( () -> "Hello" );
         assertThat( consoleOutput.toString() ).isEmpty();
@@ -72,7 +71,7 @@ public class DefaultLoggerTest implements AppendAndClear {
     @Test @DisplayName( "warning shouts" )
     public void testLogsWARN() {
         ConsoleOutput consoleOutput = new ConsoleOutput( this );
-        Logger logger = new DefaultLogger( consoleOutput.asPrintStream() )
+        Logger logger = new Logger( consoleOutput.asPrintStream() )
                 .level( INFO );
         logger.warn( () -> "Hello" );
         assertThat( consoleOutput.toString() ).isNotEmpty();
@@ -82,7 +81,7 @@ public class DefaultLoggerTest implements AppendAndClear {
     @Test @DisplayName( "warning yells" )
     public void testLogsError() {
         ConsoleOutput consoleOutput = new ConsoleOutput( this );
-        Logger logger = new DefaultLogger( consoleOutput.asPrintStream() )
+        Logger logger = new Logger( consoleOutput.asPrintStream() )
                 .level( INFO );
         logger.error( () -> "Hello" );
         assertThat( buffer.toString() ).contains( "Hello" );

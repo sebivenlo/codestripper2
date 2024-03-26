@@ -1,7 +1,6 @@
 package codestripper;
 
-import loggerwrapper.Logger;
-import loggerwrapper.LoggerLevel;
+import mytinylogger.LoggerLevel;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,7 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import mytinylogger.DefaultLogger;
+import mytinylogger.Logger;
 
 import streamprocessor.ProcessorFactory;
 
@@ -25,7 +24,6 @@ public final class CodeStripper {
      */
     private final boolean dryRun;
     private final Logger logger;
-    LoggerLevel logLevel = LoggerLevel.INFO;
 
     /**
      * Do the work starting at the root.
@@ -221,7 +219,7 @@ public final class CodeStripper {
             if ( logger == null ) {
                 System.err.println(
                         "warning logger not configured, using default SystemstreamLog" );
-                logger = new DefaultLogger();
+                logger = new Logger();
             }
             try {
                 result = new CodeStripper( logger, dryRun, locations )

@@ -27,40 +27,49 @@ public class ZipperTest extends StripperTestBase {
 
     @Test @DisplayName( "some story line" )
     public void testAddLines() throws IOException, Exception {
-        Path pukZip = locations.out().resolve( "puk.zip" );
-        try (
-                Zipper zipper = new Zipper( pukZip ); ) {
+        Path pukZip = locations.out()
+                .resolve( "puk.zip" );
+        try ( Zipper zipper = new Zipper( log, pukZip ); ) {
             Path pom = Path.of( "pom.xml" );
-            assertThat( pom ).isNotNull();
+            assertThat( pom )
+                    .isNotNull();
             zipper.add( pom, List.of( "<project>"
-                    + "Hello", "world", "</project>" ) );
-            assertThat( pukZip ).exists();
+                                      + "Hello", "world", "</project>" ) );
+            assertThat( pukZip )
+                    .exists();
         }
 //        fail( "method AddFile reached end. You know what to do." );
     }
 
     @Test @DisplayName( "adding entry with path to zip" )
     public void testAddFile() throws Exception {
-        Path pokZip = locations.out().resolve( "pok.zip" );
+        Path pokZip = locations.out()
+                .resolve( "pok.zip" );
         Path pom = Path.of( "pom.xml" );
-        assumeThat( pom ).exists();
-        var pathInZip = Path.of( "far", "far", "away" ).resolve( pom );
+        assumeThat( pom )
+                .exists();
+        var pathInZip = Path.of( "far", "far", "away" )
+                .resolve( pom );
 
-        try (
-                Zipper zipper = new Zipper( pokZip ); ) {
+        try ( Zipper zipper = new Zipper( log, pokZip ); ) {
             zipper.add( pathInZip, pom );
         }
-        assertThat( pokZip ).exists();
+        assertThat( pokZip )
+                .exists();
         long count = countZipEntries( pokZip );
-        assertThat( count ).isEqualTo( 1 );
-        assertThat( hasAllEntries( pokZip, pathInZip.toString() ) ).isTrue();
+        assertThat( count )
+                .isEqualTo( 1 );
+        assertThat( hasAllEntries( pokZip, pathInZip.toString() ) )
+                .isTrue();
 //        fail( "method AddFile reached end. You know what to do." );
     }
 
     static long countZipEntries(Path pokZip) throws IOException {
         ZipFile z = new ZipFile( pokZip.toFile() );
         Enumeration<? extends ZipEntry> entries = z.entries();
-        long count = Collections.list( entries ).stream().count();
+        long count = Collections.list( entries )
+                .stream()
+                .count();
         return count;
     }
 

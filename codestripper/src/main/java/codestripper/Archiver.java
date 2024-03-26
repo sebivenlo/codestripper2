@@ -1,12 +1,12 @@
 package codestripper;
 
-import loggerwrapper.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.Predicate;
+import mytinylogger.Logger;
 
 /**
  * Archives for codestripper.
@@ -37,10 +37,11 @@ final class Archiver implements AutoCloseable {
             throws IOException {
         this.locations = locations;
         this.logger = log;
-        this.solution = new Zipper( this.locations.out()
+        this.solution = new Zipper( logger, this.locations.out()
                 .resolve( "solution.zip" ) );
-        assignment = new Zipper( this.locations.out().resolve( this.locations
-                .assignmentName() + ".zip" ) );
+        assignment = new Zipper( logger, this.locations.out()
+                .resolve( this.locations
+                        .assignmentName() + ".zip" ) );
     }
     final Zipper solution;
     final Zipper assignment;
@@ -58,7 +59,8 @@ final class Archiver implements AutoCloseable {
     void addAssignmentLines(Path file, List<String> lines) throws IOException {
         Path pathInZip = pathInZip( "assignment", file );
         addLinesToZip( assignment, pathInZip, lines );
-        Path targetFile = locations.expandedArchive().resolve( pathInZip );
+        Path targetFile = locations.expandedArchive()
+                .resolve( pathInZip );
         Files.createDirectories( targetFile.getParent() );
         Files.write( targetFile, lines );
     }
@@ -130,7 +132,8 @@ final class Archiver implements AutoCloseable {
             logger.debug( () -> "considering extra resource " + extraResource );
             try {
 
-                var toZip = locations.inWorkFile( extraResource ).normalize();
+                var toZip = locations.inWorkFile( extraResource )
+                        .normalize();
                 if ( Files.notExists( toZip ) ) {
                     logger.warn(
                             () -> "file resource does not exist \033[33m " + toZip
@@ -144,7 +147,8 @@ final class Archiver implements AutoCloseable {
                 } else if ( Files.isDirectory( toZip ) ) {
                     Files.walk( toZip, Integer.MAX_VALUE )
                             .filter( f -> locations.acceptablePath( f ) )
-                            .map( f -> locations.work().relativize( f ) )
+                            .map( f -> locations.work()
+                            .relativize( f ) )
                             .peek( f -> logger.info(
                             () -> "adding file \033[32m" + f + "\033[m" ) )
                             .forEach( p -> addFile( p ) );

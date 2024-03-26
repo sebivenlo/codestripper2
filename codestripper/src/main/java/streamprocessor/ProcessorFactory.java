@@ -1,7 +1,7 @@
 package streamprocessor;
 
-import loggerwrapper.LoggerLevel;
-import static loggerwrapper.LoggerLevel.FINE;
+import mytinylogger.LoggerLevel;
+import static mytinylogger.LoggerLevel.FINE;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import static java.util.stream.Stream.of;
-import loggerwrapper.Logger;
+import mytinylogger.Logger;
 
 /**
  * Creator of Processor boxes based on the content os strings and previous
@@ -266,7 +266,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
     final Stream<String> remove(Processor p) {
         if ( !p.payLoad().isBlank() ) {
             logger.fine( () -> "replaced line " + p.lineNumber()
-                    + ": [\033[33m" + p.line() + "\033[m]" );
+                               + ": [\033[33m" + p.indent() + p.payLoad() + "\033[m]" );
             return Stream.of( p.indent() + p.payLoad() );
         }
         logger.fine( () -> "removed line '" + p.lineNumber()
@@ -332,8 +332,6 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
         return sb.toString();
     }
 
-    private LoggerLevel logLevel = FINE;
-
     /**
      * Set the logging level.
      *
@@ -341,7 +339,7 @@ public class ProcessorFactory implements Function<String, Stream<String>>,
      * @return this.
      */
     public ProcessorFactory logLevel(LoggerLevel level) {
-        this.logLevel = level;
+        this.logger.level( level );
         return this;
     }
 

@@ -1,7 +1,7 @@
 package io.github.sebivenlo.codestripperplugin;
 
 import codestripper.CodeStripper;
-import loggerwrapper.LoggerLevel;
+import mytinylogger.LoggerLevel;
 import codestripper.PathLocations;
 import java.io.IOException;
 import java.nio.file.Files;

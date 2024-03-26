@@ -4,10 +4,10 @@
  */
 package io.github.sebivenlo.codestripperplugin;
 
-import static loggerwrapper.LoggerLevel.*;
+import static mytinylogger.LoggerLevel.*;
 import java.util.function.Supplier;
 import loggerwrapper.Logger;
-import loggerwrapper.LoggerLevel;
+import mytinylogger.LoggerLevel;
 import org.apache.maven.plugin.logging.Log;
 
 /**

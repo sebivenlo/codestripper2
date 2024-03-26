@@ -5,8 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
-import mytinylogger.DefaultLogger;
-import loggerwrapper.Logger;
+import mytinylogger.Logger;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.core.api.Assertions.*;
 import org.assertj.core.api.Assertions;
@@ -20,7 +19,7 @@ public class StripperTestBase {
 
     Path tempDir;
 //    Path pwd = Path.of( System.getProperty( "user.dir" ) );
-    final Logger log = new DefaultLogger();
+    final Logger log = new Logger();
     //    String projectName = pwd.getFileName().toString();
     //    Path expandedArchive;
 

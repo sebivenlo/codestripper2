@@ -4,7 +4,7 @@
  */
 package codestripper;
 
-import loggerwrapper.LoggerLevel;
+import mytinylogger.LoggerLevel;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,7 +53,6 @@ public class CodeStripperTest extends StripperTestBase {
         System.out.println( "road kill src = " + roadKill );
 //        Path source = pwd.resolve( src );
         assumeThat( locations.work().resolve( roadKill ) ).exists();
-        stripper.logLevel = LoggerLevel.MUTE;
         Path output = stripper.strip();
         System.out.println( "stripper output = " + output );
         assertThat( output ).exists();
@@ -73,7 +72,6 @@ public class CodeStripperTest extends StripperTestBase {
         System.out.println( "workRelative = " + workRelative );
         assumeThat( workRelative ).exists();
         long size1 = Files.size( locations.workRelative( roadKill ) );
-        stripper.logLevel = LoggerLevel.FINE;
         stripper.strip();
         Path expandedArchive = locations.out().resolve( "expandedArchive" );
         Path inArchive = Path.of( locations.assignmentName(), locations
@@ -97,7 +95,6 @@ public class CodeStripperTest extends StripperTestBase {
                 .logger( log )
                 .pathLocations( locations )
                 .build();
-        stripper.logLevel = LoggerLevel.FINE;
         Path output = stripper.strip();
         System.out.println( "outDir = " + output );
         assertThat( locations.expandedArchive().resolve( locations
@@ -112,7 +109,6 @@ public class CodeStripperTest extends StripperTestBase {
     @Test @DisplayName( "are assignment files such as pom.xml added properly" )
     public void testAddAssignmentFiles() throws IOException {
         assumeThat( Path.of( "pom.xml" ) ).exists();
-        stripper.logLevel = LoggerLevel.FINE;
         Path output = stripper.strip();
         System.out.println( "output = " + output );
         assumeThat( output ).exists();

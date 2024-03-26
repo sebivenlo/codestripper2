@@ -7,10 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import mytinylogger.Logger;
 
 /**
  * Creates zip file and adds content to it with given files names and lines of
@@ -23,14 +22,17 @@ class Zipper implements AutoCloseable {
     final Path zipFile;
     FileOutputStream fos;
     ZipOutputStream zos;
+    final Logger logger;
 
     /**
      * Create a zipper ready to receive content.
      *
      * @param zipFileName sic
      */
-    public Zipper(Path zipFile) {
+    public Zipper(Logger logger, Path zipFile) {
+        Objects.requireNonNull( logger );
         Objects.requireNonNull( zipFile );
+        this.logger = logger;
         this.zipFile = zipFile;
     }
 
@@ -55,8 +57,7 @@ class Zipper implements AutoCloseable {
             }
             zos.closeEntry();
         } catch ( IOException ex ) {
-            Logger.getLogger( CodeStripper.class.getName() )
-                    .log( Level.SEVERE, null, ex );
+            logger.error( () -> ex.getMessage() );
         }
     }
 
@@ -91,14 +92,11 @@ class Zipper implements AutoCloseable {
                 }
                 zos.closeEntry();
             } catch ( IOException ex ) {
-                Logger.getLogger( Zipper.class.getName() ).log( Level.SEVERE,
-                        null,
-                        ex );
+                logger.error( () -> ex.getMessage() );
                 throw new RuntimeException( ex );
             }
         } catch ( IOException ex ) {
-            Logger.getLogger( Zipper.class.getName() ).log( Level.SEVERE, null,
-                    ex );
+            logger.error( () -> ex.getMessage() );
             throw new RuntimeException( ex );
         }
     }
@@ -117,8 +115,7 @@ class Zipper implements AutoCloseable {
             fos = new FileOutputStream( zipFile.toFile() );
             zos = new ZipOutputStream( fos );
         } catch ( IOException ex ) {
-            Logger.getLogger( CodeStripper.class.getName() )
-                    .log( Level.SEVERE, null, ex );
+            logger.error( () -> ex.getMessage() );
             throw new RuntimeException( ex );
         }
     }

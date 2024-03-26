@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import mytinylogger.DefaultLogger;
-import loggerwrapper.Logger;
-import loggerwrapper.LoggerLevel;
+import java.util.concurrent.Callable;
+import mytinylogger.Logger;
+import mytinylogger.LoggerLevel;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 /**
@@ -14,46 +16,45 @@ import picocli.CommandLine.Option;
  *
  * @author Pieter van den Hombergh {@code <pieter.van.den.hombergh@gmail.com>}
  */
-public class CodeStripperMain {
+@Command( name = "codestripper", mixinStandardHelpOptions = true,
+          version = "codestripper 0.4",
+          description = "Strips code and packages assignment and solution." )
+public class CodeStripperMain implements Callable<Integer> {
 
     @Option( names = { "-x", "--extras" },
-             description = "extra files to add not within this directory or its children" )
+             description = "extra files to add not within this directory or its children",
+             arity = "1..*"
+    )
     private List<String> extras = List.of();
 
     @Option( names = { "-v", "--verbosity" },
-             description = "Level of detail output." )
+             description = "Level of detail output.",
+             defaultValue = "INFO" )
     LoggerLevel verbosity = LoggerLevel.INFO;
 
     @Option( names = { "-b", "--basedir" },
              description = "project base directory" )
     String baseDir = System.getProperty( "user.dir" );
 
-    /**
-     * Entry of program.
-     *
-     * @param args not used
-     * @throws IOException should not occur.
-     * @throws java.lang.InterruptedException for the impatient.
-     */
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Path outDir = Path.of( System.getProperty( "user.dir" ) )
-                .resolve(
-                        "target" )
+    @Option( names = { "-h", "--help" }, usageHelp = true,
+             description = "display a help message" )
+    private boolean helpRequested = false;
+
+    public Integer call() throws Exception {
+        if ( helpRequested ) {
+            return 0;
+        }
+        Path outDir = Path.of( baseDir )
+                .resolve( "target" )
                 .resolve( "stripper-out" );
         Files.createDirectories( outDir );
-        var verb = System.getProperty( "codestripper.verbosity", "INFO" );
-        var verbosity = LoggerLevel.INFO;
-        try {
-            verbosity = LoggerLevel.valueOf( verb );
-        } catch ( Throwable ignored ) {
-        }
-        Logger logger = new DefaultLogger().level( verbosity );
+        Logger logger = new Logger().level( verbosity );
         PathLocations locations = new PathLocations( logger, outDir );
         CodeStripper codeStripper
                 = new CodeStripper.Builder()
                         .pathLocations( locations )
                         .logger( logger )
-                        .extraResources( List.of( "../README.md", "../images" ) )
+                        .extraResources( extras )
                         .build();
 
         for ( String s : locations.toString()
@@ -63,6 +64,20 @@ public class CodeStripperMain {
         logger.info( () -> "config stripped project [\033[32m" + locations
                 .strippedProject() + "\033[m]" );
         codeStripper.strip();
+
+        return 0;
+    }
+
+    /**
+     * Entry of program.
+     *
+     * @param args not used
+     * @throws IOException should not occur.
+     * @throws java.lang.InterruptedException for the impatient.
+     */
+    public static void main(String[] args) throws IOException, InterruptedException {
+        int exitCode = new CommandLine( new CodeStripperMain() ).execute( args );
+        System.exit( exitCode );
     }
 
     /**
