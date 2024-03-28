@@ -35,8 +35,8 @@ public class TagMigrator {
      * Regexes are costly to compose.
      */
     public static final Pattern myPreciousPattern = Pattern.compile(
-            "(?<indent>\\s*)" // optinal identation
-            + "//(?<startEnd>(Start|End))" // required Start or End
+            "(?<indent>\\s*)" // optioal identation
+            + "//\\s?(?<startEnd>(Start|End))" // required Start or End
             + " Solution" // required space+word
             + "(::replace[Ww]ith::(?<payLoad>.*))?" // optional payload
     );

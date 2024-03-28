@@ -59,10 +59,10 @@ public class TagMigratorTest {
     @ParameterizedTest
     @DisplayName( "test the regex" )
     @CsvSource( {
-        "//Start Solution,5",
-        "//Start Solution::replaceWith:://TODO ,5",
-        "//End Solution::replaceWith:://TODO ,5",
-        "//End Solution,5"//
+        "//Start" + " Solution,5",
+        "//Start" + " Solution::replaceWith:://TODO ,5",
+        "//End" + " Solution::replaceWith:://TODO ,5",
+        "//End" + " Solution,5"//
     } )
     public void testRegex(String line, int groupCount) {
         Matcher m = TagMigrator.myPreciousPattern.matcher( line );
